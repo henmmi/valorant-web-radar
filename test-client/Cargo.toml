@@ -1,0 +1,10 @@
+[package]
+name = "test-client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tungstenite = "0.13.0"
+url = "2.2.2"
+json = "*"
+rand = "*"
