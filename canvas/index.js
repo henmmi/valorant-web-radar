@@ -2,3 +2,6 @@
 // example.
 import('./pkg')
   .catch(console.error);
+import { display_image } from './pkg';
+import imagePath from './src/assets/Fracture.png';
+display_image(imagePath);

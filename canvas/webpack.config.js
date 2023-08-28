@@ -8,6 +8,14 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'index.js',
+        assetModuleFilename: './src/assets/[hash][ext][query]'
+    },
+    module: {
+        rules: [{
+            test: /\.(png|svg|jpg|gif)$/i,
+            type: 'asset/resource',
+            },
+        ],
     },
     plugins: [
         new HtmlWebpackPlugin({
