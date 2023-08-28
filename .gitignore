@@ -1,4 +1,4 @@
-/backend/target/*
+/backend/*
 /frontend/target/*
 /test-client/target/*
 /canvas/target/*
@@ -9,3 +9,4 @@
 /frontend/Cargo.lock
 /test-client/Cargo.lock
 /canvas/Cargo.lock
+/backend/target/
