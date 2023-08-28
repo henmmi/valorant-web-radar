@@ -10,3 +10,5 @@
 /test-client/Cargo.lock
 /canvas/Cargo.lock
 /backend/target/
+/canvas/node_modules/
+/frontend/node_modules/
