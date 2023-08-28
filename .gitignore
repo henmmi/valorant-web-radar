@@ -1,0 +1,11 @@
+/backend/target/*
+/frontend/target/*
+/test-client/target/*
+/canvas/target/*
+/.idea/*
+/frontend/dist/*
+/canvas/dist/*
+/backend/Cargo.lock
+/frontend/Cargo.lock
+/test-client/Cargo.lock
+/canvas/Cargo.lock
