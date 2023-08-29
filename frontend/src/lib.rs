@@ -34,7 +34,7 @@ pub fn app() -> Html {
     let _player1 = generate_player();
     html! {
         <svg id="map" width="500" height="500">
-            <image id="ascent" href="maps/ascent_minimap.png" width="500" height="500"/>
+            <image id="ascent" href="maps/Ascent.png" width="500" height="500"/>
         </svg>
     }
 }

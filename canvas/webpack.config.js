@@ -8,12 +8,14 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'index.js',
-        assetModuleFilename: './src/assets/[hash][ext][query]'
     },
     module: {
         rules: [{
             test: /\.(png|svg|jpg|gif)$/i,
             type: 'asset/resource',
+            generator: {
+                filename: 'images/[name]-[hash][ext]'
+            }
             },
         ],
     },
@@ -33,6 +35,6 @@ module.exports = {
     ],
     mode: 'development',
     experiments: {
-        asyncWebAssembly: true
+        asyncWebAssembly: true,
    }
 };
