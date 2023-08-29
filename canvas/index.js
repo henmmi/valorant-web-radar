@@ -24,6 +24,5 @@ window.showMap = function() {
 
 // Display player positions on canvas
 window.showPlayer = function() {
-    display_player_position(250, 250, "red");
-    display_player_position(300, 300, "blue");
+    display_player_position(1, 250, 250);
 }
