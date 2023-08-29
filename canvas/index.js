@@ -3,6 +3,7 @@
 import('./pkg')
   .catch(console.error);
 import { display_image } from './pkg';
+import { display_player_position } from './pkg';
 
 const mapContext = require.context('./src/assets', false, /\.(png)$/);
 
@@ -22,4 +23,6 @@ window.showMap = function() {
 }
 
 // Display player positions on canvas
-display_player_position(250,250);
+window.showPlayer = function() {
+    display_player_position(250, 250);
+}
