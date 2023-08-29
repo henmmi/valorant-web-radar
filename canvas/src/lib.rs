@@ -60,11 +60,11 @@ pub fn display_image(imagePath: &str) {
     closure.forget();
 }
 #[wasm_bindgen()]
-pub fn display_player_position(x: f64, y: f64){
+pub fn display_player_position(x: f64, y: f64, team: &str){
     let (canvas, context, document) = get_canvas_context_document();
     context.begin_path();
     context.arc(x, y, 10.0, 0.0, f64::consts::PI * 2.0).unwrap();
-    context.set_fill_style(&JsValue::from_str("red"));
+    context.set_fill_style(&JsValue::from_str(&team));
     context.fill();
     context.stroke();
 }
