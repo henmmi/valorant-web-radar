@@ -1,15 +1,20 @@
-# 2D Canvas
+# Setup and Installation
 
-[View documentation for this example online][dox] or [View compiled example
-online][compiled]
-
-[compiled]: https://rustwasm.github.io/wasm-bindgen/exbuild/canvas/
-[dox]: https://rustwasm.github.io/docs/wasm-bindgen/examples/2d-canvas.html
-
-You can build the example locally with:
+- [Rust and Cargo](https://rustup.rs/)
+- [Node.js and npm](https://nodejs.org/)
 
 ```
+$ rustup target add wasm32-unknown-unknown
+$ cargo install wasm-pack
+$ npm install
+$ cargo install wasm-bindgen-cli
+```
+
+# Build
+```
+$ cd canvas
+$ cargo build
 $ npm run serve
 ```
 
-and then visiting http://localhost:8080 in a browser should run the example!
+and then visiting http://localhost:8080 in a browser should run !

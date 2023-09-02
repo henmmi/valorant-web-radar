@@ -22,7 +22,7 @@ fn get_canvas_context_document() -> (HtmlCanvasElement, web_sys::CanvasRendering
     (canvas, context, document)
 }
 #[wasm_bindgen()]
-pub fn display_image(imagePath: &str) {
+pub fn change_map(image_path: &str) -> String {
     let (canvas, context, document) = get_canvas_context_document();
     
     context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
@@ -32,36 +32,22 @@ pub fn display_image(imagePath: &str) {
         .dyn_into::<web_sys::HtmlImageElement>()
         .unwrap();
     
-    image.set_src(imagePath);
-    
+    image.set_src(image_path);
     let image_clone = image.clone();
-    let context_clone = context.clone();
-    let canvas_clone = canvas.clone();
     let closure = Closure::wrap(Box::new(move || {
         // Get original image dimensions
-        let original_width = image_clone.width() as f64;
-        let original_height = image_clone.height() as f64;
-        
-        // Calculate scaling factors
-        let scale_width = canvas_clone.width() as f64 / original_width;
-        let scale_height = canvas_clone.height() as f64 / original_height;
-        
-        // Use the smallest scaling factor
-        let scale = scale_width.min(scale_height);
-        
-        // Calculate new image dimensions
-        let new_width = original_width * scale;
-        let new_height = original_height * scale;
-        context_clone.draw_image_with_html_image_element_and_dw_and_dh(&image_clone, 0.0, 0.0, new_width, new_height)
+        context.draw_image_with_html_image_element_and_dw_and_dh(&image_clone, 0.0, 0.0, 1024.0, 1024.0)
             .expect("Failed to draw the image");
     }) as Box<dyn FnMut()>);
         
         image.set_onload(Some(closure.as_ref().unchecked_ref()));
     closure.forget();
+    return image_path.to_string();
 }
+
 #[wasm_bindgen()]
 pub fn display_player_position(id: u32, x: f64, y: f64){
-    let (canvas, context, document) = get_canvas_context_document();
+    let (_, context, _) = get_canvas_context_document();
     
     // Determine team colour
     let team = match id {
