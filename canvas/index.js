@@ -1,9 +1,10 @@
-// For more comments about what's going on here, check out the `hello_world`
-// example.
 import('./pkg')
   .catch(console.error);
 import { change_map } from './pkg';
 import { display_player_position } from './pkg';
+import { websocket } from './pkg';
+
+websocket ("ws://localhost:27017");
 
 const mapContext = require.context('./src/assets', false, /\.(png)$/);
 
