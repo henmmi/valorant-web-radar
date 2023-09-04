@@ -1,14 +1,14 @@
-/backend/*
+/server/*
 /frontend/target/*
 /test-client/target/*
 /canvas/target/*
 /.idea/*
 /frontend/dist/*
 /canvas/dist/*
-/backend/Cargo.lock
+/server/Cargo.lock
 /frontend/Cargo.lock
 /test-client/Cargo.lock
 /canvas/Cargo.lock
-/backend/target/
+/server/target/
 /canvas/node_modules/
 /frontend/node_modules/
