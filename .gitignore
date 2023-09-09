@@ -12,4 +12,4 @@
 /server/target/
 /canvas/node_modules/
 /frontend/node_modules/
-/target/*
+/target/
