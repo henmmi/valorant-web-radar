@@ -14,3 +14,4 @@
 /frontend/node_modules/
 /target/
 /target/debug/*
+Cargo.lock

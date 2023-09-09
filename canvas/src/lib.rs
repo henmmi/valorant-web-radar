@@ -1,9 +1,9 @@
 mod components;
 
 use wasm_bindgen::prelude::*;
-use crate::components::open_websocket::open_websocket;
+use crate::components::websocket::websocket;
 
 #[wasm_bindgen(start)]
 pub fn start() {
-    open_websocket();
+    let ws= websocket("ws://localhost:27017");
 }

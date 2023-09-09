@@ -1,58 +1,90 @@
-use std::net::TcpListener;
-use tungstenite::{Message, accept};
-use std::thread::spawn;
-use std::sync::{Arc, Mutex};
+use futures_channel::mpsc::{unbounded, UnboundedSender};
+use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
+use std::{
+    collections::HashMap,
+    env,
+    io::Error as IoError,
+    net::SocketAddr,
+    sync::{Arc, Mutex},
+};
+use tokio::net::{TcpListener, TcpStream};
+use tokio_tungstenite::tungstenite::protocol::Message;
 
-type PeerMap = Arc<Mutex<Vec<tungstenite::WebSocket<std::net::TcpStream>>>>;
-pub type Broadcaster = dyn Fn(String) + Send;
-fn main() {
-    let _x = open_websocket();
-    loop {
-        // Keep the main thread alive.
-        // Maybe handle some main thread tasks here, if there are any.
-        std::thread::sleep(std::time::Duration::from_secs(1));
+type Tx = UnboundedSender<Message>;
+type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
+struct Server {
+    clients: Arc<Mutex<HashMap<SocketAddr, Tx>>>,
+}
+
+impl Server {
+    pub async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: SocketAddr) {
+        println!("Incoming TCP connection from: {}", addr);
+
+        let ws_stream = tokio_tungstenite::accept_async(raw_stream)
+            .await
+            .expect("Error during the websocket handshake occurred");
+        println!("WebSocket connection established: {}", addr);
+
+        // Insert the write part of this peer to the peer map.
+        let (tx, rx) = unbounded();
+        peer_map.lock().unwrap().insert(addr, tx);
+
+        let (outgoing, incoming) = ws_stream.split();
+
+        let broadcast_incoming = incoming.try_for_each(|msg| {
+            println!(
+                "Received a message from {}: {}",
+                addr,
+                msg.to_text().unwrap()
+            );
+            let peers = peer_map.lock().unwrap();
+
+            // We want to broadcast the message to everyone except ourselves.
+            let broadcast_recipients = peers
+                .iter()
+                .filter(|(peer_addr, _)| peer_addr != &&addr)
+                .map(|(_, ws_sink)| ws_sink);
+
+            for recp in broadcast_recipients {
+                recp.unbounded_send(msg.clone()).unwrap();
+            }
+
+            future::ok(())
+        });
+
+        let receive_from_others = rx.map(Ok).forward(outgoing);
+
+        pin_mut!(broadcast_incoming, receive_from_others);
+        future::select(broadcast_incoming, receive_from_others).await;
+
+        println!("{} disconnected", &addr);
+        peer_map.lock().unwrap().remove(&addr);
     }
 }
-fn open_websocket() -> Box<Broadcaster> {
-    let server = TcpListener::bind("localhost:27017")
-        .expect("[server] cannot bind to port");
-    // Create list to hold peers
-    let peers: PeerMap = Arc::new(Mutex::new(Vec::new()));
-    
-    println!("collecting peers");
-    
-    // Spawn thread to collect peers (connected clients)
-    let peers_clone = peers.clone();
-    // Closure to handle new clients
-    spawn(move || {
-        for stream in server.incoming() {
-            //Handle client
-            let client = accept(stream.unwrap()).unwrap();
-            println!("Registered new client");
-            
-            // Add a lock to peer
-            let mut peers_guard = peers_clone.lock().unwrap();
-            
-            if peers_guard.len() < 11 {
-                peers_guard.push(client);
-            } else {
-                println!("Too many clients connected");
-                continue;
-            }
-        }
-    });
-    
-    println!("create closure");
-    // Closure to handle messages from clients
-    return Box::new(move |msg| {
-        let mut peers_guard = peers.lock().unwrap();
-        for sock in peers_guard.iter_mut() {
-            let out = Message::from(msg.clone());
-            if let Err(e) = sock.send(out) {
-                println!("Error sending message: {:?}", e);
-            } else {
-                println!("Sent message to client");
-            }
-        }
-    });
+
+#[tokio::main]
+async fn main() -> Result<(), IoError> {
+    let addr = env::args()
+        .nth(1)
+        .unwrap_or_else(|| "127.0.0.1:27017".to_string());
+
+    let server = Server {
+        clients: Arc::new(Mutex::new(HashMap::new())),
+    };
+
+    // Create the event loop and TCP listener we'll accept connections on.
+    let try_socket = TcpListener::bind(&addr).await;
+    let listener = try_socket.expect("Failed to bind");
+    println!("Listening on: {}", addr);
+
+    // Let's spawn the handling of each connection in a separate task.
+    while let Ok((stream, addr)) = listener.accept().await {
+        tokio::spawn(Server::handle_connection(
+            server.clients.clone(),
+            stream,
+            addr,
+        ));
+    }
+
+    Ok(())
 }
