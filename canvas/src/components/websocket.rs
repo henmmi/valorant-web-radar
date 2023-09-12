@@ -1,15 +1,17 @@
+use crate::components::canvas::{clear_and_redraw, draw_players};
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
+
 #[derive(Deserialize, Debug)]
-struct Player {
-    x: [f64; 10],
-    y: [f64; 10],
-    health: [f64; 10],
-    team: [i32; 10],
-    dormant: [i32; 10],
+pub struct Player {
+    pub x: [f64; 10],
+    pub y: [f64; 10],
+    pub health: [f64; 10],
+    pub team: [i32; 10],
+    pub dormant: [i32; 10],
 }
 // Define macro for 'console_log' that functions like 'println!'
 macro_rules! console_log {
@@ -23,6 +25,7 @@ extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
+
 #[wasm_bindgen]
 pub fn websocket(url: &str) -> Result<(), JsValue> {
     // Create WebSocket connection.
@@ -37,6 +40,8 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
             let parsed_message: Result<Player, serde_json::Error> = serde_json::from_str(&txt_str);
             if let Ok(player) = parsed_message {
                 console_log!("Received player info: {:?}", player);
+                clear_and_redraw();
+                draw_players(player);
             } else if let Err(err) = parsed_message {
                 console_log!("Error parsing JSON: {:?}", err);
             }

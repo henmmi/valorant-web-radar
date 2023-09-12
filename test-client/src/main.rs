@@ -20,7 +20,7 @@ fn main() {
             _x.push(json::from(rng.gen_range(0.0..1000.0)));
             _y.push(json::from(rng.gen_range(0.0..1000.0)));
             _health.push(json::from(rng.gen_range(0.0..100.0)));
-            _team.push(json::from(rng.gen_range(0..1)));
+            _team.push(json::from(rng.gen_range(0..2)));
             _dormant.push(json::from(0));
         }
 
