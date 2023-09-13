@@ -1,9 +1,11 @@
-use crate::components::canvas::{clear_and_redraw, draw_players};
+use super::canvas::{clear_and_redraw, draw_players};
+use super::macros::{console_log, log};
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
+
 /// A player is a struct that contains the position, health, team, and dormant status of a player
 #[derive(Deserialize, Debug)]
 pub struct Player {
@@ -13,25 +15,18 @@ pub struct Player {
     pub team: [i32; 10],
     pub dormant: [i32; 10],
 }
-// Define macro for 'console_log' that functions like 'println!'
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-// Bindings for `console.log` manually
-#[wasm_bindgen]
-extern "C" {
-    // 'js_namespace' used to bind 'console.log(...)' instead of
-    // 'log(...)'
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
+/// A macro to provide `println!(..)`-style syntax for `console.log` logging.
+/// # Example
+/// ```
+/// use crate::components::websocket::console_log;
+/// console_log!("Hello {}!", "world");
+/// ```
 /// A web socket connection to the server
 /// # Arguments
 /// * `url` - The url to connect to the server
 /// # Example
 /// ```
-/// use crate::components::websocket::websocket;
+/// use super::websocket::websocket;
 /// let _ws = websocket("ws://localhost:27017");
 /// ```
 #[wasm_bindgen]

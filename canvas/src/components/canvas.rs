@@ -1,20 +1,9 @@
-use crate::components::websocket::Player;
+use super::macros::{console_log, log};
+use super::websocket::Player;
 use std::f64;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement;
-
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-// Bindings for `console.log` manually
-#[wasm_bindgen]
-extern "C" {
-    // 'js_namespace' used to bind 'console.log(...)' instead of
-    // 'log(...)'
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
 /// Getters for the canvas, context, and document
 /// # Returns
 /// * `canvas` - The canvas element
