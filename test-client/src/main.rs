@@ -1,10 +1,10 @@
-use std::{thread, time};
 use json::object;
-use tungstenite::{connect, Message};
-use url::{Url};
 use rand::Rng;
+use std::{thread, time};
+use tungstenite::{connect, Message};
+use url::Url;
 
-fn main()  {
+fn main() {
     let (mut socket, _response) = connect(Url::parse("ws://localhost:27017").unwrap())
         .expect("[test-client] cannot connect to socket");
 
@@ -16,17 +16,17 @@ fn main()  {
         let mut _dormant = json::Array::new();
         let mut rng = rand::thread_rng();
 
-        for i in 0..10 {
+        for _i in 0..10 {
             _x.push(json::from(rng.gen_range(0.0..1000.0)));
             _y.push(json::from(rng.gen_range(0.0..1000.0)));
             _health.push(json::from(rng.gen_range(0.0..100.0)));
-            _team.push(json::from(rng.gen_range(0..1)));
+            _team.push(json::from(rng.gen_range(0..2)));
             _dormant.push(json::from(0));
         }
 
         let data = object! {
-            "pos-x": _x,
-            "pos-y": _y,
+            "x": _x,
+            "y": _y,
             "health": _health,
             "team": _team,
             "dormant": _dormant,
