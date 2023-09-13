@@ -16,7 +16,7 @@ fn main() {
         let mut _dormant = json::Array::new();
         let mut rng = rand::thread_rng();
 
-        for i in 0..10 {
+        for _i in 0..10 {
             _x.push(json::from(rng.gen_range(0.0..1000.0)));
             _y.push(json::from(rng.gen_range(0.0..1000.0)));
             _health.push(json::from(rng.gen_range(0.0..100.0)));

@@ -15,7 +15,24 @@ type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 struct Server {
     clients: Arc<Mutex<HashMap<SocketAddr, Tx>>>,
 }
-
+/// Taken from tokio-tungstenite examples
+/// url: `<https://github.com/snapview/tokio-tungstenite>`
+/// # Summary
+/// Host a websocket server on the given address
+/// # Arguments
+/// * `addr` - The address to host the server on
+/// # Example
+/// ```
+/// use server::Server;
+/// let server = Server {
+///    clients: Arc::new(Mutex::new(HashMap::new())),
+/// };
+/// ```
+/// # Panics
+/// * If the server fails to bind to the given address
+/// # Returns
+/// * `Ok(())` - If the server successfully binds to the given address
+/// * `Err(IoError)` - If the server fails to bind to the given address
 impl Server {
     pub async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: SocketAddr) {
         println!("Incoming TCP connection from: {}", addr);

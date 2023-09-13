@@ -6,6 +6,6 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
 pub fn start() {
-    let ws = websocket("ws://localhost:27017");
+    let _ws = websocket("ws://localhost:27017");
     clear_and_redraw();
 }

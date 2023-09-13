@@ -4,7 +4,7 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
-
+/// A player is a struct that contains the position, health, team, and dormant status of a player
 #[derive(Deserialize, Debug)]
 pub struct Player {
     pub x: [f64; 10],
@@ -26,6 +26,14 @@ extern "C" {
     fn log(s: &str);
 }
 
+/// A web socket connection to the server
+/// # Arguments
+/// * `url` - The url to connect to the server
+/// # Example
+/// ```
+/// use crate::components::websocket::websocket;
+/// let _ws = websocket("ws://localhost:27017");
+/// ```
 #[wasm_bindgen]
 pub fn websocket(url: &str) -> Result<(), JsValue> {
     // Create WebSocket connection.

@@ -15,6 +15,16 @@ extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
+/// Getters for the canvas, context, and document
+/// # Returns
+/// * `canvas` - The canvas element
+/// * `context` - The canvas context
+/// * `document` - The document
+/// # Example
+/// ```
+/// use crate::components::canvas::get_canvas_context_document;
+/// let (canvas, context, document) = get_canvas_context_document();
+/// ```
 fn get_canvas_context_document() -> (
     HtmlCanvasElement,
     web_sys::CanvasRenderingContext2d,
@@ -36,6 +46,12 @@ fn get_canvas_context_document() -> (
 
     (canvas, context, document)
 }
+/// Clear the canvas and redraw the map
+/// # Example
+/// ```
+/// use crate::components::canvas::clear_and_redraw;
+/// clear_and_redraw();
+/// ```
 #[wasm_bindgen]
 pub fn clear_and_redraw() {
     let (_, context, document) = get_canvas_context_document();
@@ -54,6 +70,19 @@ pub fn clear_and_redraw() {
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
 }
+/// Display the player's position on the canvas
+/// # Arguments
+/// * `id` - The player's ID
+/// * `team` - The player's team
+/// * `x` - The player's X coordinate
+/// * `y` - The player's Y coordinate
+/// # Example
+/// ```
+/// use crate::components::canvas::display_player_position;
+/// display_player_position(0, 0, 100.0, 100.0);
+/// ```
+/// # Note
+/// * `team` is an integer, where 0 is red and 1 is blue
 #[wasm_bindgen()]
 pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
     let (_, context, _) = get_canvas_context_document();
@@ -81,6 +110,22 @@ pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
     context.set_fill_style(&JsValue::from_str("white"));
     context.fill_text(&id.to_string(), x, y).unwrap();
 }
+/// Draw the players on the canvas
+/// # Arguments
+/// * `player` - Input player data through the struct 'Player'
+/// # Example
+/// ```
+/// use crate::components::canvas::draw_players;
+/// use crate::components::websocket::Player;
+/// let player = Player {
+///    x: [0.0; 10],
+///    y: [0.0; 10],
+///    health: [0.0; 10],
+///    team: [0; 10],
+///    dormant: [0; 10],
+/// };
+/// draw_players(player);
+/// ```
 pub fn draw_players(player: Player) {
     for i in 0..10 {
         console_log!("Player {} is at ({}, {})", i, player.x[i], player.y[i]);
