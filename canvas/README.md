@@ -1,15 +1,3 @@
-# Setup and Installation
-
-- [Rust and Cargo](https://rustup.rs/)
-- [Node.js and npm](https://nodejs.org/)
-
-```
-$ rustup target add wasm32-unknown-unknown
-$ cargo install wasm-pack
-$ npm install
-$ cargo install wasm-bindgen-cli
-```
-
 # Build
 ```
 $ cd canvas
