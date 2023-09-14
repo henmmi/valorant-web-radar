@@ -18,7 +18,7 @@ pub struct Player {
 /// A macro to provide `println!(..)`-style syntax for `console.log` logging.
 /// # Example
 /// ```
-/// use crate::components::websocket::console_log;
+/// use super::macros::{console_log, log};
 /// console_log!("Hello {}!", "world");
 /// ```
 /// A web socket connection to the server
