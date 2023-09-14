@@ -1,9 +1,10 @@
 use super::macros::{console_log, log};
 use super::websocket::Player;
 use std::f64;
+use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::HtmlCanvasElement;
+use web_sys::{HtmlButtonElement, HtmlCanvasElement};
 /// Getters for the canvas, context, and document
 /// # Returns
 /// * `canvas` - The canvas element
@@ -21,8 +22,8 @@ fn get_canvas_context_document() -> (
 ) {
     let document = web_sys::window().unwrap().document().unwrap();
     let canvas = document.get_element_by_id("canvas").unwrap();
-    let canvas: web_sys::HtmlCanvasElement = canvas
-        .dyn_into::<web_sys::HtmlCanvasElement>()
+    let canvas: HtmlCanvasElement = canvas
+        .dyn_into::<HtmlCanvasElement>()
         .map_err(|_| ())
         .unwrap();
 
@@ -72,7 +73,7 @@ pub fn clear_and_redraw() {
 /// ```
 /// # Note
 /// * `team` is an integer, where 0 is red and 1 is blue
-#[wasm_bindgen()]
+#[wasm_bindgen]
 pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
     let (_, context, _) = get_canvas_context_document();
 
@@ -120,4 +121,43 @@ pub fn draw_players(player: Player) {
         console_log!("Player {} is at ({}, {})", i, player.x[i], player.y[i]);
         display_player_position(i, player.team[i], player.x[i], player.y[i]);
     }
+}
+#[wasm_bindgen]
+pub fn activate_rotate() {
+    let (_, _, document) = get_canvas_context_document();
+    let rotate_btn = document
+        .create_element("button")
+        .unwrap()
+        .dyn_into::<HtmlButtonElement>()
+        .unwrap();
+    rotate_btn.set_text_content(Some("Rotate"));
+    rotate_btn.set_id("rotate-btn");
+    document.body().unwrap().append_child(&rotate_btn).unwrap();
+
+    let rotate_canvas = Closure::wrap(Box::new(move || {
+        rotate_canvas(45f64);
+    }) as Box<dyn FnMut()>);
+
+    rotate_btn.set_onclick(Some(rotate_canvas.as_ref().unchecked_ref()));
+    rotate_canvas.forget();
+}
+
+#[wasm_bindgen]
+pub fn rotate_canvas(deg: f64) {
+    let (canvas, context, _document) = get_canvas_context_document();
+    let width = canvas.width() as f64;
+    let height = canvas.height() as f64;
+    context.translate(width / 2f64, height / 2f64).unwrap();
+    console_log!("Translated canvas to set origin");
+
+    let angle = get_radian_angle(deg);
+    context.rotate(angle).unwrap();
+    console_log!("Rotating canvas by {} degrees", deg);
+
+    context.translate(-width / 2f64, -height / 2f64).unwrap();
+    console_log!("Translated canvas to reset origin");
+}
+
+fn get_radian_angle(deg: f64) -> f64 {
+    deg * f64::consts::PI / 180.0
 }

@@ -1,6 +1,6 @@
 [package]
 name = "canvas"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Henry Nguyen"]
 edition = "2021"
 
@@ -23,6 +23,7 @@ features = [
   'Element',
   'HtmlCanvasElement',
   'HtmlImageElement',
+  'HtmlButtonElement',
   'Window',
   'ErrorEvent',
   'MessageEvent',
