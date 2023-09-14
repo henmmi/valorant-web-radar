@@ -1,10 +1,45 @@
 use super::macros::{console_log, log};
 use super::websocket::Player;
+use lazy_static::lazy_static;
 use std::f64;
+use std::sync::RwLock;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlButtonElement, HtmlCanvasElement};
+
+// Create a global variable to store the rotation angle
+lazy_static! {
+    static ref ROTATION_ANGLE: RwLock<f64> = RwLock::new(0.0);
+}
+/// Setter for the rotation angle used to remember the rotation angle
+/// # Arguments
+/// * `lock` - The RwLock to store the rotation angle
+/// * `float` - The float to set the rotation angle to
+/// # Example
+/// ```
+/// let lock = RwLock::new(0.0);
+/// update_it(&lock, 90.0);
+/// ```
+fn update_it(lock: &RwLock<f64>, float: f64) {
+    let mut w = lock.write().unwrap();
+    console_log!("Updating rotation angle to {}", float);
+    *w += float;
+}
+/// Getter for the rotation angle
+/// # Arguments
+/// * `lock` - The RwLock to store the rotation angle
+/// # Example
+/// ```
+/// let lock = RwLock::new(0.0);
+/// let angle = get_number(&lock);
+/// ```
+/// # Returns
+/// * `f64` - The rotation angle
+fn get_number(lock: &RwLock<f64>) -> f64 {
+    let r1 = lock.read().unwrap();
+    *r1
+}
 /// Getters for the canvas, context, and document
 /// # Returns
 /// * `canvas` - The canvas element
@@ -14,7 +49,7 @@ use web_sys::{HtmlButtonElement, HtmlCanvasElement};
 /// ```
 /// let (canvas, context, document) = get_canvas_context_document();
 /// ```
-fn get_canvas_context_document() -> (
+pub fn get_canvas_context_document() -> (
     HtmlCanvasElement,
     web_sys::CanvasRenderingContext2d,
     web_sys::Document,
@@ -81,7 +116,6 @@ pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
         1 => "blue",
         _ => "black",
     };
-    context.save();
     context.begin_path();
     context.arc(x, y, 10.0, 0.0, f64::consts::PI * 2.0).unwrap();
     context.set_fill_style(&JsValue::from_str(team_id));
@@ -89,16 +123,37 @@ pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
     // Draw the circle's outline in white
     context.set_stroke_style(&JsValue::from_str("white"));
     context.stroke();
-
+}
+/// Draw the player's label on the canvas
+/// # Arguments
+/// * `id` - The player's ID
+/// * `x` - The player's X coordinate
+/// * `y` - The player's Y coordinate
+/// * `angle` - The player's angle
+/// # Example
+/// ```
+/// draw_player_labels(0, 100.0, 100.0, 90.0);
+/// ```
+#[wasm_bindgen]
+pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
+    let (_, context, _) = get_canvas_context_document();
     // Configure the text's style
     context.set_font("16px sans-serif");
     context.set_text_align("center");
     context.set_text_baseline("middle");
     context.set_fill_style(&JsValue::from_str("white"));
-    context.fill_text(&id.to_string(), x, y).unwrap();
-    context.restore();
+    if angle != 0.0f64 {
+        context.save();
+        context.translate(x, y).unwrap();
+        let angle_rad = get_radian_angle(-angle);
+        context.rotate(angle_rad).unwrap();
+        context.fill_text(&id.to_string(), 0.0, 0.0).unwrap();
+        context.restore();
+    } else {
+        context.fill_text(&id.to_string(), x, y).unwrap();
+    }
 }
-/// Draw the players on the canvas
+/// Draw the player's label on the canvas
 /// # Arguments
 /// * `player` - Input player data through the struct 'Player'
 /// # Example
@@ -118,6 +173,7 @@ pub fn draw_players(player: Player) {
     for i in 0..10 {
         console_log!("Player {} is at ({}, {})", i, player.x[i], player.y[i]);
         display_player_position(i, player.team[i], player.x[i], player.y[i]);
+        draw_player_labels(i, player.x[i], player.y[i], get_number(&ROTATION_ANGLE));
     }
 }
 /// Activate the rotate button
@@ -138,15 +194,18 @@ pub fn activate_rotate(deg: f64) {
     let deg_str = deg.to_string();
     rotate_btn.set_text_content(Some(deg_str.as_str()));
     rotate_btn.set_id(deg_str.as_str());
+    rotate_btn.set_class_name("rotate-btn");
     document.body().unwrap().append_child(&rotate_btn).unwrap();
 
     let rotate_canvas = Closure::wrap(Box::new(move || {
         rotate_canvas(deg);
+        update_it(&ROTATION_ANGLE, deg);
     }) as Box<dyn FnMut()>);
 
     rotate_btn.set_onclick(Some(rotate_canvas.as_ref().unchecked_ref()));
     rotate_canvas.forget();
 }
+
 /// Rotate the canvas
 /// # Arguments
 /// * `deg` - The degree to rotate the canvas by
@@ -168,6 +227,7 @@ pub fn rotate_canvas(deg: f64) {
 
     context.translate(-width / 2f64, -height / 2f64).unwrap();
     console_log!("Translated canvas to reset origin");
+    clear_and_redraw();
 }
 /// Convert degrees to radians
 /// # Arguments
@@ -180,6 +240,14 @@ fn get_radian_angle(deg: f64) -> f64 {
     deg * f64::consts::PI / 180.0
 }
 
+/// Get the canvas width and height
+/// # Returns
+/// * `width` - The canvas width
+/// * `height` - The canvas height
+/// # Example
+/// ```
+/// let (width, height) = get_canvas_width_height();
+/// ```
 fn get_canvas_width_height() -> (f64, f64) {
     let (canvas, _, _) = get_canvas_context_document();
     let width = canvas.width() as f64;

@@ -42,7 +42,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
             // Process received message
             let parsed_message: Result<Player, serde_json::Error> = serde_json::from_str(&txt_str);
             if let Ok(player) = parsed_message {
-                console_log!("Received player info: {:?}", player);
+                console_log!("Player: {:?}", player.dormant);
                 clear_and_redraw();
                 draw_players(player);
             } else if let Err(err) = parsed_message {
