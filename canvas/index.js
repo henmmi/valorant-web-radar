@@ -1,4 +1,3 @@
 import('./pkg')
   .catch(console.error);
-
-const mapContext = require.context('./src/assets', false, /\.(png)$/);
+require.context('./src/assets', false, /\.(png)$/);
