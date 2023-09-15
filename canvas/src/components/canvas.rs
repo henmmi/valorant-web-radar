@@ -97,7 +97,6 @@ pub fn clear_and_redraw() {
 }
 /// Display the player's position on the canvas
 /// # Arguments
-/// * `id` - The player's ID
 /// * `team` - The player's team
 /// * `x` - The player's X coordinate
 /// * `y` - The player's Y coordinate
@@ -108,7 +107,7 @@ pub fn clear_and_redraw() {
 /// # Note
 /// * `team` is an integer, where 0 is red and 1 is blue
 #[wasm_bindgen]
-pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
+pub fn display_player_position(team: i32, x: f64, y: f64) {
     let (_, context, _) = get_canvas_context_document();
 
     // Determine team colour
@@ -181,7 +180,7 @@ pub fn draw_players(player: Player) {
             player.y[i],
             player.rotation[i] as f32,
         );
-        display_player_position(i, player.team[i], player.x[i], player.y[i]);
+        display_player_position(player.team[i], player.x[i], player.y[i]);
         draw_player_labels(i, player.x[i], player.y[i], get_number(&ROTATION_ANGLE));
     }
 }
@@ -283,7 +282,7 @@ pub fn draw_player_orientation(team: i32, x: f64, y: f64, rotation: f32) {
         _ => "black",
     };
     // Angle in radians
-    let angle = rotation as f64 * f64::consts::PI / 180.0;
+    let angle = get_radian_angle(rotation as f64);
     let x_line = 50f64 * cos(angle);
     let y_line = 50f64 * sin(angle);
     context.save();
