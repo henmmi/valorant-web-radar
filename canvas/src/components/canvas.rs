@@ -280,8 +280,13 @@ pub fn draw_player_orientation(player: &Player) {
     };
     // Angle in radians
     let angle = get_radian_angle(player.rotation);
-    let x_line = 50f64 * cos(angle);
-    let y_line = 50f64 * sin(angle);
+    let mut view_line_size = 50f64;
+    // If scoped, increase the line size by 20 pixels
+    if player.scoped == 1 {
+        view_line_size += 20f64;
+    }
+    let x_line = view_line_size * cos(angle);
+    let y_line = view_line_size * sin(angle);
     context.save();
     context.begin_path();
     context.translate(player.x, player.y).unwrap();
