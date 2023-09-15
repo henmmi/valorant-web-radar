@@ -5,10 +5,20 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
-
-/// A player is a struct that contains the position, health, team, and dormant status of a player
+/// Data container for a single player
 #[derive(Deserialize, Debug)]
 pub struct Player {
+    pub x: f64,
+    pub y: f64,
+    pub health: f64,
+    pub team: i32,
+    pub dormant: i32,
+    pub rotation: f64,
+    pub scoped: i32,
+}
+/// Data container for all players
+#[derive(Deserialize, Debug)]
+pub struct Players {
     pub x: [f64; 10],
     pub y: [f64; 10],
     pub health: [f64; 10],
@@ -40,14 +50,27 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
     let onmessage_callback = Closure::<dyn FnMut(_)>::new(move |e: MessageEvent| {
         if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
             let txt_str = txt.as_string().unwrap();
-            console_log!("message event, received Text");
+            console_log!("message event, received Text 1");
             // Process received message
-            let parsed_message: Result<Player, serde_json::Error> = serde_json::from_str(&txt_str);
-            if let Ok(player) = parsed_message {
-                clear_and_redraw();
-                draw_players(player);
-            } else if let Err(err) = parsed_message {
-                console_log!("Error parsing JSON: {:?}", err);
+            match serde_json::from_str::<Players>(&txt_str) {
+                Ok(player_data) => {
+                    let mut players: Vec<Player> = Vec::new();
+                    for i in 0..10 {
+                        players.push(Player {
+                            x: player_data.x[i],
+                            y: player_data.y[i],
+                            health: player_data.health[i],
+                            team: player_data.team[i],
+                            dormant: player_data.dormant[i],
+                            rotation: player_data.rotation[i],
+                            scoped: player_data.scoped[i],
+                        });
+                        console_log!("message event, received Text 2: {:?}", player_data);
+                        clear_and_redraw();
+                        draw_players(&players);
+                    }
+                }
+                Err(err) => console_log!("Error parsing JSON: {:?}", err),
             }
         } else {
             console_log!("message event, received Unknown: {:?}", e.data());

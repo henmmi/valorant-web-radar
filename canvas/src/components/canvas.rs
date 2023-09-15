@@ -95,6 +95,13 @@ pub fn clear_and_redraw() {
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
 }
+fn identify_team(team: i32) -> &'static str {
+    match team {
+        0 => "red",
+        1 => "blue",
+        _ => "black",
+    }
+}
 /// Display the player's position on the canvas
 /// # Arguments
 /// * `team` - The player's team
@@ -107,15 +114,9 @@ pub fn clear_and_redraw() {
 /// # Note
 /// * `team` is an integer, where 0 is red and 1 is blue
 #[wasm_bindgen]
-pub fn display_player_position(team: i32, x: f64, y: f64) {
+pub fn display_player_position(x: f64, y: f64, team: i32) {
     let (_, context, _) = get_canvas_context_document();
-
-    // Determine team colour
-    let team_id = match team {
-        0 => "red",
-        1 => "blue",
-        _ => "black",
-    };
+    let team_id = identify_team(team);
     context.begin_path();
     context.arc(x, y, 10.0, 0.0, f64::consts::PI * 2.0).unwrap();
     context.set_fill_style(&JsValue::from_str(team_id));
@@ -171,17 +172,12 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 /// };
 /// draw_players(player);
 /// ```
-pub fn draw_players(player: Player) {
-    for i in 0..10 {
-        console_log!("Player {} is at ({}, {})", i, player.x[i], player.y[i]);
-        draw_player_orientation(
-            player.team[i],
-            player.x[i],
-            player.y[i],
-            player.rotation[i] as f32,
-        );
-        display_player_position(player.team[i], player.x[i], player.y[i]);
-        draw_player_labels(i, player.x[i], player.y[i], get_number(&ROTATION_ANGLE));
+pub fn draw_players(players: &[Player]) {
+    for (i, player) in players.iter().enumerate() {
+        console_log!("Player {} is at ({}, {})", i, player.x, player.y);
+        draw_player_orientation(player);
+        display_player_position(player.x, player.y, player.team);
+        draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
     }
 }
 /// Activate the rotate button
@@ -273,21 +269,22 @@ fn get_canvas_width_height() -> (f64, f64) {
 /// draw_player_orientation(0, 100.0, 100.0, 0.0);
 /// ```
 // create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
-pub fn draw_player_orientation(team: i32, x: f64, y: f64, rotation: f32) {
+pub fn draw_player_orientation(player: &Player) {
     let (_, context, _) = get_canvas_context_document();
+
     // Determine team colour
-    let team_id = match team {
+    let team_id = match player.team {
         0 => "red",
         1 => "blue",
         _ => "black",
     };
     // Angle in radians
-    let angle = get_radian_angle(rotation as f64);
+    let angle = get_radian_angle(player.rotation);
     let x_line = 50f64 * cos(angle);
     let y_line = 50f64 * sin(angle);
     context.save();
     context.begin_path();
-    context.translate(x, y).unwrap();
+    context.translate(player.x, player.y).unwrap();
     context.move_to(0.0, 0.0);
     context.set_stroke_style(&JsValue::from_str(team_id));
     context.line_to(x_line, y_line);
