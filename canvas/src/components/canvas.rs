@@ -1,5 +1,6 @@
 use super::macros::{console_log, log};
 use super::websocket::Player;
+use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -118,6 +119,36 @@ pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
 pub fn draw_players(player: Player) {
     for i in 0..10 {
         console_log!("Player {} is at ({}, {})", i, player.x[i], player.y[i]);
+        draw_player_orientation(
+            player.team[i],
+            player.x[i],
+            player.y[i],
+            player.rotation[i] as f32,
+        );
         display_player_position(i, player.team[i], player.x[i], player.y[i]);
     }
+}
+
+// create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
+pub fn draw_player_orientation(team: i32, x: f64, y: f64, rotation: f32) {
+    let (_, context, _) = get_canvas_context_document();
+    // Determine team colour
+    let team_id = match team {
+        0 => "red",
+        1 => "blue",
+        _ => "black",
+    };
+    // Angle in radians
+    let angle = rotation as f64 * f64::consts::PI / 180.0;
+    let x_line = 50f64 * cos(angle);
+    let y_line = 50f64 * sin(angle);
+    context.save();
+    context.begin_path();
+    context.translate(x, y).unwrap();
+    context.move_to(0.0, 0.0);
+    context.set_stroke_style(&JsValue::from_str(team_id));
+    context.line_to(x_line, y_line);
+    context.set_line_width(3.0);
+    context.stroke();
+    context.restore();
 }

@@ -14,6 +14,8 @@ pub struct Player {
     pub health: [f64; 10],
     pub team: [i32; 10],
     pub dormant: [i32; 10],
+    pub rotation: [f64; 10],
+    pub scoped: [i32; 10],
 }
 /// A macro to provide `println!(..)`-style syntax for `console.log` logging.
 /// # Example
