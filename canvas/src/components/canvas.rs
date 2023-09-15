@@ -74,7 +74,6 @@ pub fn get_canvas_context_document() -> (
 /// Clear the canvas and redraw the map
 /// # Example
 /// ```
-/// use super::macros::{console_log, log};
 /// clear_and_redraw();
 /// ```
 #[wasm_bindgen]
@@ -156,21 +155,10 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 }
 /// Draw the player's label on the canvas
 /// # Arguments
-/// * `player` - Input player data through the struct 'Player'
+/// * `players` - The player's data through the struct 'Player' in a vector
 /// # Example
 /// ```
-/// use super::macros::{console_log, log};
-/// use crate::components::websocket::Player;
-/// let player = Player {
-///    x: [0.0; 10],
-///    y: [0.0; 10],
-///    health: [0.0; 10],
-///    team: [0; 10],
-///    dormant: [0; 10],
-///    rotation: [0.0; 10],
-///    scoped: [0; 10],
-/// };
-/// draw_players(player);
+/// draw_players(&[Player]);
 /// ```
 pub fn draw_players(players: &[Player]) {
     for (i, player) in players.iter().enumerate() {
@@ -258,15 +246,13 @@ fn get_canvas_width_height() -> (f64, f64) {
     let height = canvas.height() as f64;
     (width, height)
 }
-/// Draw the player's orientation on the canvas
+/// Draw the player's orientation on the canvas via a line
+/// And extend the line if the player is scoped
 /// # Arguments
-/// * `team` - The player's team
-/// * `x` - The player's X coordinate
-/// * `y` - The player's Y coordinate
-/// * `rotation` - The player's rotation
+/// * `player` - Input player data through the struct 'Player'
 /// # Example
 /// ```
-/// draw_player_orientation(0, 100.0, 100.0, 0.0);
+/// draw_player_orientation(&player);
 /// ```
 // create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
 pub fn draw_player_orientation(player: &Player) {
@@ -280,7 +266,7 @@ pub fn draw_player_orientation(player: &Player) {
     };
     // Angle in radians
     let angle = get_radian_angle(player.rotation);
-    let mut view_line_size = 50f64;
+    let mut view_line_size = 30f64;
     // If scoped, increase the line size by 20 pixels
     if player.scoped == 1 {
         view_line_size += 20f64;

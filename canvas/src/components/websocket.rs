@@ -50,11 +50,12 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
     let onmessage_callback = Closure::<dyn FnMut(_)>::new(move |e: MessageEvent| {
         if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
             let txt_str = txt.as_string().unwrap();
-            console_log!("message event, received Text 1");
+            console_log!("message event, received Text");
             // Process received message
             match serde_json::from_str::<Players>(&txt_str) {
                 Ok(player_data) => {
                     let mut players: Vec<Player> = Vec::new();
+                    // Push the player data into a vector of players
                     for i in 0..10 {
                         players.push(Player {
                             x: player_data.x[i],
@@ -65,7 +66,6 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             rotation: player_data.rotation[i],
                             scoped: player_data.scoped[i],
                         });
-                        console_log!("message event, received Text 2: {:?}", player_data);
                         clear_and_redraw();
                         draw_players(&players);
                     }
