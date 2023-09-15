@@ -106,6 +106,7 @@ pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
 /// # Example
 /// ```
 /// use crate::components::canvas::draw_players;
+/// use crate::components::canvas::draw_player_orientation;
 /// use crate::components::websocket::Player;
 /// let player = Player {
 ///    x: [0.0; 10],
@@ -113,6 +114,8 @@ pub fn display_player_position(id: usize, team: i32, x: f64, y: f64) {
 ///    health: [0.0; 10],
 ///    team: [0; 10],
 ///    dormant: [0; 10],
+///    rotation: [0.0; 10],
+///    scoped: [0; 10],
 /// };
 /// draw_players(player);
 /// ```
@@ -128,7 +131,16 @@ pub fn draw_players(player: Player) {
         display_player_position(i, player.team[i], player.x[i], player.y[i]);
     }
 }
-
+/// Draw the player's orientation on the canvas
+/// # Arguments
+/// * `team` - The player's team
+/// * `x` - The player's X coordinate
+/// * `y` - The player's Y coordinate
+/// * `rotation` - The player's rotation
+/// # Example
+/// ```
+/// draw_player_orientation(0, 100.0, 100.0, 0.0);
+/// ```
 // create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
 pub fn draw_player_orientation(team: i32, x: f64, y: f64, rotation: f32) {
     let (_, context, _) = get_canvas_context_document();
