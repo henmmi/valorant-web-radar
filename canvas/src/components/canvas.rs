@@ -3,6 +3,7 @@ use super::websocket::Player;
 use js_sys::Math::{cos, sin};
 use lazy_static::lazy_static;
 use std::f64;
+use std::rc::Rc;
 use std::sync::RwLock;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
@@ -168,6 +169,38 @@ pub fn draw_players(players: &[Player]) {
         draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
     }
 }
+fn create_button(name: &str) -> HtmlButtonElement {
+    let (_, _, document) = get_canvas_context_document();
+    let btn = document
+        .create_element("button")
+        .unwrap()
+        .dyn_into::<HtmlButtonElement>()
+        .unwrap();
+    btn.set_text_content(Some(name));
+    btn.set_id(name);
+    document.body().unwrap().append_child(&btn).unwrap();
+    btn
+}
+fn onclick_button(mut callback: Box<dyn FnMut()>, name: &str) {
+    let onclick_btn = create_button(name);
+    let onclick_canvas = Closure::wrap(Box::new(move || {
+        callback();
+    }) as Box<dyn FnMut()>);
+
+    onclick_btn.set_onclick(Some(onclick_canvas.as_ref().unchecked_ref()));
+    onclick_canvas.forget();
+}
+
+pub fn reset_button() {
+    onclick_button(
+        Box::new(|| {
+            let deg = -get_number(&ROTATION_ANGLE);
+            rotate_canvas(deg);
+            update_it(&ROTATION_ANGLE, deg);
+        }),
+        "reset",
+    );
+}
 /// Activate the rotate button
 /// # Arguments
 /// * `deg` - The degree to rotate the canvas by
@@ -177,27 +210,15 @@ pub fn draw_players(players: &[Player]) {
 /// ```
 #[wasm_bindgen]
 pub fn activate_rotate(deg: f64) {
-    let (_, _, document) = get_canvas_context_document();
-    let rotate_btn = document
-        .create_element("button")
-        .unwrap()
-        .dyn_into::<HtmlButtonElement>()
-        .unwrap();
-    let deg_str = deg.to_string();
-    rotate_btn.set_text_content(Some(deg_str.as_str()));
-    rotate_btn.set_id(deg_str.as_str());
-    rotate_btn.set_class_name("rotate-btn");
-    document.body().unwrap().append_child(&rotate_btn).unwrap();
-
-    let rotate_canvas = Closure::wrap(Box::new(move || {
-        rotate_canvas(deg);
-        update_it(&ROTATION_ANGLE, deg);
-    }) as Box<dyn FnMut()>);
-
-    rotate_btn.set_onclick(Some(rotate_canvas.as_ref().unchecked_ref()));
-    rotate_canvas.forget();
+    let deg_clone = Rc::new(deg);
+    onclick_button(
+        Box::new(move || {
+            rotate_canvas(*deg_clone);
+            update_it(&ROTATION_ANGLE, deg);
+        }),
+        deg.to_string().as_str(),
+    );
 }
-
 /// Rotate the canvas
 /// # Arguments
 /// * `deg` - The degree to rotate the canvas by
@@ -283,3 +304,5 @@ pub fn draw_player_orientation(player: &Player) {
     context.stroke();
     context.restore();
 }
+
+fn rotate_to_player_orientation() {}
