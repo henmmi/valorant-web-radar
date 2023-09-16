@@ -74,7 +74,6 @@ pub fn get_canvas_context_document() -> (
 /// Clear the canvas and redraw the map
 /// # Example
 /// ```
-/// use super::macros::{console_log, log};
 /// clear_and_redraw();
 /// ```
 #[wasm_bindgen]
@@ -95,6 +94,13 @@ pub fn clear_and_redraw() {
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
 }
+fn identify_team(team: i32) -> &'static str {
+    match team {
+        0 => "red",
+        1 => "blue",
+        _ => "black",
+    }
+}
 /// Display the player's position on the canvas
 /// # Arguments
 /// * `team` - The player's team
@@ -107,15 +113,9 @@ pub fn clear_and_redraw() {
 /// # Note
 /// * `team` is an integer, where 0 is red and 1 is blue
 #[wasm_bindgen]
-pub fn display_player_position(team: i32, x: f64, y: f64) {
+pub fn display_player_position(x: f64, y: f64, team: i32) {
     let (_, context, _) = get_canvas_context_document();
-
-    // Determine team colour
-    let team_id = match team {
-        0 => "red",
-        1 => "blue",
-        _ => "black",
-    };
+    let team_id = identify_team(team);
     context.begin_path();
     context.arc(x, y, 10.0, 0.0, f64::consts::PI * 2.0).unwrap();
     context.set_fill_style(&JsValue::from_str(team_id));
@@ -155,33 +155,17 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 }
 /// Draw the player's label on the canvas
 /// # Arguments
-/// * `player` - Input player data through the struct 'Player'
+/// * `players` - The player's data through the struct 'Player' in a vector
 /// # Example
 /// ```
-/// use super::macros::{console_log, log};
-/// use crate::components::websocket::Player;
-/// let player = Player {
-///    x: [0.0; 10],
-///    y: [0.0; 10],
-///    health: [0.0; 10],
-///    team: [0; 10],
-///    dormant: [0; 10],
-///    rotation: [0.0; 10],
-///    scoped: [0; 10],
-/// };
-/// draw_players(player);
+/// draw_players(&[Player]);
 /// ```
-pub fn draw_players(player: Player) {
-    for i in 0..10 {
-        console_log!("Player {} is at ({}, {})", i, player.x[i], player.y[i]);
-        draw_player_orientation(
-            player.team[i],
-            player.x[i],
-            player.y[i],
-            player.rotation[i] as f32,
-        );
-        display_player_position(player.team[i], player.x[i], player.y[i]);
-        draw_player_labels(i, player.x[i], player.y[i], get_number(&ROTATION_ANGLE));
+pub fn draw_players(players: &[Player]) {
+    for (i, player) in players.iter().enumerate() {
+        console_log!("Player {} is at ({}, {})", i, player.x, player.y);
+        draw_player_orientation(player);
+        display_player_position(player.x, player.y, player.team);
+        draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
     }
 }
 /// Activate the rotate button
@@ -262,32 +246,36 @@ fn get_canvas_width_height() -> (f64, f64) {
     let height = canvas.height() as f64;
     (width, height)
 }
-/// Draw the player's orientation on the canvas
+/// Draw the player's orientation on the canvas via a line
+/// And extend the line if the player is scoped
 /// # Arguments
-/// * `team` - The player's team
-/// * `x` - The player's X coordinate
-/// * `y` - The player's Y coordinate
-/// * `rotation` - The player's rotation
+/// * `player` - Input player data through the struct 'Player'
 /// # Example
 /// ```
-/// draw_player_orientation(0, 100.0, 100.0, 0.0);
+/// draw_player_orientation(&player);
 /// ```
 // create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
-pub fn draw_player_orientation(team: i32, x: f64, y: f64, rotation: f32) {
+pub fn draw_player_orientation(player: &Player) {
     let (_, context, _) = get_canvas_context_document();
+
     // Determine team colour
-    let team_id = match team {
+    let team_id = match player.team {
         0 => "red",
         1 => "blue",
         _ => "black",
     };
     // Angle in radians
-    let angle = get_radian_angle(rotation as f64);
-    let x_line = 50f64 * cos(angle);
-    let y_line = 50f64 * sin(angle);
+    let angle = get_radian_angle(player.rotation);
+    let mut view_line_size = 30f64;
+    // If scoped, increase the line size by 20 pixels
+    if player.scoped == 1 {
+        view_line_size += 20f64;
+    }
+    let x_line = view_line_size * cos(angle);
+    let y_line = view_line_size * sin(angle);
     context.save();
     context.begin_path();
-    context.translate(x, y).unwrap();
+    context.translate(player.x, player.y).unwrap();
     context.move_to(0.0, 0.0);
     context.set_stroke_style(&JsValue::from_str(team_id));
     context.line_to(x_line, y_line);
