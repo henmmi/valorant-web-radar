@@ -169,6 +169,13 @@ pub fn draw_players(players: &[Player]) {
         draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
     }
 }
+/// Create a HTML button
+/// # Arguments
+/// * `name` - The name of the button
+/// # Example
+/// ```
+/// let btn = create_button("reset");
+/// ```
 fn create_button(name: &str) -> HtmlButtonElement {
     let (_, _, document) = get_canvas_context_document();
     let btn = document
@@ -181,6 +188,18 @@ fn create_button(name: &str) -> HtmlButtonElement {
     document.body().unwrap().append_child(&btn).unwrap();
     btn
 }
+/// Create a HTML button and set the onclick event
+/// # Arguments
+/// * `callback` - The callback function to execute when the button is clicked
+/// * `name` - The name of the button
+/// # Example
+/// ```
+/// let deg = 90f64;
+/// onclick_button(Box::new(move || {
+///   rotate_canvas(*deg);
+///  update_it(&ROTATION_ANGLE, deg);
+/// }), "string");
+/// ```
 fn onclick_button(mut callback: Box<dyn FnMut()>, name: &str) {
     let onclick_btn = create_button(name);
     let onclick_canvas = Closure::wrap(Box::new(move || {
@@ -190,7 +209,11 @@ fn onclick_button(mut callback: Box<dyn FnMut()>, name: &str) {
     onclick_btn.set_onclick(Some(onclick_canvas.as_ref().unchecked_ref()));
     onclick_canvas.forget();
 }
-
+/// Reset the canvas rotation
+/// # Example
+/// ```
+/// reset_button();
+/// ```
 pub fn reset_button() {
     onclick_button(
         Box::new(|| {
