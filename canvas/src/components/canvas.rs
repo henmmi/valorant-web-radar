@@ -83,7 +83,7 @@ pub fn get_canvas_context_document() -> (
 pub fn clear_and_redraw() {
     let (_, context, document) = get_canvas_context_document();
 
-    context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
+    context.clear_rect(0.0, 0.0, 1920.0, 1080.0);
     console_log!("Cleared canvas");
 
     let image = document
@@ -156,7 +156,7 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
         context.fill_text(&id.to_string(), x, y).unwrap();
     }
 }
-/// Draw the player's label on the canvas
+/// Draw the player's label on the canvas and rotate it
 /// # Arguments
 /// * `players` - The player's data through the struct 'Player' in a vector
 /// # Example
@@ -341,7 +341,13 @@ pub fn draw_player_orientation(player: &Player) {
     context.stroke();
     context.restore();
 }
-
+/// Create a checkbox
+/// # Arguments
+/// * `name` - The name of the checkbox
+/// # Example
+/// ```
+/// create_checkbox("name");
+/// ```
 fn create_checkbox(name: &str) -> HtmlInputElement {
     let (_, _, document) = get_canvas_context_document();
     let follow_checkbox = document
@@ -354,7 +360,13 @@ fn create_checkbox(name: &str) -> HtmlInputElement {
 
     follow_checkbox
 }
-
+/// Create a label
+/// # Arguments
+/// * `name` - The name of the label
+/// # Example
+/// ```
+/// create_label("name");
+/// ```
 fn create_label(name: &str) -> HtmlLabelElement {
     let (_, _, document) = get_canvas_context_document();
     let follow_label = document
@@ -367,6 +379,13 @@ fn create_label(name: &str) -> HtmlLabelElement {
 
     follow_label
 }
+/// Create a span
+/// # Arguments
+/// * `name` - The name of the span
+/// # Example
+/// ```
+/// create_span("name");
+/// ```
 fn create_span(name: &str) -> HtmlSpanElement {
     let (_, _, document) = get_canvas_context_document();
     let follow_span = document
@@ -378,6 +397,13 @@ fn create_span(name: &str) -> HtmlSpanElement {
 
     follow_span
 }
+/// Create a toggle button
+/// # Arguments
+/// * `name` - The name of the toggle button
+/// # Example
+/// ```
+/// create_toggle("toggle_switch");
+/// ```
 pub fn create_toggle(name: &str) {
     let checkbox = create_checkbox(name);
 
