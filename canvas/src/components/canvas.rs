@@ -8,7 +8,9 @@ use std::sync::RwLock;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{HtmlButtonElement, HtmlCanvasElement};
+use web_sys::{
+    HtmlButtonElement, HtmlCanvasElement, HtmlInputElement, HtmlLabelElement, HtmlSpanElement,
+};
 
 // Create a global variable to store the rotation angle
 lazy_static! {
@@ -162,6 +164,18 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 /// draw_players(&[Player]);
 /// ```
 pub fn draw_players(players: &[Player]) {
+    let (_, _, document) = get_canvas_context_document();
+    let toggle_btn = document
+        .get_element_by_id("orientation_toggle")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()
+        .unwrap();
+    // While the button is checked, rotate the canvas to the player's orientation.
+    if toggle_btn.checked() {
+        clear_and_redraw();
+        rotate_canvas(players[0].rotation);
+    }
+
     for (i, player) in players.iter().enumerate() {
         console_log!("Player {} is at ({}, {})", i, player.x, player.y);
         draw_player_orientation(player);
@@ -328,4 +342,51 @@ pub fn draw_player_orientation(player: &Player) {
     context.restore();
 }
 
-fn rotate_to_player_orientation() {}
+fn create_checkbox(name: &str) -> HtmlInputElement {
+    let (_, _, document) = get_canvas_context_document();
+    let follow_checkbox = document
+        .create_element("input")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()
+        .unwrap();
+    follow_checkbox.set_id(name);
+    follow_checkbox.set_type("checkbox");
+
+    follow_checkbox
+}
+
+fn create_label(name: &str) -> HtmlLabelElement {
+    let (_, _, document) = get_canvas_context_document();
+    let follow_label = document
+        .create_element("label")
+        .unwrap()
+        .dyn_into::<HtmlLabelElement>()
+        .unwrap();
+
+    follow_label.set_class_name(name);
+
+    follow_label
+}
+fn create_span(name: &str) -> HtmlSpanElement {
+    let (_, _, document) = get_canvas_context_document();
+    let follow_span = document
+        .create_element("span")
+        .unwrap()
+        .dyn_into::<HtmlSpanElement>()
+        .unwrap();
+    follow_span.set_class_name(name);
+
+    follow_span
+}
+pub fn create_toggle(name: &str) {
+    let checkbox = create_checkbox(name);
+
+    let label = create_label("switch");
+    let span_round = create_span("slider round");
+    let (_, _, document) = get_canvas_context_document();
+    let body = document.body().unwrap();
+
+    body.append_child(&label).unwrap();
+    label.append_child(&checkbox).unwrap();
+    label.append_child(&span_round).unwrap();
+}
