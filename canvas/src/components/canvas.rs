@@ -30,6 +30,19 @@ fn update_it(lock: &RwLock<f64>, float: f64) {
     console_log!("Updating rotation angle to {}", float);
     *w += float;
 }
+
+/// Change the rotation angle
+/// # Arguments
+/// * `float` - The float to set the rotation angle to
+/// # Example
+/// ```
+/// change_rotation_angle(90.0);
+/// ```
+fn change_it(lock: &RwLock<f64>, float: f64) {
+    let mut w = lock.write().unwrap();
+    console_log!("Changing rotation angle to {}", float);
+    *w = float;
+}
 /// Getter for the rotation angle
 /// # Arguments
 /// * `lock` - The RwLock to store the rotation angle
