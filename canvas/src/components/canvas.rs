@@ -82,8 +82,11 @@ pub fn get_canvas_context_document() -> (
 #[wasm_bindgen]
 pub fn clear_and_redraw() {
     let (_, context, document) = get_canvas_context_document();
-
-    context.clear_rect(0.0, 0.0, 1920.0, 1080.0);
+    context.save();
+    // Reset the transform to clear the canvas
+    context.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
+    context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
+    context.restore();
     console_log!("Cleared canvas");
 
     let image = document
@@ -170,9 +173,9 @@ pub fn draw_players(players: &[Player]) {
         .unwrap()
         .dyn_into::<HtmlInputElement>()
         .unwrap();
+    clear_and_redraw();
     // While the button is checked, rotate the canvas to the player's orientation.
     if toggle_btn.checked() {
-        clear_and_redraw();
         rotate_canvas(players[0].rotation);
     }
 
