@@ -19,13 +19,13 @@ pub struct Player {
 /// Data container for all players
 #[derive(Deserialize, Debug)]
 pub struct Players {
-    pub x: [f64; 10],
-    pub y: [f64; 10],
-    pub health: [f64; 10],
-    pub team: [i32; 10],
-    pub dormant: [i32; 10],
-    pub rotation: [f64; 10],
-    pub scoped: [i32; 10],
+    pub x: Vec<f64>,
+    pub y: Vec<f64>,
+    pub health: Vec<f64>,
+    pub team: Vec<i32>,
+    pub dormant: Vec<i32>,
+    pub rotation: Vec<f64>,
+    pub scoped: Vec<i32>,
 }
 /// A macro to provide `println!(..)`-style syntax for `console.log` logging.
 /// # Example
@@ -56,7 +56,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                 Ok(player_data) => {
                     let mut players: Vec<Player> = Vec::new();
                     // Push the player data into a vector of players
-                    for i in 0..10 {
+                    for i in 0..player_data.x.len() {
                         players.push(Player {
                             x: player_data.x[i],
                             y: player_data.y[i],
@@ -66,6 +66,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             rotation: player_data.rotation[i],
                             scoped: player_data.scoped[i],
                         });
+                        players.reverse();
                         clear_and_redraw();
                         draw_players(&players);
                     }
