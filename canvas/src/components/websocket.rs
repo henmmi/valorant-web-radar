@@ -1,4 +1,4 @@
-use super::canvas::{clear_and_redraw, draw_players};
+use super::canvas::{clear_and_refresh, draw_players};
 use super::macros::{console_log, log};
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
@@ -66,7 +66,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             rotation: player_data.rotation[i],
                             scoped: player_data.scoped[i],
                         });
-                        clear_and_redraw();
+                        clear_and_refresh();
                         draw_players(&players);
                     }
                 }

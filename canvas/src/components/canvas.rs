@@ -30,6 +30,19 @@ fn update_it(lock: &RwLock<f64>, float: f64) {
     console_log!("Updating rotation angle to {}", float);
     *w += float;
 }
+
+/// Change the rotation angle
+/// # Arguments
+/// * `float` - The float to set the rotation angle to
+/// # Example
+/// ```
+/// change_rotation_angle(90.0);
+/// ```
+fn change_it(lock: &RwLock<f64>, float: f64) {
+    let mut w = lock.write().unwrap();
+    console_log!("Changing rotation angle to {}", float);
+    *w = float;
+}
 /// Getter for the rotation angle
 /// # Arguments
 /// * `lock` - The RwLock to store the rotation angle
@@ -80,11 +93,11 @@ pub fn get_canvas_context_document() -> (
 /// clear_and_redraw();
 /// ```
 #[wasm_bindgen]
-pub fn clear_and_redraw() {
+pub fn clear_and_refresh() {
     let (_, context, document) = get_canvas_context_document();
     context.save();
     // Reset the transform to clear the canvas
-    context.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
+    context.reset_transform().unwrap();
     context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
     context.restore();
     console_log!("Cleared canvas");
@@ -100,6 +113,27 @@ pub fn clear_and_redraw() {
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
 }
+#[wasm_bindgen]
+pub fn reset_canvas() {
+    let (_, context, document) = get_canvas_context_document();
+    context.save();
+    // Reset the transform to clear the canvas
+    context.reset_transform().unwrap();
+    context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
+    console_log!("Cleared canvas");
+
+    let image = document
+        .create_element("img")
+        .unwrap()
+        .dyn_into::<web_sys::HtmlImageElement>()
+        .unwrap();
+    image.set_id("map");
+    image.set_src("http://127.0.0.1:8080/images/Ascent-391657b8f8b973aa5d90.png");
+    context
+        .draw_image_with_html_image_element(&image, 0.0, 0.0)
+        .unwrap();
+}
+
 fn identify_team(team: i32) -> &'static str {
     match team {
         0 => "red",
@@ -167,20 +201,21 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 /// draw_players(&[Player]);
 /// ```
 pub fn draw_players(players: &[Player]) {
-    let (_, _, document) = get_canvas_context_document();
+    let (_, context, document) = get_canvas_context_document();
     let toggle_btn = document
         .get_element_by_id("orientation_toggle")
         .unwrap()
         .dyn_into::<HtmlInputElement>()
         .unwrap();
-    clear_and_redraw();
+    clear_and_refresh();
     // While the button is checked, rotate the canvas to the player's orientation.
     if toggle_btn.checked() {
+        context.reset_transform().unwrap();
         rotate_canvas(players[0].rotation);
+        change_it(&ROTATION_ANGLE, players[0].rotation);
     }
 
     for (i, player) in players.iter().enumerate() {
-        console_log!("Player {} is at ({}, {})", i, player.x, player.y);
         draw_player_orientation(player);
         display_player_position(player.x, player.y, player.team);
         draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
@@ -191,7 +226,7 @@ pub fn draw_players(players: &[Player]) {
 /// * `name` - The name of the button
 /// # Example
 /// ```
-/// let btn = create_button("reset");
+/// let btn = create_button("name");
 /// ```
 fn create_button(name: &str) -> HtmlButtonElement {
     let (_, _, document) = get_canvas_context_document();
@@ -234,9 +269,8 @@ fn onclick_button(mut callback: Box<dyn FnMut()>, name: &str) {
 pub fn reset_button() {
     onclick_button(
         Box::new(|| {
-            let deg = -get_number(&ROTATION_ANGLE);
-            rotate_canvas(deg);
-            update_it(&ROTATION_ANGLE, deg);
+            reset_canvas();
+            update_it(&ROTATION_ANGLE, 0.0);
         }),
         "reset",
     );
@@ -249,14 +283,14 @@ pub fn reset_button() {
 /// activate_rotate(90f64);
 /// ```
 #[wasm_bindgen]
-pub fn activate_rotate(deg: f64) {
-    let deg_clone = Rc::new(deg);
+pub fn activate_rotate(radian: f64) {
+    let radian_clone = Rc::new(radian);
     onclick_button(
         Box::new(move || {
-            rotate_canvas(*deg_clone);
-            update_it(&ROTATION_ANGLE, deg);
+            rotate_canvas(*radian_clone);
+            update_it(&ROTATION_ANGLE, radian);
         }),
-        deg.to_string().as_str(),
+        radian.to_string().as_str(),
     );
 }
 /// Rotate the canvas
@@ -280,7 +314,7 @@ pub fn rotate_canvas(deg: f64) {
 
     context.translate(-width / 2f64, -height / 2f64).unwrap();
     console_log!("Translated canvas to reset origin");
-    clear_and_redraw();
+    clear_and_refresh();
 }
 /// Convert degrees to radians
 /// # Arguments
