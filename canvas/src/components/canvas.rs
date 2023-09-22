@@ -21,6 +21,7 @@ pub fn initialise_interface() {
     activate_rotate(-90f64);
     activate_rotate(-180f64);
     ui_element::create_toggle("orientation_toggle");
+    ui_element::create_select("player_dropdown");
 }
 // Global variable to store the rotation angle of the canvas
 lazy_static! {

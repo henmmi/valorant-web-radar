@@ -1,8 +1,7 @@
 use super::canvas::clear_and_refresh;
 use super::macros::{console_log, log};
 use crate::components::player::draw_players;
-use crate::components::ui_element::on_toggle;
-use crate::components::ui_element::player_dropdown;
+use crate::components::ui_element::{get_player_dropdown_length, on_toggle, player_dropdown};
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
@@ -62,8 +61,6 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
     // Create WebSocket connection.
     let ws = WebSocket::new(url)?;
 
-    let mut run_once = true;
-
     // Listen for incoming test messages
     let onmessage_callback = Closure::<dyn FnMut(_)>::new(move |e: MessageEvent| {
         if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
@@ -90,10 +87,11 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     clear_and_refresh();
                     on_toggle(&players);
                     draw_players(&players);
-                    if run_once {
+                    // Check if current dropdown length is equal to the number of players
+                    if get_player_dropdown_length() != players.len() {
+                        // If not, update the dropdown
                         player_dropdown(&players.len());
-                        run_once = false;
-                    }
+                    };
                 }
                 Err(err) => console_log!("Error parsing JSON: {:?}", err),
             }
