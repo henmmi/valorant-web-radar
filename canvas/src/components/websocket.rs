@@ -1,8 +1,8 @@
 use super::canvas::clear_and_refresh;
 use super::macros::{console_log, log};
 use crate::components::player::draw_players;
-use crate::components::player::player_dropdown;
 use crate::components::ui_element::on_toggle;
+use crate::components::ui_element::player_dropdown;
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;

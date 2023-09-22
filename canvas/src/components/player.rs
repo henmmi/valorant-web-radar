@@ -1,6 +1,6 @@
+use crate::components::canvas;
 use crate::components::canvas::ROTATION_ANGLE;
 use crate::components::websocket::Player;
-use crate::components::{canvas, ui_element};
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -75,7 +75,11 @@ pub fn draw_players(players: &[Player]) {
         draw_player_labels(i, player.x, player.y, canvas::get_number(&ROTATION_ANGLE));
     }
 }
-
+/// Get the player's dropdown value
+/// # Example
+/// ```
+/// check_player_dropdown();
+/// ```
 pub fn check_player_dropdown() -> usize {
     let (_, _, document) = canvas::get_canvas_context_document();
     let player_dropdown = document
@@ -123,15 +127,13 @@ fn draw_player_orientation(player: &Player) {
     context.stroke();
     context.restore();
 }
-
-pub fn player_dropdown(players: &usize) {
-    let player_list = ui_element::create_select("player_dropdown");
-    for player in 0..*players {
-        let option = ui_element::create_option(player.to_string().as_str());
-        player_list.append_child(&option).unwrap();
-    }
-}
-
+/// Identify the player's team
+/// # Arguments
+/// * `team` - The player's team
+/// # Example
+/// ```
+/// identify_team(0);
+/// ```
 fn identify_team(team: i32) -> &'static str {
     match team {
         0 => "red",

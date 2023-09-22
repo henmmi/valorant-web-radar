@@ -214,3 +214,17 @@ pub fn on_toggle(players: &[Player]) {
         canvas::change_it(&ROTATION_ANGLE, *rotation_angle);
     }
 }
+/// Create the player dropdown
+/// # Arguments
+/// * `players` - The number of players in the game
+/// # Example
+/// ```
+/// player_dropdown(&usize);
+/// ```
+pub fn player_dropdown(players: &usize) {
+    let player_list = create_select("player_dropdown");
+    for player in 0..*players {
+        let option = create_option(player.to_string().as_str());
+        player_list.append_child(&option).unwrap();
+    }
+}
