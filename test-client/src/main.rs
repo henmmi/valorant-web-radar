@@ -16,6 +16,7 @@ fn main() {
         let mut _dormant = json::Array::new();
         let mut _rotation = json::Array::new();
         let mut _scoped = json::Array::new();
+        let mut _weapon = json::Array::new();
         let mut rng = rand::thread_rng();
 
         for _i in 0..rand_player_number {
@@ -26,6 +27,7 @@ fn main() {
             _dormant.push(json::from(0));
             _rotation.push(json::from(rng.gen_range(0.0..360.0)));
             _scoped.push(json::from(rng.gen_range(0..2)));
+            _weapon.push(json::from(rng.gen_range(0..100)));
         }
 
         let data = object! {
@@ -36,6 +38,7 @@ fn main() {
             "dormant": _dormant,
             "rotation": _rotation,
             "scoped": _scoped,
+            "weapon": _weapon,
         };
 
         socket.write_message(Message::from(data.dump())).unwrap();
