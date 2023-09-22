@@ -1,4 +1,6 @@
 pub mod canvas;
+pub mod player;
+mod ui_element;
 pub mod websocket;
 
 pub mod macros {
