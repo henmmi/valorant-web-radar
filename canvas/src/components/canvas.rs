@@ -3,11 +3,14 @@ use super::websocket::Player;
 use js_sys::Math::{cos, sin};
 use lazy_static::lazy_static;
 use std::f64;
+use std::rc::Rc;
 use std::sync::RwLock;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{HtmlButtonElement, HtmlCanvasElement};
+use web_sys::{
+    HtmlButtonElement, HtmlCanvasElement, HtmlInputElement, HtmlLabelElement, HtmlSpanElement,
+};
 
 // Create a global variable to store the rotation angle
 lazy_static! {
@@ -26,6 +29,19 @@ fn update_it(lock: &RwLock<f64>, float: f64) {
     let mut w = lock.write().unwrap();
     console_log!("Updating rotation angle to {}", float);
     *w += float;
+}
+
+/// Change the rotation angle
+/// # Arguments
+/// * `float` - The float to set the rotation angle to
+/// # Example
+/// ```
+/// change_rotation_angle(90.0);
+/// ```
+fn change_it(lock: &RwLock<f64>, float: f64) {
+    let mut w = lock.write().unwrap();
+    console_log!("Changing rotation angle to {}", float);
+    *w = float;
 }
 /// Getter for the rotation angle
 /// # Arguments
@@ -77,9 +93,32 @@ pub fn get_canvas_context_document() -> (
 /// clear_and_redraw();
 /// ```
 #[wasm_bindgen]
-pub fn clear_and_redraw() {
+pub fn clear_and_refresh() {
     let (_, context, document) = get_canvas_context_document();
+    context.save();
+    // Reset the transform to clear the canvas
+    context.reset_transform().unwrap();
+    context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
+    context.restore();
+    console_log!("Cleared canvas");
 
+    let image = document
+        .create_element("img")
+        .unwrap()
+        .dyn_into::<web_sys::HtmlImageElement>()
+        .unwrap();
+    image.set_id("map");
+    image.set_src("http://127.0.0.1:8080/images/Ascent-391657b8f8b973aa5d90.png");
+    context
+        .draw_image_with_html_image_element(&image, 0.0, 0.0)
+        .unwrap();
+}
+#[wasm_bindgen]
+pub fn reset_canvas() {
+    let (_, context, document) = get_canvas_context_document();
+    context.save();
+    // Reset the transform to clear the canvas
+    context.reset_transform().unwrap();
     context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
     console_log!("Cleared canvas");
 
@@ -94,6 +133,7 @@ pub fn clear_and_redraw() {
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
 }
+
 fn identify_team(team: i32) -> &'static str {
     match team {
         0 => "red",
@@ -153,7 +193,7 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
         context.fill_text(&id.to_string(), x, y).unwrap();
     }
 }
-/// Draw the player's label on the canvas
+/// Draw the player's label on the canvas and rotate it
 /// # Arguments
 /// * `players` - The player's data through the struct 'Player' in a vector
 /// # Example
@@ -161,12 +201,79 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 /// draw_players(&[Player]);
 /// ```
 pub fn draw_players(players: &[Player]) {
+    let (_, context, document) = get_canvas_context_document();
+    let toggle_btn = document
+        .get_element_by_id("orientation_toggle")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()
+        .unwrap();
+    clear_and_refresh();
+    // While the button is checked, rotate the canvas to the player's orientation.
+    if toggle_btn.checked() {
+        context.reset_transform().unwrap();
+        rotate_canvas(players[0].rotation);
+        change_it(&ROTATION_ANGLE, players[0].rotation);
+    }
+
     for (i, player) in players.iter().enumerate() {
-        console_log!("Player {} is at ({}, {})", i, player.x, player.y);
         draw_player_orientation(player);
         display_player_position(player.x, player.y, player.team);
         draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
     }
+}
+/// Create a HTML button
+/// # Arguments
+/// * `name` - The name of the button
+/// # Example
+/// ```
+/// let btn = create_button("name");
+/// ```
+fn create_button(name: &str) -> HtmlButtonElement {
+    let (_, _, document) = get_canvas_context_document();
+    let btn = document
+        .create_element("button")
+        .unwrap()
+        .dyn_into::<HtmlButtonElement>()
+        .unwrap();
+    btn.set_text_content(Some(name));
+    btn.set_id(name);
+    document.body().unwrap().append_child(&btn).unwrap();
+    btn
+}
+/// Create a HTML button and set the onclick event
+/// # Arguments
+/// * `callback` - The callback function to execute when the button is clicked
+/// * `name` - The name of the button
+/// # Example
+/// ```
+/// let deg = 90f64;
+/// onclick_button(Box::new(move || {
+///   rotate_canvas(*deg);
+///  update_it(&ROTATION_ANGLE, deg);
+/// }), "string");
+/// ```
+fn onclick_button(mut callback: Box<dyn FnMut()>, name: &str) {
+    let onclick_btn = create_button(name);
+    let onclick_canvas = Closure::wrap(Box::new(move || {
+        callback();
+    }) as Box<dyn FnMut()>);
+
+    onclick_btn.set_onclick(Some(onclick_canvas.as_ref().unchecked_ref()));
+    onclick_canvas.forget();
+}
+/// Reset the canvas rotation
+/// # Example
+/// ```
+/// reset_button();
+/// ```
+pub fn reset_button() {
+    onclick_button(
+        Box::new(|| {
+            reset_canvas();
+            update_it(&ROTATION_ANGLE, 0.0);
+        }),
+        "reset",
+    );
 }
 /// Activate the rotate button
 /// # Arguments
@@ -176,28 +283,16 @@ pub fn draw_players(players: &[Player]) {
 /// activate_rotate(90f64);
 /// ```
 #[wasm_bindgen]
-pub fn activate_rotate(deg: f64) {
-    let (_, _, document) = get_canvas_context_document();
-    let rotate_btn = document
-        .create_element("button")
-        .unwrap()
-        .dyn_into::<HtmlButtonElement>()
-        .unwrap();
-    let deg_str = deg.to_string();
-    rotate_btn.set_text_content(Some(deg_str.as_str()));
-    rotate_btn.set_id(deg_str.as_str());
-    rotate_btn.set_class_name("rotate-btn");
-    document.body().unwrap().append_child(&rotate_btn).unwrap();
-
-    let rotate_canvas = Closure::wrap(Box::new(move || {
-        rotate_canvas(deg);
-        update_it(&ROTATION_ANGLE, deg);
-    }) as Box<dyn FnMut()>);
-
-    rotate_btn.set_onclick(Some(rotate_canvas.as_ref().unchecked_ref()));
-    rotate_canvas.forget();
+pub fn activate_rotate(radian: f64) {
+    let radian_clone = Rc::new(radian);
+    onclick_button(
+        Box::new(move || {
+            rotate_canvas(*radian_clone);
+            update_it(&ROTATION_ANGLE, radian);
+        }),
+        radian.to_string().as_str(),
+    );
 }
-
 /// Rotate the canvas
 /// # Arguments
 /// * `deg` - The degree to rotate the canvas by
@@ -219,7 +314,7 @@ pub fn rotate_canvas(deg: f64) {
 
     context.translate(-width / 2f64, -height / 2f64).unwrap();
     console_log!("Translated canvas to reset origin");
-    clear_and_redraw();
+    clear_and_refresh();
 }
 /// Convert degrees to radians
 /// # Arguments
@@ -282,4 +377,79 @@ pub fn draw_player_orientation(player: &Player) {
     context.set_line_width(3.0);
     context.stroke();
     context.restore();
+}
+/// Create a checkbox
+/// # Arguments
+/// * `name` - The name of the checkbox
+/// # Example
+/// ```
+/// create_checkbox("name");
+/// ```
+fn create_checkbox(name: &str) -> HtmlInputElement {
+    let (_, _, document) = get_canvas_context_document();
+    let follow_checkbox = document
+        .create_element("input")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()
+        .unwrap();
+    follow_checkbox.set_id(name);
+    follow_checkbox.set_type("checkbox");
+
+    follow_checkbox
+}
+/// Create a label
+/// # Arguments
+/// * `name` - The name of the label
+/// # Example
+/// ```
+/// create_label("name");
+/// ```
+fn create_label(name: &str) -> HtmlLabelElement {
+    let (_, _, document) = get_canvas_context_document();
+    let follow_label = document
+        .create_element("label")
+        .unwrap()
+        .dyn_into::<HtmlLabelElement>()
+        .unwrap();
+
+    follow_label.set_class_name(name);
+
+    follow_label
+}
+/// Create a span
+/// # Arguments
+/// * `name` - The name of the span
+/// # Example
+/// ```
+/// create_span("name");
+/// ```
+fn create_span(name: &str) -> HtmlSpanElement {
+    let (_, _, document) = get_canvas_context_document();
+    let follow_span = document
+        .create_element("span")
+        .unwrap()
+        .dyn_into::<HtmlSpanElement>()
+        .unwrap();
+    follow_span.set_class_name(name);
+
+    follow_span
+}
+/// Create a toggle button
+/// # Arguments
+/// * `name` - The name of the toggle button
+/// # Example
+/// ```
+/// create_toggle("toggle_switch");
+/// ```
+pub fn create_toggle(name: &str) {
+    let checkbox = create_checkbox(name);
+
+    let label = create_label("switch");
+    let span_round = create_span("slider round");
+    let (_, _, document) = get_canvas_context_document();
+    let body = document.body().unwrap();
+
+    body.append_child(&label).unwrap();
+    label.append_child(&checkbox).unwrap();
+    label.append_child(&span_round).unwrap();
 }
