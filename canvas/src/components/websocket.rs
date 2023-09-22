@@ -31,6 +31,18 @@ pub struct Players {
     pub rotation: Vec<f64>,
     pub scoped: Vec<i32>,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct GameInfo {
+    pub t_score: Vec<i32>,
+    pub ct_score: Vec<i32>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Data {
+    pub players: Players,
+    pub game_info: GameInfo,
+}
 /// A macro to provide `println!(..)`-style syntax for `console.log` logging.
 /// # Example
 /// ```
@@ -58,8 +70,9 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
             let txt_str = txt.as_string().unwrap();
             console_log!("message event, received Text");
             // Process received message
-            match serde_json::from_str::<Players>(&txt_str) {
-                Ok(player_data) => {
+            match serde_json::from_str::<Data>(&txt_str) {
+                Ok(game_data) => {
+                    let player_data = game_data.players;
                     let mut players: Vec<Player> = Vec::new();
                     // Push the player data into a vector of players
                     for i in 0..player_data.x.len() {
@@ -80,7 +93,6 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     if run_once {
                         player_dropdown(&players.len());
                         run_once = false;
->>>>>>> canvas/src/components/websocket.rs
                     }
                 }
                 Err(err) => console_log!("Error parsing JSON: {:?}", err),
