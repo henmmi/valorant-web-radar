@@ -1,10 +1,12 @@
-use super::canvas::{clear_and_refresh, draw_players};
+use super::canvas::{clear_and_refresh, draw_players, on_toggle};
 use super::macros::{console_log, log};
+use crate::components::canvas::player_dropdown;
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
+
 /// Data container for a single player
 #[derive(Deserialize, Debug)]
 pub struct Player {
@@ -46,6 +48,8 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
     // Create WebSocket connection.
     let ws = WebSocket::new(url)?;
 
+    let mut run_once = true;
+
     // Listen for incoming test messages
     let onmessage_callback = Closure::<dyn FnMut(_)>::new(move |e: MessageEvent| {
         if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
@@ -66,8 +70,13 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             rotation: player_data.rotation[i],
                             scoped: player_data.scoped[i],
                         });
-                        clear_and_refresh();
-                        draw_players(&players);
+                    }
+                    clear_and_refresh();
+                    on_toggle(&players);
+                    draw_players(&players);
+                    if run_once {
+                        player_dropdown(&players.len());
+                        run_once = false;
                     }
                 }
                 Err(err) => console_log!("Error parsing JSON: {:?}", err),
