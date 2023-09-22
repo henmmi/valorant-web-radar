@@ -121,7 +121,13 @@ pub fn create_select(name: &str) -> HtmlSelectElement {
     player_interact.append_child(&select).unwrap();
     select
 }
-
+/// Create an option
+/// # Arguments
+/// * `name` - The name of the option
+/// # Example
+/// ```
+/// create_option("name");
+/// ```
 pub fn create_option(name: &str) -> HtmlOptionElement {
     let (_, _, document) = canvas::get_canvas_context_document();
     let option = document
