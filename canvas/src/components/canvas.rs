@@ -9,10 +9,24 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{
-    HtmlButtonElement, HtmlCanvasElement, HtmlInputElement, HtmlLabelElement, HtmlSpanElement,
+    HtmlButtonElement, HtmlCanvasElement, HtmlDivElement, HtmlInputElement, HtmlLabelElement,
+    HtmlOptionElement, HtmlSelectElement, HtmlSpanElement,
 };
-
-// Create a global variable to store the rotation angle
+/// Generates the canvas and user interface
+/// # Example
+/// ```
+/// initialise_interface();
+/// ```
+pub fn initialise_interface() {
+    clear_and_refresh();
+    reset_button();
+    activate_rotate(90f64);
+    activate_rotate(180f64);
+    activate_rotate(-90f64);
+    activate_rotate(-180f64);
+    create_toggle("orientation_toggle");
+}
+// Global variable to store the rotation angle of the canvas
 lazy_static! {
     static ref ROTATION_ANGLE: RwLock<f64> = RwLock::new(0.0);
 }
@@ -201,25 +215,45 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 /// draw_players(&[Player]);
 /// ```
 pub fn draw_players(players: &[Player]) {
+    clear_and_refresh();
+    for (i, player) in players.iter().enumerate() {
+        draw_player_orientation(player);
+        display_player_position(player.x, player.y, player.team);
+        draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
+    }
+}
+/// Rotates the canvas when the toggle button is checked
+/// Based on the player selected in the dropdown
+/// # Arguments
+/// * `players` - The player's data through the struct 'Player' in a vector
+/// # Example
+/// ```
+/// on_toggle(&[Player]);
+/// ```
+pub fn on_toggle(players: &[Player]) {
     let (_, context, document) = get_canvas_context_document();
     let toggle_btn = document
         .get_element_by_id("orientation_toggle")
         .unwrap()
         .dyn_into::<HtmlInputElement>()
         .unwrap();
-    clear_and_refresh();
-    // While the button is checked, rotate the canvas to the player's orientation.
     if toggle_btn.checked() {
+        let dropdown_value = check_player_dropdown();
+        console_log!("Dropdown value: {}", dropdown_value);
+        let rotation_angle = &players[dropdown_value].rotation;
         context.reset_transform().unwrap();
-        rotate_canvas(players[0].rotation);
-        change_it(&ROTATION_ANGLE, players[0].rotation);
+        rotate_canvas(*rotation_angle);
+        change_it(&ROTATION_ANGLE, *rotation_angle);
     }
-
-    for (i, player) in players.iter().enumerate() {
-        draw_player_orientation(player);
-        display_player_position(player.x, player.y, player.team);
-        draw_player_labels(i, player.x, player.y, get_number(&ROTATION_ANGLE));
-    }
+}
+fn check_player_dropdown() -> usize {
+    let (_, _, document) = get_canvas_context_document();
+    let player_dropdown = document
+        .get_element_by_id("player_dropdown")
+        .unwrap()
+        .dyn_into::<HtmlSelectElement>()
+        .unwrap();
+    player_dropdown.value().parse::<usize>().unwrap()
 }
 /// Create a HTML button
 /// # Arguments
@@ -237,7 +271,12 @@ fn create_button(name: &str) -> HtmlButtonElement {
         .unwrap();
     btn.set_text_content(Some(name));
     btn.set_id(name);
-    document.body().unwrap().append_child(&btn).unwrap();
+    let button_list = document
+        .get_element_by_id("button_row")
+        .unwrap()
+        .dyn_into::<HtmlDivElement>()
+        .unwrap();
+    button_list.append_child(&btn).unwrap();
     btn
 }
 /// Create a HTML button and set the onclick event
@@ -266,7 +305,7 @@ fn onclick_button(mut callback: Box<dyn FnMut()>, name: &str) {
 /// ```
 /// reset_button();
 /// ```
-pub fn reset_button() {
+fn reset_button() {
     onclick_button(
         Box::new(|| {
             reset_canvas();
@@ -283,14 +322,14 @@ pub fn reset_button() {
 /// activate_rotate(90f64);
 /// ```
 #[wasm_bindgen]
-pub fn activate_rotate(radian: f64) {
-    let radian_clone = Rc::new(radian);
+pub fn activate_rotate(deg: f64) {
+    let deg_clone = Rc::new(deg);
     onclick_button(
         Box::new(move || {
-            rotate_canvas(*radian_clone);
-            update_it(&ROTATION_ANGLE, radian);
+            rotate_canvas(*deg_clone);
+            update_it(&ROTATION_ANGLE, deg);
         }),
-        radian.to_string().as_str(),
+        deg.to_string().as_str(),
     );
 }
 /// Rotate the canvas
@@ -350,7 +389,7 @@ fn get_canvas_width_height() -> (f64, f64) {
 /// draw_player_orientation(&player);
 /// ```
 // create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
-pub fn draw_player_orientation(player: &Player) {
+fn draw_player_orientation(player: &Player) {
     let (_, context, _) = get_canvas_context_document();
 
     // Determine team colour
@@ -441,15 +480,63 @@ fn create_span(name: &str) -> HtmlSpanElement {
 /// ```
 /// create_toggle("toggle_switch");
 /// ```
-pub fn create_toggle(name: &str) {
+fn create_toggle(name: &str) {
     let checkbox = create_checkbox(name);
 
     let label = create_label("switch");
     let span_round = create_span("slider round");
     let (_, _, document) = get_canvas_context_document();
-    let body = document.body().unwrap();
+    let player_interact = document
+        .get_element_by_id("player_interact")
+        .unwrap()
+        .dyn_into::<HtmlDivElement>()
+        .unwrap();
 
-    body.append_child(&label).unwrap();
+    player_interact.append_child(&label).unwrap();
     label.append_child(&checkbox).unwrap();
     label.append_child(&span_round).unwrap();
+}
+/// Create a select
+/// # Arguments
+/// * `name` - The name of the select
+/// # Example
+/// ```
+/// create_select("name");
+/// ```
+fn create_select(name: &str) -> HtmlSelectElement {
+    let (_, _, document) = get_canvas_context_document();
+    let select = document
+        .create_element("select")
+        .unwrap()
+        .dyn_into::<HtmlSelectElement>()
+        .unwrap();
+    select.set_id(name);
+    select.set_name(name);
+    let player_interact = document
+        .get_element_by_id("player_interact")
+        .unwrap()
+        .dyn_into::<HtmlDivElement>()
+        .unwrap();
+    player_interact.append_child(&select).unwrap();
+    select
+}
+
+fn create_option(name: &str) -> HtmlOptionElement {
+    let (_, _, document) = get_canvas_context_document();
+    let option = document
+        .create_element("option")
+        .unwrap()
+        .dyn_into::<HtmlOptionElement>()
+        .unwrap();
+    option.set_value(name);
+    option.set_text_content(Some(name));
+    option
+}
+
+pub fn player_dropdown(players: &usize) {
+    let player_list = create_select("player_dropdown");
+    for player in 0..*players {
+        let option = create_option(player.to_string().as_str());
+        player_list.append_child(&option).unwrap();
+    }
 }
