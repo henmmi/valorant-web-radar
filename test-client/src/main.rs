@@ -7,7 +7,7 @@ use url::Url;
 fn main() {
     let (mut socket, _response) = connect(Url::parse("ws://localhost:27017").unwrap())
         .expect("[test-client] cannot connect to socket");
-
+    let rand_player_number = rand::thread_rng().gen_range(1..20);
     loop {
         let mut _x = json::Array::new();
         let mut _y = json::Array::new();
@@ -18,7 +18,7 @@ fn main() {
         let mut _scoped = json::Array::new();
         let mut rng = rand::thread_rng();
 
-        for _i in 0..10 {
+        for _i in 0..rand_player_number {
             _x.push(json::from(rng.gen_range(0.0..1000.0)));
             _y.push(json::from(rng.gen_range(0.0..1000.0)));
             _health.push(json::from(rng.gen_range(0.0..100.0)));
