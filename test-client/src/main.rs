@@ -52,6 +52,12 @@ fn main() {
             "rotation": _rotation,
             "scoped": _scoped,
             "weapon": _weapon,
+            "kill": _kill,
+            "death": _death,
+            "assist": _assist,
+            "acs": _acs,
+            "shield": _shield,
+            "credits": _credits,
         };
 
         let mut _t_score = json::Array::new();
