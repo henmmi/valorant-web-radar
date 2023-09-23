@@ -151,7 +151,6 @@ pub fn reset_canvas() {
 
     change_it(&ROTATION_ANGLE, 0.0);
 }
-
 /// Activate the rotate button
 /// # Arguments
 /// * `deg` - The degree to rotate the canvas by
