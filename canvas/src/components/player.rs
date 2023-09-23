@@ -4,8 +4,7 @@ use crate::components::websocket::Player;
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::prelude::wasm_bindgen;
-use wasm_bindgen::{JsCast, JsValue};
-use web_sys::HtmlSelectElement;
+use wasm_bindgen::JsValue;
 
 /// Display the player's position on the canvas
 /// # Arguments
@@ -74,20 +73,6 @@ pub fn draw_players(players: &[Player]) {
         display_player_position(player.x, player.y, player.team);
         draw_player_labels(i, player.x, player.y, canvas::get_number(&ROTATION_ANGLE));
     }
-}
-/// Get the player's dropdown value
-/// # Example
-/// ```
-/// check_player_dropdown();
-/// ```
-pub fn check_player_dropdown() -> usize {
-    let (_, _, document) = canvas::get_canvas_context_document();
-    let player_dropdown = document
-        .get_element_by_id("player_dropdown")
-        .unwrap()
-        .dyn_into::<HtmlSelectElement>()
-        .unwrap();
-    player_dropdown.value().parse::<usize>().unwrap()
 }
 
 /// Draw the player's orientation on the canvas via a line

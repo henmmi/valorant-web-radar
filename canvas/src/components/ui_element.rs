@@ -1,7 +1,7 @@
 use super::macros::{console_log, log};
+use crate::components::canvas;
 use crate::components::canvas::ROTATION_ANGLE;
 use crate::components::websocket::Player;
-use crate::components::{canvas, player};
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 use web_sys::{
@@ -212,7 +212,7 @@ pub fn on_toggle(players: &[Player]) {
         .dyn_into::<HtmlInputElement>()
         .unwrap();
     if toggle_btn.checked() {
-        let dropdown_value = player::check_player_dropdown();
+        let dropdown_value = get_player_dropdown();
         console_log!("Dropdown value: {}", dropdown_value);
         let rotation_angle = &players[dropdown_value].rotation;
         context.reset_transform().unwrap();
@@ -228,9 +228,41 @@ pub fn on_toggle(players: &[Player]) {
 /// player_dropdown(&usize);
 /// ```
 pub fn player_dropdown(players: &usize) {
-    let player_list = create_select("player_dropdown");
+    let (_, _, document) = canvas::get_canvas_context_document();
+    let player_list = document
+        .get_element_by_id("player_dropdown")
+        .unwrap()
+        .dyn_into::<HtmlSelectElement>()
+        .unwrap();
+    // Clear the dropdown
+    player_list.set_inner_html("");
     for player in 0..*players {
         let option = create_option(player.to_string().as_str());
         player_list.append_child(&option).unwrap();
     }
+}
+
+/// Get the player's dropdown value
+/// # Example
+/// ```
+/// get_player_dropdown();
+/// ```
+pub fn get_player_dropdown() -> usize {
+    let (_, _, document) = canvas::get_canvas_context_document();
+    let player_dropdown = document
+        .get_element_by_id("player_dropdown")
+        .unwrap()
+        .dyn_into::<HtmlSelectElement>()
+        .unwrap();
+    player_dropdown.value().parse::<usize>().unwrap()
+}
+
+pub fn get_player_dropdown_length() -> usize {
+    let (_, _, document) = canvas::get_canvas_context_document();
+    let player_dropdown = document
+        .get_element_by_id("player_dropdown")
+        .unwrap()
+        .dyn_into::<HtmlSelectElement>()
+        .unwrap();
+    player_dropdown.length() as usize
 }
