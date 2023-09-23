@@ -34,16 +34,13 @@ pub fn draw_players(players: &[Player]) {
 /// * `team` is an integer, where 0 is red and 1 is blue
 pub fn display_player_position(player: &Player) {
     let (_, context, _) = canvas::get_canvas_context_document();
-    let team_id = identify_team(player.team);
+    let team_id = identify_team(player.team, true);
     context.begin_path();
     context
         .arc(player.x, player.y, 10.0, 0.0, f64::consts::PI * 2.0)
         .unwrap();
     context.set_fill_style(&JsValue::from_str(team_id));
     context.fill();
-    // Draw the circle's outline in white
-    context.set_stroke_style(&JsValue::from_str("white"));
-    context.stroke();
     player_health_circle(player, get_number(&ROTATION_ANGLE));
 }
 /// Draw the player's health circle on the canvas
@@ -65,12 +62,12 @@ pub fn player_health_circle(player: &Player, angle: f64) {
         .arc(
             0.0,
             0.0,
-            10.0,
+            10.25,
             calculate_starting_fill_angle(player.health),
             calculate_ending_fill_angle(player.health),
         )
         .unwrap();
-    context.set_fill_style(&JsValue::from_str("green"));
+    context.set_fill_style(&JsValue::from_str(identify_team(player.team, false)));
     context.fill();
     console_log!("Drew player health circle");
     context.restore();
@@ -87,12 +84,6 @@ pub fn player_health_circle(player: &Player, angle: f64) {
 fn draw_player_orientation(player: &Player) {
     let (_, context, _) = canvas::get_canvas_context_document();
 
-    // Determine team colour
-    let team_id = match player.team {
-        0 => "red",
-        1 => "blue",
-        _ => "black",
-    };
     // Angle in radians
     let angle = get_radian_angle(player.rotation);
     let mut view_line_size = 30f64;
@@ -106,7 +97,7 @@ fn draw_player_orientation(player: &Player) {
     context.begin_path();
     context.translate(player.x, player.y).unwrap();
     context.move_to(0.0, 0.0);
-    context.set_stroke_style(&JsValue::from_str(team_id));
+    context.set_stroke_style(&JsValue::from_str(identify_team(player.team, false)));
     context.line_to(x_line, y_line);
     context.set_line_width(3.0);
     context.stroke();
@@ -170,10 +161,18 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 /// ```
 /// identify_team(0);
 /// ```
-fn identify_team(team: i32) -> &'static str {
-    match team {
-        0 => "red",
-        1 => "blue",
-        _ => "black",
+fn identify_team(team: i32, dark: bool) -> &'static str {
+    if dark {
+        match team {
+            0 => "#66471C",
+            1 => "#212D4C",
+            _ => "black",
+        }
+    } else {
+        match team {
+            0 => "#DF9B33",
+            1 => "#6678A7",
+            _ => "black",
+        }
     }
 }
