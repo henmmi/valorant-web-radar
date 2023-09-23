@@ -125,6 +125,11 @@ pub fn clear_and_refresh() {
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
 }
+/// Reset the canvas
+/// # Example
+/// ```
+/// reset_canvas();
+/// ```
 #[wasm_bindgen]
 pub fn reset_canvas() {
     let (_, context, document) = get_canvas_context_document();

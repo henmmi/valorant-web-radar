@@ -221,7 +221,13 @@ pub fn on_toggle(players: &[Player]) {
         canvas::change_it(&ROTATION_ANGLE, *rotation_angle);
     }
 }
-
+/// Detect if the toggle button is checked
+/// # Arguments
+/// * `players` - The player's data through the struct 'Player' in a vector
+/// # Example
+/// ```
+/// toggle_label(&[Player]);
+/// ```
 pub fn toggle_label(players: &[Player]) {
     let (_, _, document) = canvas::get_canvas_context_document();
     let toggle_btn = document
@@ -269,7 +275,11 @@ pub fn get_player_dropdown() -> usize {
         .unwrap();
     player_dropdown.value().parse::<usize>().unwrap()
 }
-
+/// Get the player's dropdown length
+/// # Example
+/// ```
+/// get_player_dropdown_length();
+/// ```
 pub fn get_player_dropdown_length() -> usize {
     let (_, _, document) = canvas::get_canvas_context_document();
     let player_dropdown = document
