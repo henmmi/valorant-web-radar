@@ -1,5 +1,5 @@
 use crate::components::canvas;
-use crate::components::canvas::ROTATION_ANGLE;
+use crate::components::ui_element::toggle_label;
 use crate::components::websocket::Player;
 use js_sys::Math::{cos, sin};
 use std::f64;
@@ -40,23 +40,26 @@ pub fn display_player_position(x: f64, y: f64, team: i32) {
 /// ```
 /// draw_player_labels(0, 100.0, 100.0, 90.0);
 /// ```
-#[wasm_bindgen]
-pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
+pub fn draw_player_labels(player: &[Player], angle: f64) {
     let (_, context, _) = canvas::get_canvas_context_document();
     // Configure the text's style
     context.set_font("16px sans-serif");
     context.set_text_align("center");
     context.set_text_baseline("middle");
     context.set_fill_style(&JsValue::from_str("white"));
-    if angle != 0.0f64 {
-        context.save();
-        context.translate(x, y).unwrap();
-        let angle_rad = canvas::get_radian_angle(-angle);
-        context.rotate(angle_rad).unwrap();
-        context.fill_text(&id.to_string(), 0.0, 0.0).unwrap();
-        context.restore();
-    } else {
-        context.fill_text(&id.to_string(), x, y).unwrap();
+    for (id, player) in player.iter().enumerate() {
+        if angle != 0.0f64 {
+            context.save();
+            context.translate(player.x, player.y).unwrap();
+            let angle_rad = canvas::get_radian_angle(-angle);
+            context.rotate(angle_rad).unwrap();
+            context.fill_text(&id.to_string(), 0.0, 0.0).unwrap();
+            context.restore();
+        } else {
+            context
+                .fill_text(&id.to_string(), player.x, player.y)
+                .unwrap();
+        }
     }
 }
 
@@ -68,11 +71,11 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
 /// draw_players(&[Player]);
 /// ```
 pub fn draw_players(players: &[Player]) {
-    for (i, player) in players.iter().enumerate() {
+    for (_i, player) in players.iter().enumerate() {
         draw_player_orientation(player);
         display_player_position(player.x, player.y, player.team);
-        draw_player_labels(i, player.x, player.y, canvas::get_number(&ROTATION_ANGLE));
     }
+    toggle_label(players);
 }
 
 /// Draw the player's orientation on the canvas via a line

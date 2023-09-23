@@ -1,6 +1,7 @@
 use super::macros::{console_log, log};
 use crate::components::canvas;
-use crate::components::canvas::ROTATION_ANGLE;
+use crate::components::canvas::{get_number, ROTATION_ANGLE};
+use crate::components::player::draw_player_labels;
 use crate::components::websocket::Player;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
@@ -80,14 +81,14 @@ fn create_span(name: &str) -> HtmlSpanElement {
 /// ```
 /// create_toggle("toggle_switch");
 /// ```
-pub fn create_toggle(name: &str) {
+pub fn create_toggle(name: &str, div_name: &str) {
     let checkbox = create_checkbox(name);
 
     let label = create_label("switch");
     let span_round = create_span("slider round");
     let (_, _, document) = canvas::get_canvas_context_document();
     let player_interact = document
-        .get_element_by_id("player_interact")
+        .get_element_by_id(div_name)
         .unwrap()
         .dyn_into::<HtmlDivElement>()
         .unwrap();
@@ -218,6 +219,18 @@ pub fn on_toggle(players: &[Player]) {
         context.reset_transform().unwrap();
         canvas::rotate_canvas(*rotation_angle);
         canvas::change_it(&ROTATION_ANGLE, *rotation_angle);
+    }
+}
+
+pub fn toggle_label(players: &[Player]) {
+    let (_, _, document) = canvas::get_canvas_context_document();
+    let toggle_btn = document
+        .get_element_by_id("label_toggle")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()
+        .unwrap();
+    if toggle_btn.checked() {
+        draw_player_labels(players, get_number(&ROTATION_ANGLE));
     }
 }
 /// Create the player dropdown
