@@ -1,11 +1,27 @@
+use super::macros::{console_log, log};
 use crate::components::canvas;
-use crate::components::canvas::ROTATION_ANGLE;
+use crate::components::canvas::{get_radian_angle, ROTATION_ANGLE};
 use crate::components::websocket::Player;
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
+/// Draw the player's label on the canvas and rotate it
+/// # Arguments
+/// * `players` - The player's data through the struct 'Player' in a vector
+/// # Example
+/// ```
+/// draw_players(&[Player]);
+/// ```
+pub fn draw_players(players: &[Player]) {
+    for (i, player) in players.iter().enumerate() {
+        draw_player_orientation(player);
+        display_player_position(player.x, player.y, player.team);
+        player_health_circle(player.x, player.y, player.health);
+        draw_player_labels(i, player.x, player.y, canvas::get_number(&ROTATION_ANGLE));
+    }
+}
 /// Display the player's position on the canvas
 /// # Arguments
 /// * `team` - The player's team
@@ -28,6 +44,42 @@ pub fn display_player_position(x: f64, y: f64, team: i32) {
     // Draw the circle's outline in white
     context.set_stroke_style(&JsValue::from_str("white"));
     context.stroke();
+}
+
+pub fn player_health_circle(x: f64, y: f64, health: f64) {
+    let (_, context, _) = canvas::get_canvas_context_document();
+    // TODO: If following player, use follow angle.
+    // TODO:: Fix orientation of the player health circle.
+    console_log!("Starting angle: {}", canvas::get_number(&ROTATION_ANGLE));
+    context.save();
+    context.reset_transform().unwrap();
+    context.translate(x, y).unwrap();
+    context.begin_path();
+    context
+        .arc(
+            0.0,
+            0.0,
+            10.0,
+            calculate_starting_fill_angle(health),
+            calculate_ending_fill_angle(health),
+        )
+        .unwrap();
+    context.restore();
+    context.set_fill_style(&JsValue::from_str("green"));
+    context.fill();
+    context.stroke();
+}
+
+pub fn calculate_starting_fill_angle(health: f64) -> f64 {
+    let starting_angle =
+        get_radian_angle((89f64 - health * 1.8f64) + canvas::get_number(&ROTATION_ANGLE));
+    starting_angle
+}
+
+pub fn calculate_ending_fill_angle(health: f64) -> f64 {
+    let ending_angle =
+        get_radian_angle((90f64 + health * 1.8f64) + canvas::get_number(&ROTATION_ANGLE));
+    ending_angle
 }
 
 /// Draw the player's label on the canvas
@@ -57,21 +109,6 @@ pub fn draw_player_labels(id: usize, x: f64, y: f64, angle: f64) {
         context.restore();
     } else {
         context.fill_text(&id.to_string(), x, y).unwrap();
-    }
-}
-
-/// Draw the player's label on the canvas and rotate it
-/// # Arguments
-/// * `players` - The player's data through the struct 'Player' in a vector
-/// # Example
-/// ```
-/// draw_players(&[Player]);
-/// ```
-pub fn draw_players(players: &[Player]) {
-    for (i, player) in players.iter().enumerate() {
-        draw_player_orientation(player);
-        display_player_position(player.x, player.y, player.team);
-        draw_player_labels(i, player.x, player.y, canvas::get_number(&ROTATION_ANGLE));
     }
 }
 
