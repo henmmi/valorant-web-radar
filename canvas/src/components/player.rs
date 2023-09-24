@@ -139,21 +139,33 @@ pub fn draw_players(players: &[Player]) {
 fn draw_player_orientation(player: &Player) {
     let (_, context, _) = canvas::get_canvas_context_document();
     // Angle in radians
-    let angle = get_radian_angle(player.rotation);
-    let mut view_line_size = 30f64;
+    let angle = player.rotation;
+    let mut view_line_size = 20f64;
     // If scoped, increase the line size by 20 pixels
     if player.scoped == 1 {
         view_line_size += 20f64;
     }
-    let x_line = view_line_size * cos(angle);
-    let y_line = view_line_size * sin(angle);
+    // Ending angle = player.rotation + 45 degrees
+    // Starting angle = player.rotation - 45 degrees
+    // Radius = 11.0
+    let start = get_radian_angle(angle - 15.0);
+    let end = get_radian_angle(angle + 15.0);
+    let x = view_line_size * cos(get_radian_angle(angle));
+    let y = view_line_size * sin(get_radian_angle(angle));
+
     context.save();
     context.begin_path();
     context.translate(player.x, player.y).unwrap();
-    context.move_to(0.0, 0.0);
+    context.arc(0.0, 0.0, 13.0, start, end).unwrap();
+    context.line_to(x, y);
+
+    context.move_to(13.0 * cos(end), 13.0 * sin(end));
+    context.line_to(x, y);
+
     context.set_stroke_style(&JsValue::from_str(identify_team(player.team, false)));
-    context.line_to(x_line, y_line);
-    context.set_line_width(3.0);
+    context.set_fill_style(&JsValue::from_str(identify_team(player.team, false)));
+    context.fill();
+
     context.stroke();
     context.restore();
 }
