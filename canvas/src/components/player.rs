@@ -96,17 +96,17 @@ pub fn draw_player_labels(player: &[Player], angle: f64) {
     context.set_text_align("center");
     context.set_text_baseline("middle");
     context.set_fill_style(&JsValue::from_str("white"));
-    for (id, player) in player.iter().enumerate() {
+    for (_i, player) in player.iter().enumerate() {
         if angle != 0.0f64 {
             context.save();
             context.translate(player.x, player.y).unwrap();
             let angle_rad = get_radian_angle(-angle);
             context.rotate(angle_rad).unwrap();
-            context.fill_text(&id.to_string(), 0.0, 0.0).unwrap();
+            context.fill_text(&player.id.to_string(), 0.0, 0.0).unwrap();
             context.restore();
         } else {
             context
-                .fill_text(&id.to_string(), player.x, player.y)
+                .fill_text(&player.id.to_string(), player.x, player.y)
                 .unwrap();
         }
     }
