@@ -11,6 +11,7 @@ use web_sys::{ErrorEvent, MessageEvent, WebSocket};
 /// Data container for a single player
 #[derive(Deserialize, Debug)]
 pub struct Player {
+    pub id: i32,
     pub x: f64,
     pub y: f64,
     pub health: f64,
@@ -22,6 +23,7 @@ pub struct Player {
 /// Data container for all players
 #[derive(Deserialize, Debug)]
 pub struct Players {
+    pub id: Vec<i32>,
     pub x: Vec<f64>,
     pub y: Vec<f64>,
     pub health: Vec<f64>,
@@ -74,6 +76,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     // Push the player data into a vector of players
                     for i in 0..player_data.x.len() {
                         players.push(Player {
+                            id: player_data.id[i],
                             x: player_data.x[i],
                             y: player_data.y[i],
                             health: player_data.health[i],
