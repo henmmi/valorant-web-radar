@@ -127,27 +127,17 @@ pub fn draw_players(players: &[Player]) {
     toggle_label(players);
 }
 
-/// Draw the player's orientation on the canvas via a line
-/// And extend the line if the player is scoped
+/// Display the players orientation as a triangle
 /// # Arguments
 /// * `player` - Input player data through the struct 'Player'
 /// # Example
 /// ```
 /// draw_player_orientation(&player);
 /// ```
-// create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
 fn draw_player_orientation(player: &Player) {
     let (_, context, _) = canvas::get_canvas_context_document();
-    // Angle in radians
     let angle = player.rotation;
-    let mut view_line_size = 20f64;
-    // If scoped, increase the line size by 20 pixels
-    if player.scoped == 1 {
-        view_line_size += 20f64;
-    }
-    // Ending angle = player.rotation + 45 degrees
-    // Starting angle = player.rotation - 45 degrees
-    // Radius = 11.0
+    let view_line_size = 20f64;
     let start = get_radian_angle(angle - 15.0);
     let end = get_radian_angle(angle + 15.0);
     let x = view_line_size * cos(get_radian_angle(angle));
@@ -156,9 +146,10 @@ fn draw_player_orientation(player: &Player) {
     context.save();
     context.begin_path();
     context.translate(player.x, player.y).unwrap();
+
+    // Draw the triangle for the player's orientation
     context.arc(0.0, 0.0, 13.0, start, end).unwrap();
     context.line_to(x, y);
-
     context.move_to(13.0 * cos(end), 13.0 * sin(end));
     context.line_to(x, y);
 
