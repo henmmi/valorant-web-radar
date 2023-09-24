@@ -120,7 +120,7 @@ pub fn clear_and_refresh() {
         .dyn_into::<web_sys::HtmlImageElement>()
         .unwrap();
     image.set_id("map");
-    image.set_src("http://127.0.0.1:8080/images/Ascent-391657b8f8b973aa5d90.png");
+    image.set_src("http://127.0.0.1:8080/images/Ascent.png");
     context
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
@@ -144,7 +144,7 @@ pub fn reset_canvas() {
         .dyn_into::<web_sys::HtmlImageElement>()
         .unwrap();
     image.set_id("map");
-    image.set_src("http://127.0.0.1:8080/images/Ascent-391657b8f8b973aa5d90.png");
+    image.set_src("http://127.0.0.1:8080/images/Ascent.png");
     context
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
