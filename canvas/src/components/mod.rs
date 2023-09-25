@@ -1,5 +1,4 @@
 pub mod canvas;
-pub mod element;
 pub mod elements;
 pub mod game_data;
 pub mod player;

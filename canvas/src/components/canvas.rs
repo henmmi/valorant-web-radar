@@ -1,6 +1,6 @@
 use super::macros::{console_log, log};
 use crate::components::elements::get_html_image_element_by_id;
-use crate::components::{element, ui_element};
+use crate::components::{elements, ui_element};
 use lazy_static::lazy_static;
 use std::f64;
 use std::rc::Rc;
@@ -76,7 +76,7 @@ pub fn get_number(lock: &RwLock<f64>) -> f64 {
 /// ```
 #[wasm_bindgen]
 pub fn clear_and_refresh() {
-    let (_, context, _) = element::get_canvas_context_document();
+    let (_, context, _) = elements::get_canvas_context_document();
     context.save();
     // Reset the transform to clear the canvas
     if let Err(err) = context.reset_transform() {
@@ -102,7 +102,7 @@ pub fn clear_and_refresh() {
 /// ```
 #[wasm_bindgen]
 pub fn reset_canvas() {
-    let (_, context, _) = element::get_canvas_context_document();
+    let (_, context, _) = elements::get_canvas_context_document();
     // Reset the transform to clear the canvas
     if let Err(err) = context.reset_transform() {
         console_log!("Error resetting transform: {:?}", err)
@@ -149,7 +149,7 @@ pub fn activate_rotate(deg: f64) {
 /// ```
 #[wasm_bindgen]
 pub fn rotate_canvas(deg: f64) {
-    let (_, context, _) = element::get_canvas_context_document();
+    let (_, context, _) = elements::get_canvas_context_document();
     let (width, height) = get_canvas_width_height();
     context.translate(width / 2f64, height / 2f64).unwrap();
     console_log!("Translated canvas to set origin");
@@ -183,7 +183,7 @@ pub fn get_radian_angle(deg: f64) -> f64 {
 /// let (width, height) = get_canvas_width_height();
 /// ```
 pub fn get_canvas_width_height() -> (f64, f64) {
-    let (canvas, _, _) = element::get_canvas_context_document();
+    let (canvas, _, _) = elements::get_canvas_context_document();
     let width = canvas.width() as f64;
     let height = canvas.height() as f64;
     (width, height)

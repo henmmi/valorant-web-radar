@@ -1,13 +1,44 @@
 use super::macros::{console_log, log};
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{HtmlDivElement, HtmlImageElement};
+use web_sys::{HtmlCanvasElement, HtmlDivElement, HtmlImageElement};
+
+/// Getters for the canvas, context, and document
+/// # Returns
+/// * `canvas` - The canvas element
+/// * `context` - The canvas context
+/// * `document` - The document
+/// # Example
+/// ```
+/// let (canvas, context, document) = get_canvas_context_document();
+/// ```
+pub fn get_canvas_context_document() -> (
+    HtmlCanvasElement,
+    web_sys::CanvasRenderingContext2d,
+    web_sys::Document,
+) {
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("canvas").unwrap();
+    let canvas: HtmlCanvasElement = canvas
+        .dyn_into::<HtmlCanvasElement>()
+        .map_err(|_| ())
+        .unwrap();
+
+    let context = canvas
+        .get_context("2d")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<web_sys::CanvasRenderingContext2d>()
+        .unwrap();
+
+    (canvas, context, document)
+}
 
 pub fn create_html_image_element(
     id: &str,
     url: &str,
     class: &str,
 ) -> Result<HtmlImageElement, JsValue> {
-    let (_, _, document) = super::element::get_canvas_context_document();
+    let (_, _, document) = get_canvas_context_document();
     let element = document.create_element("img")?;
     let img_elem = element.dyn_into::<HtmlImageElement>()?;
     img_elem.set_id(id);
@@ -17,7 +48,7 @@ pub fn create_html_image_element(
 }
 
 pub fn get_html_image_element_by_id(id: &str) -> Result<HtmlImageElement, ()> {
-    let (_, _, document) = super::element::get_canvas_context_document();
+    let (_, _, document) = get_canvas_context_document();
     let element = match document.get_element_by_id(id) {
         Some(element) => element,
         None => panic!("No img element found with id: {}", id),
@@ -32,7 +63,7 @@ pub fn get_html_image_element_by_id(id: &str) -> Result<HtmlImageElement, ()> {
 }
 
 pub fn get_div_element_by_id(id: &str) -> Result<HtmlDivElement, ()> {
-    let (_, _, document) = super::element::get_canvas_context_document();
+    let (_, _, document) = get_canvas_context_document();
     let element = match document.get_element_by_id(id) {
         Some(element) => element,
         None => panic!("No div element found with id: {}", id),
