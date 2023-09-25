@@ -127,6 +127,14 @@ pub fn draw_players(players: &[Player]) {
     }
     toggle_label(players);
 }
+/// Draw the player's icon on the canvas
+/// # Arguments
+/// * `player` - Input player data through the struct 'Player'
+/// * `angle` - The player's angle
+/// # Example
+/// ```
+/// draw_player_icon(&player, 90.0);
+/// ```
 pub fn draw_player_icon(player: &Player, angle: f64) {
     let (_, context, _) = get_canvas_context_document();
     let agent_name = Player::get_agent_name(player.id);

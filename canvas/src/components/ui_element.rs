@@ -1,3 +1,4 @@
+use super::elements::get_div_element_by_id;
 use super::macros::{console_log, log};
 use super::player_data::Player;
 use crate::components::canvas::{get_number, ROTATION_ANGLE};
@@ -6,8 +7,8 @@ use crate::components::{canvas, elements};
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 use web_sys::{
-    HtmlButtonElement, HtmlDivElement, HtmlInputElement, HtmlLabelElement, HtmlOptionElement,
-    HtmlSelectElement, HtmlSpanElement,
+    HtmlButtonElement, HtmlInputElement, HtmlLabelElement, HtmlOptionElement, HtmlSelectElement,
+    HtmlSpanElement,
 };
 
 /// Create a HTML button
@@ -26,13 +27,13 @@ pub fn create_button(name: &str) -> HtmlButtonElement {
         .unwrap();
     btn.set_text_content(Some(name));
     btn.set_id(name);
-    let button_list = document
-        .get_element_by_id("button_row")
-        .unwrap()
-        .dyn_into::<HtmlDivElement>()
-        .unwrap();
-    button_list.append_child(&btn).unwrap();
-    btn
+    match get_div_element_by_id("button_row") {
+        Ok(div) => {
+            div.append_child(&btn).unwrap();
+            btn
+        }
+        Err(_) => panic!("No div element found with id: {}", name),
+    }
 }
 
 /// Create a label
@@ -86,16 +87,14 @@ pub fn create_toggle(name: &str, div_name: &str) {
 
     let label = create_label("switch");
     let span_round = create_span("slider round");
-    let (_, _, document) = elements::get_canvas_context_document();
-    let player_interact = document
-        .get_element_by_id(div_name)
-        .unwrap()
-        .dyn_into::<HtmlDivElement>()
-        .unwrap();
-
-    player_interact.append_child(&label).unwrap();
-    label.append_child(&checkbox).unwrap();
-    label.append_child(&span_round).unwrap();
+    match get_div_element_by_id(div_name) {
+        Ok(div) => {
+            div.append_child(&label).unwrap();
+            label.append_child(&checkbox).unwrap();
+            label.append_child(&span_round).unwrap();
+        }
+        Err(_) => panic!("No div element found with id: {}", div_name),
+    }
 }
 
 /// Create a select
@@ -114,13 +113,13 @@ pub fn create_select(name: &str) -> HtmlSelectElement {
         .unwrap();
     select.set_id(name);
     select.set_name(name);
-    let player_interact = document
-        .get_element_by_id("player_interact")
-        .unwrap()
-        .dyn_into::<HtmlDivElement>()
-        .unwrap();
-    player_interact.append_child(&select).unwrap();
-    select
+    match get_div_element_by_id("player_interact") {
+        Ok(div) => {
+            div.append_child(&select).unwrap();
+            select
+        }
+        Err(_) => panic!("No div element found with id: {}", name),
+    }
 }
 /// Create an option
 /// # Arguments

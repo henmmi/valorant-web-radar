@@ -37,6 +37,13 @@ pub struct GameInfo {
 }
 
 impl GameInfo {
+    /// Get the map url
+    /// # Arguments
+    /// * `name` - The name of the map
+    /// # Example
+    /// ```
+    /// assert_eq!(GameInfo::get_map_url("Ascent"), "http://127.0.0.1:8080/images/Ascent.png");
+    /// ```
     pub fn get_map_url(name: &str) -> String {
         "http://127.0.0.1:8080/images/".to_owned() + name + ".png"
     }
@@ -55,7 +62,14 @@ impl Preloader {
             maps: HashMap::new(),
         }
     }
-
+    /// Preload the agents icons
+    /// # Arguments
+    /// * `class` - The class of the image element
+    /// # Example
+    /// ```
+    /// let preloader = Preloader::new();
+    /// preloader.preload_agents("agent");
+    /// ```
     pub fn preload_agents(&mut self, class: &str) {
         if let Ok(div) = get_div_element_by_id("player_storage") {
             for (id, _player) in Agent::iter().enumerate() {
@@ -77,7 +91,14 @@ impl Preloader {
             }
         }
     }
-
+    /// Preload the maps icons
+    /// # Arguments
+    /// * `class` - The class of the image element
+    /// # Example
+    /// ```
+    /// let preloader = Preloader::new();
+    /// preloader.preload_maps("map");
+    /// ```
     pub fn preload_maps(&mut self, class: &str) {
         if let Ok(div) = get_div_element_by_id("map_storage") {
             for map_name in Map::iter() {

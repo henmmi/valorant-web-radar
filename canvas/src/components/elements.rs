@@ -32,7 +32,15 @@ pub fn get_canvas_context_document() -> (
 
     (canvas, context, document)
 }
-
+/// Create a HTML image element
+/// # Arguments
+/// * `id` - The id of the image element
+/// * `url` - The url of the image element
+/// * `class` - The class of the image element
+/// # Example
+/// ```
+/// let img_elem = create_html_image_element("id", "url", "class");
+/// ```
 pub fn create_html_image_element(
     id: &str,
     url: &str,
@@ -46,7 +54,13 @@ pub fn create_html_image_element(
     img_elem.set_src(url);
     Ok(img_elem)
 }
-
+/// Get the HTML image element by id
+/// # Arguments
+/// * `id` - The id of the image element
+/// # Example
+/// ```
+/// let img_elem = get_html_image_element_by_id("id");
+/// ```
 pub fn get_html_image_element_by_id(id: &str) -> Result<HtmlImageElement, ()> {
     let (_, _, document) = get_canvas_context_document();
     let element = match document.get_element_by_id(id) {
@@ -61,7 +75,13 @@ pub fn get_html_image_element_by_id(id: &str) -> Result<HtmlImageElement, ()> {
         )),
     }
 }
-
+/// Get the HTML div element by id
+/// # Arguments
+/// * `id` - The id of the div element
+/// # Example
+/// ```
+/// let div_elem = get_div_element_by_id("id");
+/// ```
 pub fn get_div_element_by_id(id: &str) -> Result<HtmlDivElement, ()> {
     let (_, _, document) = get_canvas_context_document();
     let element = match document.get_element_by_id(id) {

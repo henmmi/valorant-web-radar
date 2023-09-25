@@ -51,6 +51,13 @@ pub struct Players {
     pub scoped: Vec<i32>,
 }
 impl Player {
+    /// Get the agent name from the id
+    /// # Arguments
+    /// * `id` - The id of the agent
+    /// # Example
+    /// ```
+    /// assert_eq!(Player::get_agent_name(0), "Brimstone");
+    /// ```
     pub fn get_agent_name(id: i32) -> String {
         match id {
             0 => "Brimstone".to_string(),
@@ -78,6 +85,13 @@ impl Player {
             _ => "Unknown".to_string(),
         }
     }
+    /// Get the agent icon url from the id
+    /// # Arguments
+    /// * `id` - The id of the agent
+    /// # Example
+    /// ```
+    /// assert_eq!(Player::agent_player_icon_url(0), "http://127.0.0.1:8080/images/Brimstone.png");
+    /// ```
     pub fn agent_player_icon_url(id: i32) -> String {
         "http://127.0.0.1:8080/images/".to_owned() + Player::get_agent_name(id).as_str() + ".png"
     }
