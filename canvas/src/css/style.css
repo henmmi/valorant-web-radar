@@ -70,8 +70,10 @@ h1 {
 
 #interface {
     display: table-header-group;
+    position: absolute;
     max-width: 280px;
     text-align: left;
+    padding-bottom: 10px;
 }
 
 #interface > div {
@@ -90,7 +92,8 @@ body {
 }
 canvas{
     border-radius: 30px;
-    position: absolute;
+    display: flex;
+    position: fixed;
     margin: auto;
     top: 0;
     bottom: 0;
