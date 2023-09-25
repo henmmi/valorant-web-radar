@@ -1,6 +1,8 @@
 use super::macros::{console_log, log};
+use super::player_icons::Agent;
 use crate::components::canvas;
 use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
+use crate::components::elements::create_html_image_element;
 use crate::components::ui_element::toggle_label;
 use crate::components::websocket::Player;
 use js_sys::Math::{cos, sin};
@@ -123,8 +125,29 @@ pub fn draw_players(players: &[Player]) {
     for (_i, player) in players.iter().enumerate() {
         draw_player_orientation(player);
         display_player_position(player);
+        draw_player_icon(player, get_number(&ROTATION_ANGLE));
     }
     toggle_label(players);
+}
+
+pub fn draw_player_icon(player: &Player, angle: f64) {
+    let (_, context, _) = canvas::get_canvas_context_document();
+    let agent_icon = Agent::agent_player_icon_url(player.id);
+    let agent_name = Agent::get_agent_name(player.id);
+    let icon = create_html_image_element(agent_name, &agent_icon, "player");
+    let icon_width = 16.0;
+    let icon_height = 16.0;
+    context.save();
+    context.translate(player.x, player.y).unwrap();
+    context
+        .translate(-icon_width / 2.0, -icon_height / 2.0)
+        .unwrap();
+    let angle_rad = get_radian_angle(-angle);
+    context.rotate(angle_rad).unwrap();
+    context
+        .draw_image_with_html_image_element_and_dw_and_dh(&icon, 0.0, 0.0, icon_width, icon_height)
+        .unwrap();
+    context.restore();
 }
 
 /// Draw the player's orientation on the canvas via a line

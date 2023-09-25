@@ -1,5 +1,7 @@
 pub mod canvas;
+pub mod elements;
 pub mod player;
+pub mod player_icons;
 mod ui_element;
 pub mod websocket;
 
