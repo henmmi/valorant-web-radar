@@ -1,29 +1,30 @@
-pub enum Agent {
-    Brimstone,
-    Viper,
-    Omen,
-    Killjoy,
-    Cypher,
-    Sova,
-    Sage,
-    Phoenix,
-    Jett,
-    Reyna,
-    Raze,
-    Breach,
-    Skye,
-    Yoru,
-    Astra,
-    Kayo,
-    Chamber,
-    Neon,
-    Fade,
-    Harbor,
-    Gekko,
-    Deadlock,
-}
+use serde::Deserialize;
 
-impl Agent {
+/// Data container for a single player
+#[derive(Deserialize, Debug)]
+pub struct Player {
+    pub id: i32,
+    pub x: f64,
+    pub y: f64,
+    pub health: f64,
+    pub team: i32,
+    pub dormant: i32,
+    pub rotation: f64,
+    pub scoped: i32,
+}
+/// Data container for all players
+#[derive(Deserialize, Debug)]
+pub struct Players {
+    pub id: Vec<i32>,
+    pub x: Vec<f64>,
+    pub y: Vec<f64>,
+    pub health: Vec<f64>,
+    pub team: Vec<i32>,
+    pub dormant: Vec<i32>,
+    pub rotation: Vec<f64>,
+    pub scoped: Vec<i32>,
+}
+impl Player {
     pub fn get_agent_name(id: i32) -> &'static str {
         match id {
             0 => "Brimstone",
@@ -52,6 +53,6 @@ impl Agent {
         }
     }
     pub fn agent_player_icon_url(id: i32) -> String {
-        "http://127.0.0.1:8080/images/".to_owned() + Agent::get_agent_name(id) + ".png"
+        "http://127.0.0.1:8080/images/".to_owned() + Player::get_agent_name(id) + ".png"
     }
 }

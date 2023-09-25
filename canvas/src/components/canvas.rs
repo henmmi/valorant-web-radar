@@ -1,12 +1,12 @@
 use super::macros::{console_log, log};
-use crate::components::ui_element;
+use crate::components::elements::create_html_image_element;
+use crate::components::game_data::GameInfo;
+use crate::components::{element, ui_element};
 use lazy_static::lazy_static;
 use std::f64;
 use std::rc::Rc;
 use std::sync::RwLock;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys::HtmlCanvasElement;
 
 /// Generates the canvas and user interface
 /// # Example
@@ -69,36 +69,7 @@ pub fn get_number(lock: &RwLock<f64>) -> f64 {
     let r1 = lock.read().unwrap();
     *r1
 }
-/// Getters for the canvas, context, and document
-/// # Returns
-/// * `canvas` - The canvas element
-/// * `context` - The canvas context
-/// * `document` - The document
-/// # Example
-/// ```
-/// let (canvas, context, document) = get_canvas_context_document();
-/// ```
-pub fn get_canvas_context_document() -> (
-    HtmlCanvasElement,
-    web_sys::CanvasRenderingContext2d,
-    web_sys::Document,
-) {
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id("canvas").unwrap();
-    let canvas: HtmlCanvasElement = canvas
-        .dyn_into::<HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap();
 
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .unwrap();
-
-    (canvas, context, document)
-}
 /// Clear the canvas and redraw the map
 /// # Example
 /// ```
@@ -106,7 +77,7 @@ pub fn get_canvas_context_document() -> (
 /// ```
 #[wasm_bindgen]
 pub fn clear_and_refresh() {
-    let (_, context, document) = get_canvas_context_document();
+    let (_, context, _) = element::get_canvas_context_document();
     context.save();
     // Reset the transform to clear the canvas
     context.reset_transform().unwrap();
@@ -114,13 +85,8 @@ pub fn clear_and_refresh() {
     context.restore();
     console_log!("Cleared canvas");
 
-    let image = document
-        .create_element("img")
-        .unwrap()
-        .dyn_into::<web_sys::HtmlImageElement>()
-        .unwrap();
-    image.set_id("map");
-    image.set_src("http://127.0.0.1:8080/images/Ascent.png");
+    let image =
+        create_html_image_element("Ascent", GameInfo::get_map_url("Ascent").as_str(), "map");
     context
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
@@ -132,19 +98,14 @@ pub fn clear_and_refresh() {
 /// ```
 #[wasm_bindgen]
 pub fn reset_canvas() {
-    let (_, context, document) = get_canvas_context_document();
+    let (_, context, _) = element::get_canvas_context_document();
     // Reset the transform to clear the canvas
     context.reset_transform().unwrap();
     context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
     console_log!("Cleared canvas");
 
-    let image = document
-        .create_element("img")
-        .unwrap()
-        .dyn_into::<web_sys::HtmlImageElement>()
-        .unwrap();
-    image.set_id("map");
-    image.set_src("http://127.0.0.1:8080/images/Ascent.png");
+    let image =
+        create_html_image_element("Ascent", GameInfo::get_map_url("Ascent").as_str(), "map");
     context
         .draw_image_with_html_image_element(&image, 0.0, 0.0)
         .unwrap();
@@ -179,7 +140,7 @@ pub fn activate_rotate(deg: f64) {
 /// ```
 #[wasm_bindgen]
 pub fn rotate_canvas(deg: f64) {
-    let (_, context, _) = get_canvas_context_document();
+    let (_, context, _) = element::get_canvas_context_document();
     let (width, height) = get_canvas_width_height();
     context.translate(width / 2f64, height / 2f64).unwrap();
     console_log!("Translated canvas to set origin");
@@ -213,7 +174,7 @@ pub fn get_radian_angle(deg: f64) -> f64 {
 /// let (width, height) = get_canvas_width_height();
 /// ```
 pub fn get_canvas_width_height() -> (f64, f64) {
-    let (canvas, _, _) = get_canvas_context_document();
+    let (canvas, _, _) = element::get_canvas_context_document();
     let width = canvas.width() as f64;
     let height = canvas.height() as f64;
     (width, height)

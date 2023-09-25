@@ -1,8 +1,8 @@
 use super::macros::{console_log, log};
-use crate::components::canvas;
+use super::player_data::Player;
 use crate::components::canvas::{get_number, ROTATION_ANGLE};
 use crate::components::player::draw_player_labels;
-use crate::components::websocket::Player;
+use crate::components::{canvas, element};
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 use web_sys::{
@@ -18,7 +18,7 @@ use web_sys::{
 /// let btn = create_button("name");
 /// ```
 pub fn create_button(name: &str) -> HtmlButtonElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let btn = document
         .create_element("button")
         .unwrap()
@@ -43,7 +43,7 @@ pub fn create_button(name: &str) -> HtmlButtonElement {
 /// create_label("name");
 /// ```
 fn create_label(name: &str) -> HtmlLabelElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let follow_label = document
         .create_element("label")
         .unwrap()
@@ -63,7 +63,7 @@ fn create_label(name: &str) -> HtmlLabelElement {
 /// create_span("name");
 /// ```
 fn create_span(name: &str) -> HtmlSpanElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let follow_span = document
         .create_element("span")
         .unwrap()
@@ -86,7 +86,7 @@ pub fn create_toggle(name: &str, div_name: &str) {
 
     let label = create_label("switch");
     let span_round = create_span("slider round");
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let player_interact = document
         .get_element_by_id(div_name)
         .unwrap()
@@ -106,7 +106,7 @@ pub fn create_toggle(name: &str, div_name: &str) {
 /// create_select("name");
 /// ```
 pub fn create_select(name: &str) -> HtmlSelectElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let select = document
         .create_element("select")
         .unwrap()
@@ -130,7 +130,7 @@ pub fn create_select(name: &str) -> HtmlSelectElement {
 /// create_option("name");
 /// ```
 pub fn create_option(name: &str) -> HtmlOptionElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let option = document
         .create_element("option")
         .unwrap()
@@ -149,7 +149,7 @@ pub fn create_option(name: &str) -> HtmlOptionElement {
 /// create_checkbox("name");
 /// ```
 fn create_checkbox(name: &str) -> HtmlInputElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let follow_checkbox = document
         .create_element("input")
         .unwrap()
@@ -206,7 +206,7 @@ pub fn reset_button() {
 /// on_toggle(&[Player]);
 /// ```
 pub fn on_toggle(players: &[Player]) {
-    let (_, context, document) = canvas::get_canvas_context_document();
+    let (_, context, document) = element::get_canvas_context_document();
     let toggle_btn = document
         .get_element_by_id("orientation_toggle")
         .unwrap()
@@ -229,7 +229,7 @@ pub fn on_toggle(players: &[Player]) {
 /// toggle_label(&[Player]);
 /// ```
 pub fn toggle_label(players: &[Player]) {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let toggle_btn = document
         .get_element_by_id("label_toggle")
         .unwrap()
@@ -247,7 +247,7 @@ pub fn toggle_label(players: &[Player]) {
 /// player_dropdown(&usize);
 /// ```
 pub fn player_dropdown(players: &usize) {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let player_list = document
         .get_element_by_id("player_dropdown")
         .unwrap()
@@ -267,7 +267,7 @@ pub fn player_dropdown(players: &usize) {
 /// get_player_dropdown();
 /// ```
 pub fn get_player_dropdown() -> usize {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let player_dropdown = document
         .get_element_by_id("player_dropdown")
         .unwrap()
@@ -281,7 +281,7 @@ pub fn get_player_dropdown() -> usize {
 /// get_player_dropdown_length();
 /// ```
 pub fn get_player_dropdown_length() -> usize {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = element::get_canvas_context_document();
     let player_dropdown = document
         .get_element_by_id("player_dropdown")
         .unwrap()

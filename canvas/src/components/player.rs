@@ -1,10 +1,9 @@
 use super::macros::{console_log, log};
-use super::player_icons::Agent;
-use crate::components::canvas;
+use super::player_data::Player;
 use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
+use crate::components::element;
 use crate::components::elements::create_html_image_element;
 use crate::components::ui_element::toggle_label;
-use crate::components::websocket::Player;
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::JsValue;
@@ -21,7 +20,7 @@ use wasm_bindgen::JsValue;
 /// # Note
 /// * `team` is an integer, where 0 is red and 1 is blue
 pub fn display_player_position(player: &Player) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = element::get_canvas_context_document();
     let team_id = identify_team(player.team, true);
     context.begin_path();
     context
@@ -40,7 +39,7 @@ pub fn display_player_position(player: &Player) {
 /// player_health_circle(&player, 90.0);
 /// ```
 pub fn player_health_circle(player: &Player, angle: f64) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = element::get_canvas_context_document();
     context.save();
     context.translate(player.x, player.y).unwrap();
     let angle_rad = get_radian_angle(-angle);
@@ -92,7 +91,7 @@ pub fn calculate_ending_fill_angle(health: f64) -> f64 {
 /// draw_player_labels(0, 100.0, 100.0, 90.0);
 /// ```
 pub fn draw_player_labels(player: &[Player], angle: f64) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = element::get_canvas_context_document();
     // Configure the text's style
     context.set_font("16px sans-serif");
     context.set_text_align("center");
@@ -131,9 +130,9 @@ pub fn draw_players(players: &[Player]) {
 }
 
 pub fn draw_player_icon(player: &Player, angle: f64) {
-    let (_, context, _) = canvas::get_canvas_context_document();
-    let agent_icon = Agent::agent_player_icon_url(player.id);
-    let agent_name = Agent::get_agent_name(player.id);
+    let (_, context, _) = element::get_canvas_context_document();
+    let agent_icon = Player::agent_player_icon_url(player.id);
+    let agent_name = Player::get_agent_name(player.id);
     let icon = create_html_image_element(agent_name, &agent_icon, "player");
     let icon_width = 16.0;
     let icon_height = 16.0;
@@ -160,7 +159,7 @@ pub fn draw_player_icon(player: &Player, angle: f64) {
 /// ```
 // create a function "draw_player_orientation" to depict the player rotation via a visible line extending from center of player icon
 fn draw_player_orientation(player: &Player) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = element::get_canvas_context_document();
     // Angle in radians
     let angle = get_radian_angle(player.rotation);
     let mut view_line_size = 30f64;
