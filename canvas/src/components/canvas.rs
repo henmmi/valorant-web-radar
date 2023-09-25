@@ -1,6 +1,5 @@
 use super::macros::{console_log, log};
-use crate::components::elements::create_html_image_element;
-use crate::components::game_data::GameInfo;
+use crate::components::elements::get_html_image_element_by_id;
 use crate::components::{element, ui_element};
 use lazy_static::lazy_static;
 use std::f64;
@@ -14,7 +13,6 @@ use wasm_bindgen::prelude::*;
 /// initialise_interface();
 /// ```
 pub fn initialise_interface() {
-    clear_and_refresh();
     ui_element::reset_button();
     activate_rotate(90f64);
     activate_rotate(180f64);
@@ -23,6 +21,7 @@ pub fn initialise_interface() {
     ui_element::create_toggle("orientation_toggle", "player_interact");
     ui_element::create_select("player_dropdown");
     ui_element::create_toggle("label_toggle", "player_label");
+    clear_and_refresh();
 }
 // Global variable to store the rotation angle of the canvas
 lazy_static! {
@@ -80,16 +79,21 @@ pub fn clear_and_refresh() {
     let (_, context, _) = element::get_canvas_context_document();
     context.save();
     // Reset the transform to clear the canvas
-    context.reset_transform().unwrap();
+    if let Err(err) = context.reset_transform() {
+        console_log!("Error resetting transform: {:?}", err)
+    };
     context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
     context.restore();
     console_log!("Cleared canvas");
 
-    let image =
-        create_html_image_element("Ascent", GameInfo::get_map_url("Ascent").as_str(), "map");
-    context
-        .draw_image_with_html_image_element(&image, 0.0, 0.0)
-        .unwrap();
+    match get_html_image_element_by_id("Ascent") {
+        Ok(image) => {
+            if let Err(err) = context.draw_image_with_html_image_element(&image, 0.0, 0.0) {
+                console_log!("Error drawing image: {:?}", err)
+            };
+        }
+        Err(err) => console_log!("Error getting image: {:?}", err),
+    }
 }
 /// Reset the canvas
 /// # Example
@@ -100,15 +104,20 @@ pub fn clear_and_refresh() {
 pub fn reset_canvas() {
     let (_, context, _) = element::get_canvas_context_document();
     // Reset the transform to clear the canvas
-    context.reset_transform().unwrap();
+    if let Err(err) = context.reset_transform() {
+        console_log!("Error resetting transform: {:?}", err)
+    };
     context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
     console_log!("Cleared canvas");
 
-    let image =
-        create_html_image_element("Ascent", GameInfo::get_map_url("Ascent").as_str(), "map");
-    context
-        .draw_image_with_html_image_element(&image, 0.0, 0.0)
-        .unwrap();
+    match get_html_image_element_by_id("Ascent") {
+        Ok(image) => {
+            if let Err(err) = context.draw_image_with_html_image_element(&image, 0.0, 0.0) {
+                console_log!("Error drawing image: {:?}", err)
+            };
+        }
+        Err(err) => console_log!("Error getting image: {:?}", err),
+    }
 
     change_it(&ROTATION_ANGLE, 0.0);
 }
