@@ -1,4 +1,30 @@
 use serde::Deserialize;
+use strum_macros::EnumIter;
+#[derive(Deserialize, Debug, EnumIter)]
+pub enum Agent {
+    Brimstone,
+    Viper,
+    Omen,
+    Killjoy,
+    Cypher,
+    Sova,
+    Sage,
+    Phoenix,
+    Jett,
+    Reyna,
+    Raze,
+    Breach,
+    Skye,
+    Yoru,
+    Astra,
+    Kayo5,
+    Chamber,
+    Neon,
+    Fade,
+    Harbor,
+    Gekko,
+    Deadlock,
+}
 
 /// Data container for a single player
 #[derive(Deserialize, Debug)]
@@ -25,34 +51,34 @@ pub struct Players {
     pub scoped: Vec<i32>,
 }
 impl Player {
-    pub fn get_agent_name(id: i32) -> &'static str {
+    pub fn get_agent_name(id: i32) -> String {
         match id {
-            0 => "Brimstone",
-            1 => "Viper",
-            2 => "Omen",
-            3 => "Killjoy",
-            4 => "Cypher",
-            5 => "Sova",
-            6 => "Sage",
-            7 => "Phoenix",
-            8 => "Jett",
-            9 => "Reyna",
-            10 => "Raze",
-            11 => "Breach",
-            12 => "Skye",
-            13 => "Yoru",
-            14 => "Astra",
-            15 => "Kayo",
-            16 => "Chamber",
-            17 => "Neon",
-            18 => "Fade",
-            19 => "Harbor",
-            20 => "Gekko",
-            21 => "Deadlock",
-            _ => "Unknown",
+            0 => "Brimstone".to_string(),
+            1 => "Viper".to_string(),
+            2 => "Omen".to_string(),
+            3 => "Killjoy".to_string(),
+            4 => "Cypher".to_string(),
+            5 => "Sova".to_string(),
+            6 => "Sage".to_string(),
+            7 => "Phoenix".to_string(),
+            8 => "Jett".to_string(),
+            9 => "Reyna".to_string(),
+            10 => "Raze".to_string(),
+            11 => "Breach".to_string(),
+            12 => "Skye".to_string(),
+            13 => "Yoru".to_string(),
+            14 => "Astra".to_string(),
+            15 => "Kayo".to_string(),
+            16 => "Chamber".to_string(),
+            17 => "Neon".to_string(),
+            18 => "Fade".to_string(),
+            19 => "Harbor".to_string(),
+            20 => "Gekko".to_string(),
+            21 => "Deadlock".to_string(),
+            _ => "Unknown".to_string(),
         }
     }
     pub fn agent_player_icon_url(id: i32) -> String {
-        "http://127.0.0.1:8080/images/".to_owned() + Player::get_agent_name(id) + ".png"
+        "http://127.0.0.1:8080/images/".to_owned() + Player::get_agent_name(id).as_str() + ".png"
     }
 }

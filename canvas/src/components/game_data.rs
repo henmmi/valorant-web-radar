@@ -1,5 +1,35 @@
+use super::macros::{console_log, log};
+use crate::components::elements::{create_html_image_element, get_div_element_by_id};
+use crate::components::player_data::{Agent, Player};
 use serde::Deserialize;
+use std::collections::HashMap;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+use wasm_bindgen::prelude::wasm_bindgen;
+use web_sys::HtmlImageElement;
 
+#[derive(Deserialize, Debug, EnumIter)]
+pub enum Map {
+    Ascent,
+    Bind,
+    Breeze,
+    Haven,
+    Icebox,
+    Split,
+}
+
+impl Map {
+    pub fn get_string(&self) -> String {
+        match self {
+            Map::Ascent => "Ascent".to_string(),
+            Map::Bind => "Bind".to_string(),
+            Map::Breeze => "Breeze".to_string(),
+            Map::Haven => "Haven".to_string(),
+            Map::Icebox => "Icebox".to_string(),
+            Map::Split => "Split".to_string(),
+        }
+    }
+}
 #[derive(Deserialize, Debug)]
 pub struct GameInfo {
     pub t_score: Vec<i32>,
@@ -9,5 +39,68 @@ pub struct GameInfo {
 impl GameInfo {
     pub fn get_map_url(name: &str) -> String {
         "http://127.0.0.1:8080/images/".to_owned() + name + ".png"
+    }
+}
+#[wasm_bindgen]
+pub struct Preloader {
+    agents: HashMap<String, HtmlImageElement>,
+    maps: HashMap<String, HtmlImageElement>,
+}
+#[wasm_bindgen]
+impl Preloader {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Preloader {
+            agents: HashMap::new(),
+            maps: HashMap::new(),
+        }
+    }
+
+    pub fn preload_agents(&mut self, class: &str) {
+        if let Ok(div) = get_div_element_by_id("player_storage") {
+            for (id, _player) in Agent::iter().enumerate() {
+                match create_html_image_element(
+                    Player::get_agent_name(id as i32).as_str(),
+                    Player::agent_player_icon_url(id as i32).as_str(),
+                    class,
+                ) {
+                    Ok(element) => {
+                        element.style().set_property("display", "none").unwrap();
+                        div.append_child(&element).unwrap();
+                        self.agents
+                            .insert(Player::get_agent_name(id as i32), element);
+                        console_log!("Preloaded agent {}", Player::get_agent_name(id as i32));
+                        console_log!("Agent URL: {}", Player::agent_player_icon_url(id as i32));
+                    }
+                    Err(err) => console_log!("Error creating image element: {:?}", err),
+                }
+            }
+        }
+    }
+
+    pub fn preload_maps(&mut self, class: &str) {
+        if let Ok(div) = get_div_element_by_id("map_storage") {
+            for map_name in Map::iter() {
+                match create_html_image_element(
+                    &map_name.get_string(),
+                    &GameInfo::get_map_url(&map_name.get_string()),
+                    class,
+                ) {
+                    Ok(element) => {
+                        element.style().set_property("display", "none").unwrap();
+                        div.append_child(&element).unwrap();
+                        self.maps.insert(map_name.get_string(), element);
+                        console_log!("Preloaded map {}", map_name.get_string());
+                        console_log!("Map URL: {}", GameInfo::get_map_url(&map_name.get_string()));
+                    }
+                    Err(err) => console_log!("Error creating image element: {:?}", err),
+                }
+            }
+        }
+    }
+}
+impl Default for Preloader {
+    fn default() -> Self {
+        Preloader::new()
     }
 }
