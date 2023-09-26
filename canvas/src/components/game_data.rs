@@ -115,6 +115,12 @@ impl Preloader {
             weapons: HashMap::new(),
         }
     }
+    /// Preload all the assets
+    /// # Example
+    /// ```
+    /// let preloader = Preloader::new();
+    /// preloader.preload_assets();
+    /// ```
     pub fn preload_assets(&mut self) {
         Preloader::preload_agents(self, "agent");
         Preloader::preload_maps(self, "map");
@@ -178,7 +184,14 @@ impl Preloader {
             }
         }
     }
-
+    /// Preload the icons
+    /// # Arguments
+    /// * `name` - The name of the icon
+    /// # Example
+    /// ```
+    /// let preloader = Preloader::new();
+    /// preloader.preload_icons("Dormant");
+    /// ```
     pub fn preload_icons(&mut self, name: &str) {
         let url = format!("http://{}/images/{}.png", get_host(), name);
         if let Ok(div) = get_div_element_by_id("icon_storage") {
@@ -193,7 +206,14 @@ impl Preloader {
             }
         }
     }
-
+    /// Preload the weapons icons
+    /// # Arguments
+    /// * `name` - The name of the weapon
+    /// # Example
+    /// ```
+    /// let preloader = Preloader::new();
+    /// preloader.preload_weapons("weapon");
+    /// ```
     pub fn preload_weapons(&mut self, name: &str) {
         if let Ok(div) = get_div_element_by_id("weapon_storage") {
             for weapons in Weapon::iter() {
