@@ -147,12 +147,12 @@ pub fn draw_player_icon(player: &Player, angle: f64) {
             if let Err(err) = context.translate(player.x, player.y) {
                 console_log!("Error translating: {:?}", err);
             }
-            if let Err(err) = context.translate(-icon_width / 2.0, -icon_height / 2.0) {
-                console_log!("Error translating: {:?}", err);
-            }
             let angle_rad = get_radian_angle(-angle);
             if let Err(err) = context.rotate(angle_rad) {
                 console_log!("Error rotating: {:?}", err);
+            }
+            if let Err(err) = context.translate(-icon_width / 2.0, -icon_height / 2.0) {
+                console_log!("Error translating: {:?}", err);
             }
             if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
                 &icon,
