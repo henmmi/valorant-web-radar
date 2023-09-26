@@ -1,6 +1,7 @@
 use super::macros::{console_log, log};
 use crate::components::elements::{create_html_image_element, get_div_element_by_id};
 use crate::components::player_data::{Agent, Player};
+use crate::components::websocket::get_host;
 use serde::Deserialize;
 use std::collections::HashMap;
 use strum::IntoEnumIterator;
@@ -42,10 +43,10 @@ impl GameInfo {
     /// * `name` - The name of the map
     /// # Example
     /// ```
-    /// assert_eq!(GameInfo::get_map_url("Ascent"), "http://127.0.0.1:8080/images/Ascent.png");
+    /// assert_eq!(GameInfo::get_map_url("Ascent"), "http://url:8080/images/Ascent.png");
     /// ```
     pub fn get_map_url(name: &str) -> String {
-        "http://127.0.0.1:8080/images/".to_owned() + name + ".png"
+        format!("http://{}/images/{}.png", get_host(), name)
     }
 }
 #[wasm_bindgen]

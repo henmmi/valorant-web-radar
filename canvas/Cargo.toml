@@ -36,6 +36,7 @@ features = [
   'HtmlDivElement',
   'CssStyleDeclaration',
   'Window',
+  'Location',
   'ErrorEvent',
   'MessageEvent',
   'WebSocket',

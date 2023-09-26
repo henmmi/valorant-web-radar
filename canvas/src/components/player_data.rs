@@ -1,5 +1,7 @@
+use crate::components::websocket::get_host;
 use serde::Deserialize;
 use strum_macros::EnumIter;
+
 #[derive(Deserialize, Debug, EnumIter)]
 pub enum Agent {
     Brimstone,
@@ -90,9 +92,13 @@ impl Player {
     /// * `id` - The id of the agent
     /// # Example
     /// ```
-    /// assert_eq!(Player::agent_player_icon_url(0), "http://127.0.0.1:8080/images/Brimstone.png");
+    /// assert_eq!(Player::agent_player_icon_url(0), "http://url:8080/images/Brimstone.png");
     /// ```
     pub fn agent_player_icon_url(id: i32) -> String {
-        "http://127.0.0.1:8080/images/".to_owned() + Player::get_agent_name(id).as_str() + ".png"
+        format!(
+            "http://{}/images/{}.png",
+            get_host(),
+            Player::get_agent_name(id)
+        )
     }
 }

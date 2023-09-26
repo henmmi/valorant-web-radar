@@ -102,3 +102,19 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
 
     Ok(())
 }
+
+pub fn get_hostname() -> String {
+    let window = web_sys::window().unwrap();
+    let location = window.location();
+    let hostname = location.hostname().unwrap();
+    console_log!("Hostname: {}", hostname);
+    hostname
+}
+
+pub fn get_host() -> String {
+    let window = web_sys::window().unwrap();
+    let location = window.location();
+    let host = location.host().unwrap();
+    console_log!("Host: {}", host);
+    host
+}
