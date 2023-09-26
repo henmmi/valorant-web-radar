@@ -151,19 +151,36 @@ pub fn draw_player_icon(player: &Player, angle: f64) {
             if let Err(err) = context.rotate(angle_rad) {
                 console_log!("Error rotating: {:?}", err);
             }
-            if let Err(err) = context.translate(-icon_width / 2.0, -icon_height / 2.0) {
-                console_log!("Error translating: {:?}", err);
+
+            if player.dormant == 1 {
+                if let Err(err) = context.translate(-icon_width, -icon_height) {
+                    console_log!("Error translating: {:?}", err);
+                }
+                if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
+                    &get_html_image_element_by_id("Dormant").unwrap(),
+                    0.0,
+                    0.0,
+                    32.0,
+                    32.0,
+                ) {
+                    console_log!("Error drawing image: {:?}", err);
+                }
+                context.restore();
+            } else {
+                if let Err(err) = context.translate(-icon_width / 2.0, -icon_height / 2.0) {
+                    console_log!("Error translating: {:?}", err);
+                }
+                if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
+                    &icon,
+                    0.0,
+                    0.0,
+                    icon_width,
+                    icon_height,
+                ) {
+                    console_log!("Error drawing image: {:?}", err);
+                }
+                context.restore();
             }
-            if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
-                &icon,
-                0.0,
-                0.0,
-                icon_width,
-                icon_height,
-            ) {
-                console_log!("Error drawing image: {:?}", err);
-            }
-            context.restore();
         }
         Err(err) => console_log!("Error getting image element: {:?}", err),
     }
