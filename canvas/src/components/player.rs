@@ -2,7 +2,7 @@ use super::macros::{console_log, log};
 use super::player_data::Player;
 use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
 use crate::components::elements::{get_canvas_context_document, get_html_image_element_by_id};
-use crate::components::ui_element::toggle_label;
+use crate::components::ui_element::{toggle_label, toggle_state};
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::JsValue;
@@ -152,24 +152,24 @@ pub fn draw_player_icon(player: &Player, angle: f64) {
                 console_log!("Error rotating: {:?}", err);
             }
 
-            if player.dormant == 1 {
+            if toggle_state("dormant_player_toggle") && player.dormant == 1 {
                 if let Err(err) = context.translate(-icon_width, -icon_height) {
                     console_log!("Error translating: {:?}", err);
                 }
+                let dormant_icon = get_html_image_element_by_id("Dormant").unwrap();
                 if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
-                    &get_html_image_element_by_id("Dormant").unwrap(),
+                    &dormant_icon,
                     0.0,
                     0.0,
-                    32.0,
-                    32.0,
+                    icon_width * 2.0,
+                    icon_height * 2.0,
                 ) {
                     console_log!("Error drawing image: {:?}", err);
                 }
-                context.restore();
             } else {
-                if let Err(err) = context.translate(-icon_width / 2.0, -icon_height / 2.0) {
-                    console_log!("Error translating: {:?}", err);
-                }
+                context
+                    .translate(-icon_width / 2.0, -icon_height / 2.0)
+                    .unwrap();
                 if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
                     &icon,
                     0.0,
@@ -179,8 +179,8 @@ pub fn draw_player_icon(player: &Player, angle: f64) {
                 ) {
                     console_log!("Error drawing image: {:?}", err);
                 }
-                context.restore();
             }
+            context.restore();
         }
         Err(err) => console_log!("Error getting image element: {:?}", err),
     }

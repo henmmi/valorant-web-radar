@@ -2,6 +2,7 @@ use super::elements::get_div_element_by_id;
 use super::macros::{console_log, log};
 use super::player_data::Player;
 use crate::components::canvas::{get_number, ROTATION_ANGLE};
+use crate::components::elements::get_input_element_by_id;
 use crate::components::player::draw_player_labels;
 use crate::components::{canvas, elements};
 use wasm_bindgen::closure::Closure;
@@ -202,16 +203,11 @@ pub fn reset_button() {
 /// * `players` - The player's data through the struct 'Player' in a vector
 /// # Example
 /// ```
-/// on_toggle(&[Player]);
+/// toggle_orientation(&[Player]);
 /// ```
-pub fn on_toggle(players: &[Player]) {
-    let (_, context, document) = elements::get_canvas_context_document();
-    let toggle_btn = document
-        .get_element_by_id("orientation_toggle")
-        .unwrap()
-        .dyn_into::<HtmlInputElement>()
-        .unwrap();
-    if toggle_btn.checked() {
+pub fn toggle_orientation(players: &[Player]) {
+    if toggle_state("orientation_toggle") {
+        let (_, context, _) = elements::get_canvas_context_document();
         let dropdown_value = get_player_dropdown();
         console_log!("Dropdown value: {}", dropdown_value);
         let rotation_angle = &players[dropdown_value].rotation;
@@ -228,15 +224,14 @@ pub fn on_toggle(players: &[Player]) {
 /// toggle_label(&[Player]);
 /// ```
 pub fn toggle_label(players: &[Player]) {
-    let (_, _, document) = elements::get_canvas_context_document();
-    let toggle_btn = document
-        .get_element_by_id("label_toggle")
-        .unwrap()
-        .dyn_into::<HtmlInputElement>()
-        .unwrap();
-    if toggle_btn.checked() {
+    if toggle_state("label_toggle") {
         draw_player_labels(players, get_number(&ROTATION_ANGLE));
     }
+}
+/// Detect if the toggle button is checked
+pub fn toggle_state(name: &str) -> bool {
+    let toggle_btn = get_input_element_by_id(name).unwrap();
+    toggle_btn.checked()
 }
 /// Create the player dropdown
 /// # Arguments

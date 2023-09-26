@@ -1,6 +1,6 @@
 use super::macros::{console_log, log};
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{HtmlCanvasElement, HtmlDivElement, HtmlImageElement};
+use web_sys::{HtmlCanvasElement, HtmlDivElement, HtmlImageElement, HtmlInputElement};
 
 /// Getters for the canvas, context, and document
 /// # Returns
@@ -92,6 +92,27 @@ pub fn get_div_element_by_id(id: &str) -> Result<HtmlDivElement, ()> {
         Ok(div_elem) => Ok(div_elem),
         Err(_) => Err(console_log!(
             "Element with id: {} is not an HtmlDivElement",
+            id
+        )),
+    }
+}
+/// Get the HTML input element by id
+/// # Arguments
+/// * `id` - The id of the input element
+/// # Example
+/// ```
+/// let input_elem = get_input_element_by_id("id");
+/// ```
+pub fn get_input_element_by_id(id: &str) -> Result<HtmlInputElement, ()> {
+    let (_, _, document) = get_canvas_context_document();
+    let element = match document.get_element_by_id(id) {
+        Some(element) => element,
+        None => panic!("No input element found with id: {}", id),
+    };
+    match element.dyn_into::<HtmlInputElement>() {
+        Ok(input_elem) => Ok(input_elem),
+        Err(_) => Err(console_log!(
+            "Element with id: {} is not an HtmlInputElement",
             id
         )),
     }
