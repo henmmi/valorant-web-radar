@@ -1,6 +1,9 @@
 use super::macros::{console_log, log};
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{HtmlCanvasElement, HtmlDivElement, HtmlImageElement, HtmlInputElement};
+use web_sys::{
+    HtmlCanvasElement, HtmlDivElement, HtmlImageElement, HtmlInputElement, OffscreenCanvas,
+    OffscreenCanvasRenderingContext2d,
+};
 
 /// Getters for the canvas, context, and document
 /// # Returns
@@ -116,4 +119,29 @@ pub fn get_input_element_by_id(id: &str) -> Result<HtmlInputElement, ()> {
             id
         )),
     }
+}
+/// Create OffscreenCanvas and OffscreenCanvasRenderingContext2d objects
+/// # Arguments
+/// * `width` - The width of the canvas
+/// * `height` - The height of the canvas
+/// # Example
+/// ```
+/// let (offscreen_canvas, offscreen_context) = get_offscreen_canvas_context(1920, 1080);
+/// ```
+pub fn get_offscreen_canvas_context(
+    width: u32,
+    height: u32,
+) -> (OffscreenCanvas, OffscreenCanvasRenderingContext2d) {
+    let offscreen_canvas: OffscreenCanvas = OffscreenCanvas::new(width, height).unwrap();
+    offscreen_canvas.set_width(width);
+    offscreen_canvas.set_height(height);
+
+    let offscreen_context = offscreen_canvas
+        .get_context("2d")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<OffscreenCanvasRenderingContext2d>()
+        .unwrap();
+
+    (offscreen_canvas, offscreen_context)
 }

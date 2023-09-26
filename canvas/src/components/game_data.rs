@@ -18,7 +18,6 @@ pub enum Map {
     Icebox,
     Split,
 }
-
 impl Map {
     pub fn get_string(&self) -> String {
         match self {
@@ -78,6 +77,31 @@ impl Weapon {
             Weapon::Spectre => "Spectre".to_string(),
             Weapon::Stinger => "Stinger".to_string(),
             Weapon::Vandal => "Vandal".to_string(),
+        }
+    }
+
+    pub fn match_weapon_id(id: i32) -> String {
+        match id {
+            0 => Weapon::Ares.get_string(),
+            1 => Weapon::Bucky.get_string(),
+            2 => Weapon::Bulldog.get_string(),
+            3 => Weapon::ChamberOp.get_string(),
+            4 => Weapon::ChamberQ.get_string(),
+            5 => Weapon::Classic.get_string(),
+            6 => Weapon::Frenzy.get_string(),
+            7 => Weapon::Ghost.get_string(),
+            8 => Weapon::Guardian.get_string(),
+            9 => Weapon::Judge.get_string(),
+            10 => Weapon::Marshal.get_string(),
+            11 => Weapon::Odin.get_string(),
+            12 => Weapon::Operator.get_string(),
+            13 => Weapon::Phantom.get_string(),
+            14 => Weapon::Sheriff.get_string(),
+            15 => Weapon::Shorty.get_string(),
+            16 => Weapon::Spectre.get_string(),
+            17 => Weapon::Stinger.get_string(),
+            18 => Weapon::Vandal.get_string(),
+            _ => Weapon::Knife.get_string(),
         }
     }
 }
