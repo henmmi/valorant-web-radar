@@ -8,9 +8,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(start)]
 pub fn start() {
     let mut preloader = Preloader::new();
-    preloader.preload_agents("agent");
-    preloader.preload_maps("map");
-    preloader.preload_icons("Dormant");
+    preloader.preload_assets();
     initialise_interface();
     let _ws = websocket(format!("ws://{}:27017", get_hostname()).as_str());
 }

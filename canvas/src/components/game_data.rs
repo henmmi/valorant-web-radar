@@ -31,6 +31,56 @@ impl Map {
         }
     }
 }
+#[derive(Deserialize, Debug, EnumIter)]
+pub enum Weapon {
+    Ares,
+    Bucky,
+    Bulldog,
+    ChamberOp,
+    ChamberQ,
+    Classic,
+    Frenzy,
+    Ghost,
+    Guardian,
+    Judge,
+    Knife,
+    Marshal,
+    Odin,
+    Operator,
+    Phantom,
+    Sheriff,
+    Shorty,
+    Spectre,
+    Stinger,
+    Vandal,
+}
+
+impl Weapon {
+    pub fn get_string(&self) -> String {
+        match self {
+            Weapon::Ares => "Ares".to_string(),
+            Weapon::Bucky => "Bucky".to_string(),
+            Weapon::Bulldog => "Bulldog".to_string(),
+            Weapon::ChamberOp => "ChamberOp".to_string(),
+            Weapon::ChamberQ => "ChamberQ".to_string(),
+            Weapon::Classic => "Classic".to_string(),
+            Weapon::Frenzy => "Frenzy".to_string(),
+            Weapon::Ghost => "Ghost".to_string(),
+            Weapon::Guardian => "Guardian".to_string(),
+            Weapon::Judge => "Judge".to_string(),
+            Weapon::Knife => "Knife".to_string(),
+            Weapon::Marshal => "Marshal".to_string(),
+            Weapon::Odin => "Odin".to_string(),
+            Weapon::Operator => "Operator".to_string(),
+            Weapon::Phantom => "Phantom".to_string(),
+            Weapon::Sheriff => "Sheriff".to_string(),
+            Weapon::Shorty => "Shorty".to_string(),
+            Weapon::Spectre => "Spectre".to_string(),
+            Weapon::Stinger => "Stinger".to_string(),
+            Weapon::Vandal => "Vandal".to_string(),
+        }
+    }
+}
 #[derive(Deserialize, Debug)]
 pub struct GameInfo {
     pub t_score: Vec<i32>,
@@ -53,6 +103,7 @@ impl GameInfo {
 pub struct Preloader {
     agents: HashMap<String, HtmlImageElement>,
     maps: HashMap<String, HtmlImageElement>,
+    weapons: HashMap<String, HtmlImageElement>,
 }
 #[wasm_bindgen]
 impl Preloader {
@@ -61,7 +112,14 @@ impl Preloader {
         Preloader {
             agents: HashMap::new(),
             maps: HashMap::new(),
+            weapons: HashMap::new(),
         }
+    }
+    pub fn preload_assets(&mut self) {
+        Preloader::preload_agents(self, "agent");
+        Preloader::preload_maps(self, "map");
+        Preloader::preload_icons(self, "Dormant");
+        Preloader::preload_weapons(self, "weapon");
     }
     /// Preload the agents icons
     /// # Arguments
@@ -135,9 +193,33 @@ impl Preloader {
             }
         }
     }
+
+    pub fn preload_weapons(&mut self, name: &str) {
+        if let Ok(div) = get_div_element_by_id("weapon_storage") {
+            for weapons in Weapon::iter() {
+                match create_html_image_element(
+                    &weapons.get_string(),
+                    get_url(&weapons.get_string()).as_str(),
+                    name,
+                ) {
+                    Ok(element) => {
+                        element.style().set_property("display", "none").unwrap();
+                        div.append_child(&element).unwrap();
+                        self.weapons.insert(weapons.get_string(), element);
+                        console_log!("Preloaded weapon {}", weapons.get_string());
+                    }
+                    Err(err) => console_log!("Error creating image element: {:?}", err),
+                }
+            }
+        }
+    }
 }
 impl Default for Preloader {
     fn default() -> Self {
         Preloader::new()
     }
+}
+
+pub fn get_url(name: &str) -> String {
+    format!("http://{}/images/{}.png", get_host(), name)
 }
