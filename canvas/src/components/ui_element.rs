@@ -1,13 +1,14 @@
+use super::elements::get_div_element_by_id;
 use super::macros::{console_log, log};
-use crate::components::canvas;
+use super::player_data::Player;
 use crate::components::canvas::{get_number, ROTATION_ANGLE};
 use crate::components::player::draw_player_labels;
-use crate::components::websocket::Player;
+use crate::components::{canvas, elements};
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 use web_sys::{
-    HtmlButtonElement, HtmlDivElement, HtmlInputElement, HtmlLabelElement, HtmlOptionElement,
-    HtmlSelectElement, HtmlSpanElement,
+    HtmlButtonElement, HtmlInputElement, HtmlLabelElement, HtmlOptionElement, HtmlSelectElement,
+    HtmlSpanElement,
 };
 
 /// Create a HTML button
@@ -18,7 +19,7 @@ use web_sys::{
 /// let btn = create_button("name");
 /// ```
 pub fn create_button(name: &str) -> HtmlButtonElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let btn = document
         .create_element("button")
         .unwrap()
@@ -26,13 +27,13 @@ pub fn create_button(name: &str) -> HtmlButtonElement {
         .unwrap();
     btn.set_text_content(Some(name));
     btn.set_id(name);
-    let button_list = document
-        .get_element_by_id("button_row")
-        .unwrap()
-        .dyn_into::<HtmlDivElement>()
-        .unwrap();
-    button_list.append_child(&btn).unwrap();
-    btn
+    match get_div_element_by_id("button_row") {
+        Ok(div) => {
+            div.append_child(&btn).unwrap();
+            btn
+        }
+        Err(_) => panic!("No div element found with id: {}", name),
+    }
 }
 
 /// Create a label
@@ -43,7 +44,7 @@ pub fn create_button(name: &str) -> HtmlButtonElement {
 /// create_label("name");
 /// ```
 fn create_label(name: &str) -> HtmlLabelElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let follow_label = document
         .create_element("label")
         .unwrap()
@@ -63,7 +64,7 @@ fn create_label(name: &str) -> HtmlLabelElement {
 /// create_span("name");
 /// ```
 fn create_span(name: &str) -> HtmlSpanElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let follow_span = document
         .create_element("span")
         .unwrap()
@@ -86,16 +87,14 @@ pub fn create_toggle(name: &str, div_name: &str) {
 
     let label = create_label("switch");
     let span_round = create_span("slider round");
-    let (_, _, document) = canvas::get_canvas_context_document();
-    let player_interact = document
-        .get_element_by_id(div_name)
-        .unwrap()
-        .dyn_into::<HtmlDivElement>()
-        .unwrap();
-
-    player_interact.append_child(&label).unwrap();
-    label.append_child(&checkbox).unwrap();
-    label.append_child(&span_round).unwrap();
+    match get_div_element_by_id(div_name) {
+        Ok(div) => {
+            div.append_child(&label).unwrap();
+            label.append_child(&checkbox).unwrap();
+            label.append_child(&span_round).unwrap();
+        }
+        Err(_) => panic!("No div element found with id: {}", div_name),
+    }
 }
 
 /// Create a select
@@ -106,7 +105,7 @@ pub fn create_toggle(name: &str, div_name: &str) {
 /// create_select("name");
 /// ```
 pub fn create_select(name: &str) -> HtmlSelectElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let select = document
         .create_element("select")
         .unwrap()
@@ -114,13 +113,13 @@ pub fn create_select(name: &str) -> HtmlSelectElement {
         .unwrap();
     select.set_id(name);
     select.set_name(name);
-    let player_interact = document
-        .get_element_by_id("player_interact")
-        .unwrap()
-        .dyn_into::<HtmlDivElement>()
-        .unwrap();
-    player_interact.append_child(&select).unwrap();
-    select
+    match get_div_element_by_id("player_interact") {
+        Ok(div) => {
+            div.append_child(&select).unwrap();
+            select
+        }
+        Err(_) => panic!("No div element found with id: {}", name),
+    }
 }
 /// Create an option
 /// # Arguments
@@ -130,7 +129,7 @@ pub fn create_select(name: &str) -> HtmlSelectElement {
 /// create_option("name");
 /// ```
 pub fn create_option(name: &str) -> HtmlOptionElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let option = document
         .create_element("option")
         .unwrap()
@@ -149,7 +148,7 @@ pub fn create_option(name: &str) -> HtmlOptionElement {
 /// create_checkbox("name");
 /// ```
 fn create_checkbox(name: &str) -> HtmlInputElement {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let follow_checkbox = document
         .create_element("input")
         .unwrap()
@@ -206,7 +205,7 @@ pub fn reset_button() {
 /// on_toggle(&[Player]);
 /// ```
 pub fn on_toggle(players: &[Player]) {
-    let (_, context, document) = canvas::get_canvas_context_document();
+    let (_, context, document) = elements::get_canvas_context_document();
     let toggle_btn = document
         .get_element_by_id("orientation_toggle")
         .unwrap()
@@ -229,7 +228,7 @@ pub fn on_toggle(players: &[Player]) {
 /// toggle_label(&[Player]);
 /// ```
 pub fn toggle_label(players: &[Player]) {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let toggle_btn = document
         .get_element_by_id("label_toggle")
         .unwrap()
@@ -247,7 +246,7 @@ pub fn toggle_label(players: &[Player]) {
 /// player_dropdown(&usize);
 /// ```
 pub fn player_dropdown(players: &usize) {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let player_list = document
         .get_element_by_id("player_dropdown")
         .unwrap()
@@ -267,7 +266,7 @@ pub fn player_dropdown(players: &usize) {
 /// get_player_dropdown();
 /// ```
 pub fn get_player_dropdown() -> usize {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let player_dropdown = document
         .get_element_by_id("player_dropdown")
         .unwrap()
@@ -281,7 +280,7 @@ pub fn get_player_dropdown() -> usize {
 /// get_player_dropdown_length();
 /// ```
 pub fn get_player_dropdown_length() -> usize {
-    let (_, _, document) = canvas::get_canvas_context_document();
+    let (_, _, document) = elements::get_canvas_context_document();
     let player_dropdown = document
         .get_element_by_id("player_dropdown")
         .unwrap()

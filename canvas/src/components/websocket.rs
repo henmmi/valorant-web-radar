@@ -1,5 +1,7 @@
 use super::canvas::clear_and_refresh;
+use super::game_data::GameInfo;
 use super::macros::{console_log, log};
+use super::player_data::{Player, Players};
 use crate::components::player::draw_players;
 use crate::components::ui_element::{get_player_dropdown_length, on_toggle, player_dropdown};
 use serde::Deserialize;
@@ -7,40 +9,10 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
-
-/// Data container for a single player
-#[derive(Deserialize, Debug)]
-pub struct Player {
-    pub x: f64,
-    pub y: f64,
-    pub health: f64,
-    pub team: i32,
-    pub dormant: i32,
-    pub rotation: f64,
-    pub scoped: i32,
-}
-/// Data container for all players
-#[derive(Deserialize, Debug)]
-pub struct Players {
-    pub x: Vec<f64>,
-    pub y: Vec<f64>,
-    pub health: Vec<f64>,
-    pub team: Vec<i32>,
-    pub dormant: Vec<i32>,
-    pub rotation: Vec<f64>,
-    pub scoped: Vec<i32>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct GameInfo {
-    pub t_score: Vec<i32>,
-    pub ct_score: Vec<i32>,
-}
-
 #[derive(Deserialize, Debug)]
 pub struct Data {
-    pub players: Players,
-    pub game_info: GameInfo,
+    players: Players,
+    game_info: GameInfo,
 }
 /// A macro to provide `println!(..)`-style syntax for `console.log` logging.
 /// # Example
@@ -74,6 +46,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     // Push the player data into a vector of players
                     for i in 0..player_data.x.len() {
                         players.push(Player {
+                            id: player_data.id[i],
                             x: player_data.x[i],
                             y: player_data.y[i],
                             health: player_data.health[i],
@@ -128,4 +101,20 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
     onopen_callback.forget();
 
     Ok(())
+}
+
+pub fn get_hostname() -> String {
+    let window = web_sys::window().unwrap();
+    let location = window.location();
+    let hostname = location.hostname().unwrap();
+    console_log!("Hostname: {}", hostname);
+    hostname
+}
+
+pub fn get_host() -> String {
+    let window = web_sys::window().unwrap();
+    let location = window.location();
+    let host = location.host().unwrap();
+    console_log!("Host: {}", host);
+    host
 }

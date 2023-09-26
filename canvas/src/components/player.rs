@@ -1,8 +1,8 @@
 use super::macros::{console_log, log};
-use crate::components::canvas;
+use super::player_data::Player;
 use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
+use crate::components::elements::{get_canvas_context_document, get_html_image_element_by_id};
 use crate::components::ui_element::toggle_label;
-use crate::components::websocket::Player;
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::JsValue;
@@ -19,7 +19,7 @@ use wasm_bindgen::JsValue;
 /// # Note
 /// * `team` is an integer, where 0 is red and 1 is blue
 pub fn display_player_position(player: &Player) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = get_canvas_context_document();
     let team_id = identify_team(player.team, true);
     context.begin_path();
     context
@@ -38,7 +38,7 @@ pub fn display_player_position(player: &Player) {
 /// player_health_circle(&player, 90.0);
 /// ```
 pub fn player_health_circle(player: &Player, angle: f64) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = get_canvas_context_document();
     context.save();
     context.translate(player.x, player.y).unwrap();
     let angle_rad = get_radian_angle(-angle);
@@ -90,23 +90,23 @@ pub fn calculate_ending_fill_angle(health: f64) -> f64 {
 /// draw_player_labels(0, 100.0, 100.0, 90.0);
 /// ```
 pub fn draw_player_labels(player: &[Player], angle: f64) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = get_canvas_context_document();
     // Configure the text's style
     context.set_font("16px sans-serif");
     context.set_text_align("center");
     context.set_text_baseline("middle");
     context.set_fill_style(&JsValue::from_str("white"));
-    for (id, player) in player.iter().enumerate() {
+    for (_i, player) in player.iter().enumerate() {
         if angle != 0.0f64 {
             context.save();
             context.translate(player.x, player.y).unwrap();
             let angle_rad = get_radian_angle(-angle);
             context.rotate(angle_rad).unwrap();
-            context.fill_text(&id.to_string(), 0.0, 0.0).unwrap();
+            context.fill_text(&player.id.to_string(), 0.0, 0.0).unwrap();
             context.restore();
         } else {
             context
-                .fill_text(&id.to_string(), player.x, player.y)
+                .fill_text(&player.id.to_string(), player.x, player.y)
                 .unwrap();
         }
     }
@@ -123,8 +123,50 @@ pub fn draw_players(players: &[Player]) {
     for (_i, player) in players.iter().enumerate() {
         draw_player_orientation(player);
         display_player_position(player);
+        draw_player_icon(player, get_number(&ROTATION_ANGLE));
     }
     toggle_label(players);
+}
+/// Draw the player's icon on the canvas
+/// # Arguments
+/// * `player` - Input player data through the struct 'Player'
+/// * `angle` - The player's angle
+/// # Example
+/// ```
+/// draw_player_icon(&player, 90.0);
+/// ```
+pub fn draw_player_icon(player: &Player, angle: f64) {
+    let (_, context, _) = get_canvas_context_document();
+    let agent_name = Player::get_agent_name(player.id);
+    console_log!("Agent name: {}", agent_name);
+    match get_html_image_element_by_id(agent_name.as_str()) {
+        Ok(icon) => {
+            let icon_width = 16.0;
+            let icon_height = 16.0;
+            context.save();
+            if let Err(err) = context.translate(player.x, player.y) {
+                console_log!("Error translating: {:?}", err);
+            }
+            let angle_rad = get_radian_angle(-angle);
+            if let Err(err) = context.rotate(angle_rad) {
+                console_log!("Error rotating: {:?}", err);
+            }
+            if let Err(err) = context.translate(-icon_width / 2.0, -icon_height / 2.0) {
+                console_log!("Error translating: {:?}", err);
+            }
+            if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
+                &icon,
+                0.0,
+                0.0,
+                icon_width,
+                icon_height,
+            ) {
+                console_log!("Error drawing image: {:?}", err);
+            }
+            context.restore();
+        }
+        Err(err) => console_log!("Error getting image element: {:?}", err),
+    }
 }
 
 /// Display the players orientation as a triangle
@@ -135,7 +177,7 @@ pub fn draw_players(players: &[Player]) {
 /// draw_player_orientation(&player);
 /// ```
 fn draw_player_orientation(player: &Player) {
-    let (_, context, _) = canvas::get_canvas_context_document();
+    let (_, context, _) = get_canvas_context_document();
     let angle = player.rotation;
     let view_line_size = 20f64;
     let start = get_radian_angle(angle - 15.0);

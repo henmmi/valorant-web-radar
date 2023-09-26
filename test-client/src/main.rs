@@ -8,6 +8,7 @@ fn main() {
         match connect("ws://localhost:27017") {
             Ok((mut socket, _response)) => loop {
                 let rand_player_number = rand::thread_rng().gen_range(1..=10);
+                let mut _id = json::Array::new();
                 let mut _x = json::Array::new();
                 let mut _y = json::Array::new();
                 let mut _health = json::Array::new();
@@ -26,6 +27,7 @@ fn main() {
                 let mut rng = rand::thread_rng();
 
                 for _i in 0..rand_player_number {
+                    _id.push(json::from(rng.gen_range(0..22)));
                     _x.push(json::from(rng.gen_range(0.0..1000.0)));
                     _y.push(json::from(rng.gen_range(0.0..1000.0)));
                     _health.push(json::from(rng.gen_range(0.0..100.0)));
@@ -43,6 +45,7 @@ fn main() {
                 }
 
                 let players = object! {
+                "id": _id,
                 "x": _x,
                 "y": _y,
                 "health": _health,

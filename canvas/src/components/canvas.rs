@@ -1,12 +1,11 @@
 use super::macros::{console_log, log};
-use crate::components::ui_element;
+use crate::components::elements::get_html_image_element_by_id;
+use crate::components::{elements, ui_element};
 use lazy_static::lazy_static;
 use std::f64;
 use std::rc::Rc;
 use std::sync::RwLock;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys::HtmlCanvasElement;
 
 /// Generates the canvas and user interface
 /// # Example
@@ -14,7 +13,6 @@ use web_sys::HtmlCanvasElement;
 /// initialise_interface();
 /// ```
 pub fn initialise_interface() {
-    clear_and_refresh();
     ui_element::reset_button();
     activate_rotate(90f64);
     activate_rotate(180f64);
@@ -23,6 +21,7 @@ pub fn initialise_interface() {
     ui_element::create_toggle("orientation_toggle", "player_interact");
     ui_element::create_select("player_dropdown");
     ui_element::create_toggle("label_toggle", "player_label");
+    clear_and_refresh();
 }
 // Global variable to store the rotation angle of the canvas
 lazy_static! {
@@ -69,36 +68,7 @@ pub fn get_number(lock: &RwLock<f64>) -> f64 {
     let r1 = lock.read().unwrap();
     *r1
 }
-/// Getters for the canvas, context, and document
-/// # Returns
-/// * `canvas` - The canvas element
-/// * `context` - The canvas context
-/// * `document` - The document
-/// # Example
-/// ```
-/// let (canvas, context, document) = get_canvas_context_document();
-/// ```
-pub fn get_canvas_context_document() -> (
-    HtmlCanvasElement,
-    web_sys::CanvasRenderingContext2d,
-    web_sys::Document,
-) {
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id("canvas").unwrap();
-    let canvas: HtmlCanvasElement = canvas
-        .dyn_into::<HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap();
 
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .unwrap();
-
-    (canvas, context, document)
-}
 /// Clear the canvas and redraw the map
 /// # Example
 /// ```
@@ -106,24 +76,24 @@ pub fn get_canvas_context_document() -> (
 /// ```
 #[wasm_bindgen]
 pub fn clear_and_refresh() {
-    let (_, context, document) = get_canvas_context_document();
+    let (_, context, _) = elements::get_canvas_context_document();
     context.save();
     // Reset the transform to clear the canvas
-    context.reset_transform().unwrap();
+    if let Err(err) = context.reset_transform() {
+        console_log!("Error resetting transform: {:?}", err)
+    };
     context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
     context.restore();
     console_log!("Cleared canvas");
 
-    let image = document
-        .create_element("img")
-        .unwrap()
-        .dyn_into::<web_sys::HtmlImageElement>()
-        .unwrap();
-    image.set_id("map");
-    image.set_src("http://127.0.0.1:8080/images/Ascent-391657b8f8b973aa5d90.png");
-    context
-        .draw_image_with_html_image_element(&image, 0.0, 0.0)
-        .unwrap();
+    match get_html_image_element_by_id("Ascent") {
+        Ok(image) => {
+            if let Err(err) = context.draw_image_with_html_image_element(&image, 0.0, 0.0) {
+                console_log!("Error drawing image: {:?}", err)
+            };
+        }
+        Err(err) => console_log!("Error getting image: {:?}", err),
+    }
 }
 /// Reset the canvas
 /// # Example
@@ -132,22 +102,22 @@ pub fn clear_and_refresh() {
 /// ```
 #[wasm_bindgen]
 pub fn reset_canvas() {
-    let (_, context, document) = get_canvas_context_document();
+    let (_, context, _) = elements::get_canvas_context_document();
     // Reset the transform to clear the canvas
-    context.reset_transform().unwrap();
+    if let Err(err) = context.reset_transform() {
+        console_log!("Error resetting transform: {:?}", err)
+    };
     context.clear_rect(0.0, 0.0, 1024.0, 1024.0);
     console_log!("Cleared canvas");
 
-    let image = document
-        .create_element("img")
-        .unwrap()
-        .dyn_into::<web_sys::HtmlImageElement>()
-        .unwrap();
-    image.set_id("map");
-    image.set_src("http://127.0.0.1:8080/images/Ascent-391657b8f8b973aa5d90.png");
-    context
-        .draw_image_with_html_image_element(&image, 0.0, 0.0)
-        .unwrap();
+    match get_html_image_element_by_id("Ascent") {
+        Ok(image) => {
+            if let Err(err) = context.draw_image_with_html_image_element(&image, 0.0, 0.0) {
+                console_log!("Error drawing image: {:?}", err)
+            };
+        }
+        Err(err) => console_log!("Error getting image: {:?}", err),
+    }
 
     change_it(&ROTATION_ANGLE, 0.0);
 }
@@ -179,7 +149,7 @@ pub fn activate_rotate(deg: f64) {
 /// ```
 #[wasm_bindgen]
 pub fn rotate_canvas(deg: f64) {
-    let (_, context, _) = get_canvas_context_document();
+    let (_, context, _) = elements::get_canvas_context_document();
     let (width, height) = get_canvas_width_height();
     context.translate(width / 2f64, height / 2f64).unwrap();
     console_log!("Translated canvas to set origin");
@@ -213,7 +183,7 @@ pub fn get_radian_angle(deg: f64) -> f64 {
 /// let (width, height) = get_canvas_width_height();
 /// ```
 pub fn get_canvas_width_height() -> (f64, f64) {
-    let (canvas, _, _) = get_canvas_context_document();
+    let (canvas, _, _) = elements::get_canvas_context_document();
     let width = canvas.width() as f64;
     let height = canvas.height() as f64;
     (width, height)

@@ -9,7 +9,6 @@ use std::{
 };
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::tungstenite::protocol::Message;
-
 type Tx = UnboundedSender<Message>;
 type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 struct Server {
@@ -83,7 +82,7 @@ impl Server {
 async fn main() -> Result<(), IoError> {
     let addr = env::args()
         .nth(1)
-        .unwrap_or_else(|| "127.0.0.1:27017".to_string());
+        .unwrap_or_else(|| "0.0.0.0:27017".to_string());
 
     let server = Server {
         clients: Arc::new(Mutex::new(HashMap::new())),
