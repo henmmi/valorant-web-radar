@@ -56,6 +56,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             dormant: player_data.dormant[i],
                             rotation: player_data.rotation[i],
                             scoped: player_data.scoped[i],
+                            weapon: player_data.weapon[i],
                         });
                     }
                     players.reverse();

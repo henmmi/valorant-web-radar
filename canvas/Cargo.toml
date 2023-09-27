@@ -22,6 +22,8 @@ strum_macros = "0.25.2"
 version = "0.3.4"
 features = [
   'CanvasRenderingContext2d',
+  'OffscreenCanvas',
+  'OffscreenCanvasRenderingContext2d',
   'Document',
   'Element',
   'HtmlCanvasElement',
@@ -40,4 +42,6 @@ features = [
   'ErrorEvent',
   'MessageEvent',
   'WebSocket',
+  'ImageData',
+  'ImageBitmap',
 ]

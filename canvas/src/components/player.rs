@@ -1,11 +1,14 @@
 use super::macros::{console_log, log};
 use super::player_data::Player;
 use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
+use crate::components::elements;
 use crate::components::elements::{get_canvas_context_document, get_html_image_element_by_id};
+use crate::components::game_data::Weapon;
 use crate::components::ui_element::{toggle_label, toggle_state};
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::JsValue;
+use web_sys::{HtmlImageElement, OffscreenCanvasRenderingContext2d};
 
 /// Display the player's position on the canvas
 /// # Arguments
@@ -124,6 +127,7 @@ pub fn draw_players(players: &[Player]) {
         draw_player_orientation(player);
         display_player_position(player);
         draw_player_icon(player, get_number(&ROTATION_ANGLE));
+        draw_weapon_icons(player, get_number(&ROTATION_ANGLE));
     }
     toggle_label(players);
 }
@@ -186,6 +190,90 @@ pub fn draw_player_icon(player: &Player, angle: f64) {
     }
 }
 
+/// Draw the player's weapon icon on the canvas
+/// # Arguments
+/// * `player` - Input player data through the struct 'Player'
+/// * `angle` - The player's angle
+/// # Example
+/// ```
+/// draw_weapon_icons(&player, 90.0);
+/// ```
+fn draw_weapon_icons(player: &Player, angle: f64) {
+    let (_, context, _) = get_canvas_context_document();
+    let scaling_factor = 0.15;
+    let weapon_name = Weapon::match_weapon_id(player.weapon);
+    match get_html_image_element_by_id(weapon_name.as_str()) {
+        Ok(elem) => {
+            let icon_width = elem.natural_width() as f64 * scaling_factor;
+            let icon_height = elem.natural_height() as f64 * scaling_factor;
+
+            let (offscreen_canvas, offscreen_context) =
+                elements::get_offscreen_canvas_context(elem.width(), elem.height());
+
+            offscreen_context
+                .draw_image_with_html_image_element(&elem, 0.0, 0.0)
+                .unwrap();
+
+            set_image_colour(
+                offscreen_context,
+                elem,
+                0.0,
+                0.0,
+                identify_team(player.team, false),
+            );
+            context.save();
+            context.translate(player.x, player.y).unwrap();
+            let angle_rad = get_radian_angle(-angle);
+            context.rotate(angle_rad).unwrap();
+            let image_bitmap = offscreen_canvas.transfer_to_image_bitmap().unwrap();
+            context
+                .draw_image_with_image_bitmap_and_dw_and_dh(
+                    &image_bitmap,
+                    -icon_width / 2.0,
+                    -28.0,
+                    icon_width,
+                    icon_height,
+                )
+                .unwrap();
+        }
+        Err(err) => console_log!("Error getting weapon icon element: {:?}", err),
+    }
+    context.restore();
+}
+/// Set the image colour of the player's icon
+/// # Arguments
+/// * `context` - The context of the canvas
+/// * `image` - The image element
+/// * `x` - The X coordinate
+/// * `y` - The Y coordinate
+/// * `colour` - The colour of the image
+/// # Example
+/// ```
+/// set_image_colour(context, image, 100.0, 100.0, "red");
+/// ```
+fn set_image_colour(
+    context: OffscreenCanvasRenderingContext2d,
+    image: HtmlImageElement,
+    x: f64,
+    y: f64,
+    colour: &str,
+) {
+    let (width, height) = (image.width(), image.height());
+
+    context
+        .draw_image_with_html_image_element(&image, x, y)
+        .expect("Error drawing image");
+
+    context
+        .set_global_composite_operation("source-in")
+        .expect("Error setting composite operation");
+
+    context.set_fill_style(&JsValue::from_str(colour));
+    context.fill_rect(x, y, width as f64, height as f64);
+    context
+        .set_global_composite_operation("source-over")
+        .unwrap();
+}
 /// Display the players orientation as a triangle
 /// # Arguments
 /// * `player` - Input player data through the struct 'Player'
@@ -226,7 +314,7 @@ fn draw_player_orientation(player: &Player) {
 /// ```
 /// identify_team(0);
 /// ```
-fn identify_team(team: i32, dark: bool) -> &'static str {
+pub fn identify_team(team: i32, dark: bool) -> &'static str {
     if dark {
         match team {
             0 => "#66471C",
