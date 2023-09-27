@@ -3,7 +3,9 @@ use super::game_data::GameInfo;
 use super::macros::{console_log, log};
 use super::player_data::{Player, Players};
 use crate::components::player::draw_players;
-use crate::components::ui_element::{get_player_dropdown_length, on_toggle, player_dropdown};
+use crate::components::ui_element::{
+    get_player_dropdown_length, player_dropdown, toggle_orientation,
+};
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
@@ -58,7 +60,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     }
                     players.reverse();
                     clear_and_refresh();
-                    on_toggle(&players);
+                    toggle_orientation(&players);
                     draw_players(&players);
                     // Check if current dropdown length is equal to the number of players
                     if get_player_dropdown_length() != players.len() {

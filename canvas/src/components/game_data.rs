@@ -120,6 +120,21 @@ impl Preloader {
             }
         }
     }
+
+    pub fn preload_icons(&mut self, name: &str) {
+        let url = format!("http://{}/images/{}.png", get_host(), name);
+        if let Ok(div) = get_div_element_by_id("icon_storage") {
+            match create_html_image_element(name, url.as_str(), name) {
+                Ok(element) => {
+                    element.style().set_property("display", "none").unwrap();
+                    div.append_child(&element).unwrap();
+                    console_log!("Preloaded icon Dormant");
+                    console_log!("Icon URL: {}", url);
+                }
+                Err(err) => console_log!("Error creating image element: {:?}", err),
+            }
+        }
+    }
 }
 impl Default for Preloader {
     fn default() -> Self {

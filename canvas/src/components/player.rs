@@ -2,7 +2,7 @@ use super::macros::{console_log, log};
 use super::player_data::Player;
 use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
 use crate::components::elements::{get_canvas_context_document, get_html_image_element_by_id};
-use crate::components::ui_element::toggle_label;
+use crate::components::ui_element::{toggle_label, toggle_state};
 use js_sys::Math::{cos, sin};
 use std::f64;
 use wasm_bindgen::JsValue;
@@ -151,17 +151,34 @@ pub fn draw_player_icon(player: &Player, angle: f64) {
             if let Err(err) = context.rotate(angle_rad) {
                 console_log!("Error rotating: {:?}", err);
             }
-            if let Err(err) = context.translate(-icon_width / 2.0, -icon_height / 2.0) {
-                console_log!("Error translating: {:?}", err);
-            }
-            if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
-                &icon,
-                0.0,
-                0.0,
-                icon_width,
-                icon_height,
-            ) {
-                console_log!("Error drawing image: {:?}", err);
+
+            if toggle_state("dormant_player_toggle") && player.dormant == 1 {
+                if let Err(err) = context.translate(-icon_width, -icon_height) {
+                    console_log!("Error translating: {:?}", err);
+                }
+                let dormant_icon = get_html_image_element_by_id("Dormant").unwrap();
+                if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
+                    &dormant_icon,
+                    0.0,
+                    0.0,
+                    icon_width * 2.0,
+                    icon_height * 2.0,
+                ) {
+                    console_log!("Error drawing image: {:?}", err);
+                }
+            } else {
+                context
+                    .translate(-icon_width / 2.0, -icon_height / 2.0)
+                    .unwrap();
+                if let Err(err) = context.draw_image_with_html_image_element_and_dw_and_dh(
+                    &icon,
+                    0.0,
+                    0.0,
+                    icon_width,
+                    icon_height,
+                ) {
+                    console_log!("Error drawing image: {:?}", err);
+                }
             }
             context.restore();
         }
