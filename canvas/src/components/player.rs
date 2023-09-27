@@ -58,7 +58,6 @@ pub fn player_health_circle(player: &Player, angle: f64) {
         .unwrap();
     context.set_fill_style(&JsValue::from_str(identify_team(player.team, false)));
     context.fill();
-    console_log!("Drew player health circle");
     context.restore();
 }
 /// Finds the start draw angle for the player's health circle based on their health
@@ -141,8 +140,7 @@ pub fn draw_players(players: &[Player]) {
 /// ```
 pub fn draw_player_icon(player: &Player, angle: f64) {
     let (_, context, _) = get_canvas_context_document();
-    let agent_name = Player::get_agent_name(player.id);
-    console_log!("Agent name: {}", agent_name);
+    let agent_name = Player::get_agent_name(player.id as usize);
     match get_html_image_element_by_id(agent_name.as_str()) {
         Ok(icon) => {
             let icon_width = 16.0;

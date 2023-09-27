@@ -44,4 +44,6 @@ features = [
   'WebSocket',
   'ImageData',
   'ImageBitmap',
+  'Range',
+  'DocumentFragment',
 ]

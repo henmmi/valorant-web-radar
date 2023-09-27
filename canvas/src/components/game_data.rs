@@ -163,17 +163,16 @@ impl Preloader {
         if let Ok(div) = get_div_element_by_id("player_storage") {
             for (id, _player) in Agent::iter().enumerate() {
                 match create_html_image_element(
-                    Player::get_agent_name(id as i32).as_str(),
-                    Player::agent_player_icon_url(id as i32).as_str(),
+                    Player::get_agent_name(id).as_str(),
+                    Player::agent_player_icon_url(id).as_str(),
                     class,
                 ) {
                     Ok(element) => {
                         element.style().set_property("display", "none").unwrap();
                         div.append_child(&element).unwrap();
-                        self.agents
-                            .insert(Player::get_agent_name(id as i32), element);
-                        console_log!("Preloaded agent {}", Player::get_agent_name(id as i32));
-                        console_log!("Agent URL: {}", Player::agent_player_icon_url(id as i32));
+                        self.agents.insert(Player::get_agent_name(id), element);
+                        console_log!("Preloaded agent {}", Player::get_agent_name(id));
+                        console_log!("Agent URL: {}", Player::agent_player_icon_url(id));
                     }
                     Err(err) => console_log!("Error creating image element: {:?}", err),
                 }

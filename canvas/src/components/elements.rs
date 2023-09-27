@@ -1,8 +1,8 @@
 use super::macros::{console_log, log};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{
-    HtmlCanvasElement, HtmlDivElement, HtmlImageElement, HtmlInputElement, OffscreenCanvas,
-    OffscreenCanvasRenderingContext2d,
+    HtmlCanvasElement, HtmlCollection, HtmlDivElement, HtmlElement, HtmlImageElement,
+    HtmlInputElement, OffscreenCanvas, OffscreenCanvasRenderingContext2d,
 };
 
 /// Getters for the canvas, context, and document
@@ -34,6 +34,22 @@ pub fn get_canvas_context_document() -> (
         .unwrap();
 
     (canvas, context, document)
+}
+pub fn _create_html_h2_element(id: &str, class: &str) -> Result<HtmlElement, JsValue> {
+    let (_, _, document) = get_canvas_context_document();
+    let element = document.create_element("h2")?;
+    let elem = element.dyn_into::<HtmlElement>()?;
+    elem.set_id(id);
+    elem.set_class_name(class);
+    Ok(elem)
+}
+pub fn create_html_div_element(id: &str, class: &str) -> Result<HtmlDivElement, JsValue> {
+    let (_, _, document) = get_canvas_context_document();
+    let element = document.create_element("div")?;
+    let div_elem = element.dyn_into::<HtmlDivElement>()?;
+    div_elem.set_id(id);
+    div_elem.set_class_name(class);
+    Ok(div_elem)
 }
 /// Create a HTML image element
 /// # Arguments
@@ -67,7 +83,10 @@ pub fn create_html_image_element(
 pub fn get_html_image_element_by_id(id: &str) -> Result<HtmlImageElement, ()> {
     let (_, _, document) = get_canvas_context_document();
     let element = match document.get_element_by_id(id) {
-        Some(element) => element,
+        Some(element) => {
+            console_log!("Found element with id: {:?}", element.dyn_ref::<JsValue>());
+            element
+        }
         None => panic!("No img element found with id: {}", id),
     };
     match element.dyn_into::<HtmlImageElement>() {
@@ -116,9 +135,14 @@ pub fn get_input_element_by_id(id: &str) -> Result<HtmlInputElement, ()> {
         Ok(input_elem) => Ok(input_elem),
         Err(_) => Err(console_log!(
             "Element with id: {} is not an HtmlInputElement",
-            id
+            id,
         )),
     }
+}
+/// Returns a DivElement by class if it exists
+pub fn get_elements_by_class(class: &str) -> Option<HtmlCollection> {
+    let (_, _, document) = get_canvas_context_document();
+    Some(document.get_elements_by_class_name(class))
 }
 /// Create OffscreenCanvas and OffscreenCanvasRenderingContext2d objects
 /// # Arguments

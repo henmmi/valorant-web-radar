@@ -19,7 +19,7 @@ pub enum Agent {
     Skye,
     Yoru,
     Astra,
-    Kayo5,
+    Kayo,
     Chamber,
     Neon,
     Fade,
@@ -62,7 +62,7 @@ impl Player {
     /// ```
     /// assert_eq!(Player::get_agent_name(0), "Brimstone");
     /// ```
-    pub fn get_agent_name(id: i32) -> String {
+    pub fn get_agent_name(id: usize) -> String {
         match id {
             0 => "Brimstone".to_string(),
             1 => "Viper".to_string(),
@@ -96,7 +96,7 @@ impl Player {
     /// ```
     /// assert_eq!(Player::agent_player_icon_url(0), "http://url:8080/images/Brimstone.png");
     /// ```
-    pub fn agent_player_icon_url(id: i32) -> String {
+    pub fn agent_player_icon_url(id: usize) -> String {
         format!(
             "http://{}/images/{}.png",
             get_host(),
