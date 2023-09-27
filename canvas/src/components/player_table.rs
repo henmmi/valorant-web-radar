@@ -1,7 +1,8 @@
 use crate::components::elements::{
-    create_html_div_element, create_html_h2_element, get_canvas_context_document,
-    get_div_element_by_id, get_elements_by_class,
+    create_html_div_element, get_canvas_context_document, get_div_element_by_id,
+    get_elements_by_class, get_html_image_element_by_id,
 };
+use crate::components::game_data::Weapon;
 use crate::components::player::identify_team;
 use crate::components::player_data::Player;
 use wasm_bindgen::{JsCast, JsValue};
@@ -30,21 +31,14 @@ pub fn create_player_info_row(player: &[Player]) {
             .unwrap()
             .append_child(&player_row)
             .unwrap();
-
-        // TODO: Add Weapon Icons.
         let player_name = Player::get_agent_name(agent.id as usize);
-        let username =
-            create_html_h2_element(format!("player_{}_name", agent.id).as_str(), "player_name")
-                .unwrap();
-        username.set_inner_text(player_name.as_str());
-        player_row.append_child(&username).unwrap();
         let document = web_sys::window().unwrap().document().unwrap();
         let canvas = document
             .create_element("canvas")
             .unwrap()
             .dyn_into::<HtmlCanvasElement>()
             .unwrap();
-        canvas.set_width(250);
+        canvas.set_width(280);
         canvas.set_height(30);
 
         let context = canvas
@@ -72,6 +66,30 @@ pub fn create_player_info_row(player: &[Player]) {
             .fill_text(
                 (agent.health).round().to_string().as_str(),
                 20.0,
+                canvas.height() as f64 / 2.0,
+            )
+            .expect("TODO: panic message");
+        let weapon_icon =
+            get_html_image_element_by_id(Weapon::match_weapon_id(agent.weapon).as_str()).unwrap();
+        let weapon_icon_width = weapon_icon.width() as f64 * 0.15;
+        let weapon_icon_height = weapon_icon.height() as f64 * 0.15;
+        context
+            .draw_image_with_html_image_element_and_dw_and_dh(
+                &weapon_icon,
+                canvas.width() as f64 - weapon_icon_width - 10.0,
+                canvas.height() as f64 / 2.0 - weapon_icon_height / 2.0,
+                weapon_icon_width,
+                weapon_icon_height,
+            )
+            .unwrap();
+        context.set_font("14px sans-serif");
+        context.set_text_align("left");
+        context.set_text_baseline("middle");
+        context.set_fill_style(&JsValue::from_str("white"));
+        context
+            .fill_text(
+                player_name.as_str(),
+                canvas.width() as f64 / 4.0,
                 canvas.height() as f64 / 2.0,
             )
             .expect("TODO: panic message");

@@ -53,7 +53,7 @@ pub fn _get_player_table_canvas_context() -> (HtmlCanvasElement, web_sys::Canvas
         .unwrap();
     (canvas, context)
 }
-pub fn create_html_h2_element(id: &str, class: &str) -> Result<HtmlElement, JsValue> {
+pub fn _create_html_h2_element(id: &str, class: &str) -> Result<HtmlElement, JsValue> {
     let (_, _, document) = get_canvas_context_document();
     let element = document.create_element("h2")?;
     let elem = element.dyn_into::<HtmlElement>()?;
