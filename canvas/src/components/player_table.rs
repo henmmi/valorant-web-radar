@@ -32,9 +32,21 @@ pub fn create_player_info_row(player: &[Player]) {
         // Set player row layout as three components
         let health_bar_size = canvas.width() as f64 * 0.84;
         player_row.append_child(&canvas).unwrap();
-        add_weapon_icon_to_player_block(agent, &canvas, &context, health_bar_size);
         add_health_text_and_bar(&agent, &context, &canvas, health_bar_size);
-        add_player_name_icon_to_block(&player_name, canvas, context, health_bar_size);
+        let weapon_icon =
+            get_html_image_element_by_id(Weapon::match_weapon_id(agent.weapon).as_str()).unwrap();
+        let weapon_icon_width = weapon_icon.width() as f64 * 0.15;
+        let weapon_icon_height = weapon_icon.height() as f64 * 0.15;
+        context
+            .draw_image_with_html_image_element_and_dw_and_dh(
+                &weapon_icon,
+                canvas.width() as f64 - weapon_icon_width - 10.0,
+                canvas.height() as f64 / 4.0 - weapon_icon_height / 2.0,
+                weapon_icon_width,
+                weapon_icon_height,
+            )
+            .unwrap();
+        add_player_name_icon_to_block(&player_name, &canvas, &context, health_bar_size);
     }
 }
 /// Adds player name and icon to player info block
@@ -49,8 +61,8 @@ pub fn create_player_info_row(player: &[Player]) {
 /// ```
 fn add_player_name_icon_to_block(
     player_name: &str,
-    canvas: HtmlCanvasElement,
-    context: CanvasRenderingContext2d,
+    canvas: &HtmlCanvasElement,
+    context: &CanvasRenderingContext2d,
     health_bar_size: f64,
 ) {
     context
@@ -70,7 +82,7 @@ fn add_player_name_icon_to_block(
     context
         .fill_text(
             player_name,
-            health_bar_size / 4.0 + (1.0 - health_bar_size / 2.0),
+            health_bar_size / 4.0 + (canvas.width() as f64 - health_bar_size),
             canvas.height() as f64 / 4.0,
         )
         .expect("TODO: panic message");
@@ -85,26 +97,14 @@ fn add_player_name_icon_to_block(
 /// ```
 /// add_weapon_icon_to_player_block(&agent, &canvas, &context, health_bar_size);
 /// ```
-fn add_weapon_icon_to_player_block(
-    agent: &Player,
-    canvas: &HtmlCanvasElement,
-    context: &CanvasRenderingContext2d,
-    health_bar_size: f64,
-) {
-    let weapon_icon =
-        get_html_image_element_by_id(Weapon::match_weapon_id(agent.weapon).as_str()).unwrap();
-    let weapon_icon_width = weapon_icon.width() as f64 * 0.15;
-    let weapon_icon_height = weapon_icon.height() as f64 * 0.15;
-    context
-        .draw_image_with_html_image_element_and_dw_and_dh(
-            &weapon_icon,
-            canvas.width() as f64 - weapon_icon_width - 10.0,
-            health_bar_size / 2.0 - weapon_icon_height / 2.0,
-            weapon_icon_width,
-            weapon_icon_height,
-        )
-        .unwrap();
-}
+// fn add_weapon_icon_to_player_block(
+//     agent: &Player,
+//     canvas: &HtmlCanvasElement,
+//     context: &CanvasRenderingContext2d,
+//     health_bar_size: f64,
+// ) {
+//
+// }
 /// Adds health text and bar to player info block
 /// # Arguments
 /// * `agent` - A player data struct
@@ -119,18 +119,23 @@ fn add_health_text_and_bar(
     agent: &&Player,
     context: &CanvasRenderingContext2d,
     canvas: &HtmlCanvasElement,
-    health_bar_width: f64,
+    health_bar_size: f64,
 ) {
     let bar_height = canvas.height() as f64 / 2.0;
     // Health Bar Background
     context.set_fill_style(&JsValue::from_str(identify_team(agent.team, true)));
-    context.fill_rect(1.0 - health_bar_width, 0.0, health_bar_width, bar_height);
+    context.fill_rect(
+        canvas.width() as f64 - health_bar_size,
+        0.0,
+        health_bar_size,
+        bar_height,
+    );
     // Health Bar
     context.set_fill_style(&JsValue::from_str(identify_team(agent.team, false)));
     context.fill_rect(
-        1.0 - health_bar_width,
+        canvas.width() as f64 - health_bar_size,
         0.0,
-        health_bar_width * agent.health / 100.0,
+        health_bar_size * agent.health / 100.0,
         bar_height,
     );
     // Health Text
@@ -141,7 +146,7 @@ fn add_health_text_and_bar(
     context
         .fill_text(
             (agent.health).round().to_string().as_str(),
-            20.0 + (1.0 - health_bar_width / 2.0),
+            20.0 + canvas.width() as f64 - health_bar_size,
             bar_height / 2.0,
         )
         .expect("TODO: panic message");
