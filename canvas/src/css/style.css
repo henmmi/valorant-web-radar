@@ -1,6 +1,6 @@
 :root {
     --dark-background-colour: #17161D;
-    --darker-blue-colour: #17171E;
+    --darker-blue-colour: #18181E;
     --dark-blue-colour: #242E42;
     --blue-text-colour: #636D89;
     --blue-colour: #5F78AD;
@@ -43,9 +43,6 @@ body {
 }
 #container {
     display: none;
-}
-#player_table{
-    background-color: var(--dark-background-colour);
 }
 .overlay {
     position: absolute;
