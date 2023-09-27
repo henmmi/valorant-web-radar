@@ -38,8 +38,15 @@ pub fn create_player_info_row(player: &[Player]) {
             .unwrap()
             .dyn_into::<HtmlCanvasElement>()
             .unwrap();
-        canvas.set_width(280);
-        canvas.set_height(30);
+        canvas.set_width(415);
+        canvas.set_height(60);
+
+        // Set player row layout as three components
+        let left_box_height = canvas.height() as f64;
+        let left_box_width = canvas.width() as f64 * 0.16;
+
+        let health_bar_height = canvas.height() as f64 * 0.5;
+        let health_bar_width = canvas.width() as f64 * 0.84;
 
         let context = canvas
             .get_context("2d")
@@ -49,15 +56,27 @@ pub fn create_player_info_row(player: &[Player]) {
             .unwrap();
 
         player_row.append_child(&canvas).unwrap();
+        context
+            .draw_image_with_html_image_element_and_dw_and_dh(
+                &get_html_image_element_by_id(player_name.as_str()).unwrap(),
+                0.0,
+                0.0,
+                64.0,
+                64.0,
+            )
+            .unwrap();
+        // Health Bar Background
         context.set_fill_style(&JsValue::from_str(identify_team(agent.team, true)));
-        context.fill_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
+        context.fill_rect(left_box_width, 0.0, health_bar_width, health_bar_height);
+        // Health Bar
         context.set_fill_style(&JsValue::from_str(identify_team(agent.team, false)));
         context.fill_rect(
+            left_box_width,
             0.0,
-            0.0,
-            canvas.width() as f64 * agent.health / 100.0,
-            canvas.height() as f64,
+            health_bar_width * agent.health / 100.0,
+            health_bar_height,
         );
+        // Health Text
         context.set_font("14px sans-serif");
         context.set_text_align("center");
         context.set_text_baseline("middle");
@@ -65,8 +84,8 @@ pub fn create_player_info_row(player: &[Player]) {
         context
             .fill_text(
                 (agent.health).round().to_string().as_str(),
-                20.0,
-                canvas.height() as f64 / 2.0,
+                20.0 + left_box_width,
+                health_bar_height / 2.0,
             )
             .expect("TODO: panic message");
         let weapon_icon =
@@ -77,7 +96,7 @@ pub fn create_player_info_row(player: &[Player]) {
             .draw_image_with_html_image_element_and_dw_and_dh(
                 &weapon_icon,
                 canvas.width() as f64 - weapon_icon_width - 10.0,
-                canvas.height() as f64 / 2.0 - weapon_icon_height / 2.0,
+                health_bar_height / 2.0 - weapon_icon_height / 2.0,
                 weapon_icon_width,
                 weapon_icon_height,
             )
@@ -89,8 +108,8 @@ pub fn create_player_info_row(player: &[Player]) {
         context
             .fill_text(
                 player_name.as_str(),
-                canvas.width() as f64 / 4.0,
-                canvas.height() as f64 / 2.0,
+                health_bar_width / 4.0 + left_box_width,
+                health_bar_height / 2.0,
             )
             .expect("TODO: panic message");
     }
