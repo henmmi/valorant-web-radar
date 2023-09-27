@@ -1,10 +1,16 @@
 use crate::components::elements::{
-    create_html_div_element, get_canvas_context_document, get_div_element_by_id,
-    get_elements_by_class,
+    create_html_div_element, create_html_h2_element, get_canvas_context_document,
+    get_div_element_by_id, get_elements_by_class,
 };
+use crate::components::player::identify_team;
 use crate::components::player_data::Player;
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::HtmlCanvasElement;
+
 pub fn create_player_info_row(player: &[Player]) {
     let (_, _, document) = get_canvas_context_document();
+
+    // Clear player info every instance
     if let Some(player_row) = get_elements_by_class("players") {
         for i in 0..player_row.length() as usize {
             let range = document.create_range().unwrap();
@@ -14,14 +20,65 @@ pub fn create_player_info_row(player: &[Player]) {
             range.delete_contents().unwrap();
         }
     }
-    for (i, agent) in player.iter().enumerate() {
-        let _player_name = Player::get_agent_name(i);
+
+    // Populate player info
+    for (_i, agent) in player.iter().enumerate() {
         let player_row =
-            create_html_div_element(format!("Player_{}_info", agent.id).as_str(), "player_row")
+            create_html_div_element(format!("player_{}_info", agent.id).as_str(), "player_row")
                 .unwrap();
         get_div_element_by_id(format!("team_{}_players", agent.team).as_str())
             .unwrap()
             .append_child(&player_row)
             .unwrap();
+
+        // TODO: Add Weapon Icons.
+        let player_name = Player::get_agent_name(agent.id as usize);
+        let username =
+            create_html_h2_element(format!("player_{}_name", agent.id).as_str(), "player_name")
+                .unwrap();
+        username.set_inner_text(player_name.as_str());
+        player_row.append_child(&username).unwrap();
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document
+            .create_element("canvas")
+            .unwrap()
+            .dyn_into::<HtmlCanvasElement>()
+            .unwrap();
+        canvas.set_width(250);
+        canvas.set_height(30);
+
+        let context = canvas
+            .get_context("2d")
+            .unwrap()
+            .unwrap()
+            .dyn_into::<web_sys::CanvasRenderingContext2d>()
+            .unwrap();
+
+        player_row.append_child(&canvas).unwrap();
+        context.set_fill_style(&JsValue::from_str(identify_team(agent.team, true)));
+        context.fill_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
+        context.set_fill_style(&JsValue::from_str(identify_team(agent.team, false)));
+        context.fill_rect(
+            0.0,
+            0.0,
+            canvas.width() as f64 * agent.health / 100.0,
+            canvas.height() as f64,
+        );
+        context.set_font("14px sans-serif");
+        context.set_text_align("center");
+        context.set_text_baseline("middle");
+        context.set_fill_style(&JsValue::from_str("white"));
+        context
+            .fill_text(
+                (agent.health).round().to_string().as_str(),
+                20.0,
+                canvas.height() as f64 / 2.0,
+            )
+            .expect("TODO: panic message");
     }
 }
+
+// pub fn add_player_health_bar(health: i32) -> Result<(), JsValue> {
+//     let (_, _, document) = get_canvas_context_document();
+//     let (canvas, context) = get_player_table_canvas_context();
+// }

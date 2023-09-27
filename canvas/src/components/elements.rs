@@ -35,7 +35,25 @@ pub fn get_canvas_context_document() -> (
 
     (canvas, context, document)
 }
-pub fn _create_html_h2_element(id: &str, class: &str) -> Result<HtmlElement, JsValue> {
+
+pub fn _get_player_table_canvas_context() -> (HtmlCanvasElement, web_sys::CanvasRenderingContext2d)
+{
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("player_table").unwrap();
+    let canvas: HtmlCanvasElement = canvas
+        .dyn_into::<HtmlCanvasElement>()
+        .map_err(|_| ())
+        .unwrap();
+
+    let context = canvas
+        .get_context("2d")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<web_sys::CanvasRenderingContext2d>()
+        .unwrap();
+    (canvas, context)
+}
+pub fn create_html_h2_element(id: &str, class: &str) -> Result<HtmlElement, JsValue> {
     let (_, _, document) = get_canvas_context_document();
     let element = document.create_element("h2")?;
     let elem = element.dyn_into::<HtmlElement>()?;

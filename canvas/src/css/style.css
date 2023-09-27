@@ -1,5 +1,6 @@
 :root {
     --dark-background-colour: #17161D;
+    --darker-blue-colour: #17171E;
     --dark-blue-colour: #242E42;
     --blue-text-colour: #636D89;
     --blue-colour: #5F78AD;
@@ -9,18 +10,75 @@
     --yellow-colour: #DE9A34;
     --green-colour: #25B14E;
 }
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
 
+body {
+    background-color: black;
+}
+#canvas {
+    border-radius: 30px;
+    display: block;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 10px;
+    padding: 10px 10px 10px 10px;
+    height: auto;
+    width: 40%;
+}
 .container {
     position: fixed;
+    top: 0;
     right: 0;
-    background-color: var(--dark-background-colour);
+    bottom: 0;
+    background-color: black;
     padding: 10px 10px 10px 10px;
-    width: 25%;
+    width: 338px;
+    height: 510px;
+}
+#player_table{
+    background-color: var(--dark-background-colour);
+}
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    color: white;
+    pointer-events: none;
+}
+.players {
+    position: relative;
+    padding-left: 10px;
+    line-height: normal;
+    width: 90%;
+    background-color: var(--darker-blue-colour);
+    color: white;
+    display: block;
+    font-size: 8px;
+}
+.player_row{
+    position: relative;
+    margin: auto;
+    text-align: center;
+}
+.table_header{
+    padding: 10px 20px 10px 20px;
+
 }
 .team_name {
     padding: 10px 10px 10px 10px;
     background-color: var(--grey-colour);
     font-family: 'Arial', sans-serif;
+    color: white;
+    font-size: 16px;
 }
 h1 {
     color: white;
@@ -67,28 +125,7 @@ width: 30%;
     padding: 5px 5px 5px 5px;
     margin: 0;
 }
-html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-}
 
-body {
-    background-color: black;
-}
-canvas{
-    border-radius: 30px;
-    display: block;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 10px;
-    padding: 10px 10px 10px 10px;
-    height: auto;
-    width: 40%;
-}
 
 /* The switch - the box around the slider */
 .switch {

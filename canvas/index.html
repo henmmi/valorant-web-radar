@@ -13,13 +13,16 @@
         <div id="dormant_toggle"> <h1> Show dormant players:  </h1> </div>
     </div>
     <div class="container">
-        <div class="team_0 table_header">
-            <h1 class="team_name" id="team_0_name">Attackers</h1>
-            <div class="players" id="team_0_players"> </div>
-        </div>
-        <div class="team_1 table_header">
-            <h1 class="team_name" id="team_1_name">Defenders</h1>
-            <div class="players" id="team_1_players"> </div>
+        <canvas id="player_table" height="510" width="338"></canvas>
+        <div class="overlay">
+            <div class="team_0 table_header team">
+                <h1 class="team_name" id="team_0_name">Attackers</h1>
+                <div class="players" id="team_0_players"> </div>
+            </div>
+            <div class="team_1 table_header team">
+                <h1 class="team_name" id="team_1_name">Defenders</h1>
+                <div class="players" id="team_1_players"> </div>
+            </div>
         </div>
     </div>
   <div id="game_assets">
