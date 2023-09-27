@@ -8,6 +8,8 @@ use crate::components::player_data::Player;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 
+struct InfoContainer {}
+
 /// Generates a info table for each player
 /// # Arguments
 /// * `player` - A vector of player data
@@ -45,8 +47,46 @@ pub fn create_player_info_row(player: &[Player]) {
             &context,
             canvas.width() as f64 - health_bar_size,
         );
+        add_kda_acs_text(agent, &canvas, &context, health_bar_size);
     }
 }
+/// Adds KDA and ACS text to player info block
+/// # Arguments
+/// * `agent` - A player data struct
+/// * `canvas` - A canvas element
+/// * `context` - A canvas rendering context
+/// * `health_bar_size` - A f64 value of the health bar size
+/// # Example
+/// ```
+/// add_kda_acs_text(&agent, &canvas, &context, health_bar_size);
+/// ```
+fn add_kda_acs_text(
+    agent: &Player,
+    canvas: &HtmlCanvasElement,
+    context: &CanvasRenderingContext2d,
+    health_bar_size: f64,
+) {
+    context.set_font("14px sans-serif");
+    context.set_text_align("left");
+    context.set_text_baseline("middle");
+    context.set_fill_style(&JsValue::from_str("white"));
+    context
+        .fill_text(
+            format!("{} / {} / {}", agent.kill, agent.death, agent.assist).as_str(),
+            health_bar_size / 4.0 + (canvas.width() as f64 - health_bar_size),
+            canvas.height() as f64 * 0.75,
+        )
+        .unwrap();
+    context.set_text_align("right");
+    context
+        .fill_text(
+            format!("{} ACS", agent.acs).as_str(),
+            health_bar_size * 0.75 + (canvas.width() as f64 - health_bar_size),
+            canvas.height() as f64 * 0.75,
+        )
+        .unwrap();
+}
+
 /// Adds credits text to player info block
 /// # Arguments
 /// * `agent` - A player data struct
