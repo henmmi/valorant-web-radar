@@ -8,8 +8,6 @@ use crate::components::player_data::Player;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 
-struct InfoContainer {}
-
 /// Generates a info table for each player
 /// # Arguments
 /// * `player` - A vector of player data
