@@ -228,7 +228,11 @@ pub fn toggle_label(players: &[Player]) {
         draw_player_labels(players, get_number(&ROTATION_ANGLE));
     }
 }
-
+/// Toggle the player info table
+/// # Example
+/// ```
+/// toggle_player_info();
+/// ```
 pub fn toggle_player_info() {
     if toggle_state("player_info_table_toggle") {
         let player_info = get_div_element_by_id("container").unwrap();

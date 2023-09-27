@@ -8,9 +8,15 @@ use crate::components::player_data::Player;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlCanvasElement;
 
+/// Generates a info table for each player
+/// # Arguments
+/// * `player` - A vector of player data
+/// # Example
+/// ```
+/// create_player_info_row(&player);
+/// ```
 pub fn create_player_info_row(player: &[Player]) {
     let (_, _, document) = get_canvas_context_document();
-
     // Clear player info every instance
     if let Some(player_row) = get_elements_by_class("players") {
         for i in 0..player_row.length() as usize {
@@ -21,7 +27,6 @@ pub fn create_player_info_row(player: &[Player]) {
             range.delete_contents().unwrap();
         }
     }
-
     // Populate player info
     for (_i, agent) in player.iter().enumerate() {
         let player_row =
@@ -42,7 +47,6 @@ pub fn create_player_info_row(player: &[Player]) {
         canvas.set_height(60);
 
         // Set player row layout as three components
-        let left_box_height = canvas.height() as f64;
         let left_box_width = canvas.width() as f64 * 0.16;
 
         let health_bar_height = canvas.height() as f64 * 0.5;
@@ -114,8 +118,3 @@ pub fn create_player_info_row(player: &[Player]) {
             .expect("TODO: panic message");
     }
 }
-
-// pub fn add_player_health_bar(health: i32) -> Result<(), JsValue> {
-//     let (_, _, document) = get_canvas_context_document();
-//     let (canvas, context) = get_player_table_canvas_context();
-// }
