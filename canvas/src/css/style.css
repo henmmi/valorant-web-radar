@@ -38,9 +38,11 @@ body {
     right: 0;
     bottom: 0;
     background-color: black;
-    padding: 10px 10px 10px 10px;
-    width: 338px;
+    width: 440px;
     height: 510px;
+}
+#container {
+    display: none;
 }
 #player_table{
     background-color: var(--dark-background-colour);
@@ -56,9 +58,7 @@ body {
 }
 .players {
     position: relative;
-    padding-left: 10px;
-    line-height: normal;
-    width: 90%;
+    width: 100%;
     background-color: var(--darker-blue-colour);
     color: white;
     display: block;
@@ -66,12 +66,11 @@ body {
 }
 .player_row{
     position: relative;
-    margin: auto;
     text-align: center;
     padding: 2px 2px 2px 2px;
 }
 .table_header{
-    padding: 10px 20px 10px 20px;
+    padding: 0 20px 0 0;
 
 }
 .team_name {
