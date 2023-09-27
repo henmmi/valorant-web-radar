@@ -44,6 +44,7 @@ pub struct Player {
     pub death: i32,
     pub assist: i32,
     pub acs: i32,
+    pub shield: i32,
     pub credits: i32,
 }
 /// Data container for all players
@@ -62,6 +63,7 @@ pub struct Players {
     pub death: Vec<i32>,
     pub assist: Vec<i32>,
     pub acs: Vec<i32>,
+    pub shield: Vec<i32>,
     pub credits: Vec<i32>,
 }
 impl Player {

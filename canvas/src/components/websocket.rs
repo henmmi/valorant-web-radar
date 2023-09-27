@@ -63,6 +63,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             death: player_data.death[i],
                             assist: player_data.assist[i],
                             acs: player_data.acs[i],
+                            shield: player_data.shield[i],
                             credits: player_data.credits[i],
                         });
                     }
