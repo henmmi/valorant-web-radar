@@ -187,3 +187,18 @@ pub fn get_offscreen_canvas_context(
 
     (offscreen_canvas, offscreen_context)
 }
+
+/// Deletes all content in a HTMLCollection
+pub fn delete_collection_contents(class: &str) {
+    let (_, _, document) = get_canvas_context_document();
+    // Clear player info every instance
+    if let Some(collection) = get_elements_by_class(class) {
+        for i in 0..collection.length() as usize {
+            let range = document.create_range().unwrap();
+            range
+                .select_node_contents(&collection.item(i as u32).unwrap())
+                .unwrap();
+            range.delete_contents().unwrap();
+        }
+    }
+}
