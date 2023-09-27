@@ -33,19 +33,7 @@ pub fn create_player_info_row(player: &[Player]) {
         let health_bar_size = canvas.width() as f64 * 0.84;
         player_row.append_child(&canvas).unwrap();
         add_health_text_and_bar(&agent, &context, &canvas, health_bar_size);
-        let weapon_icon =
-            get_html_image_element_by_id(Weapon::match_weapon_id(agent.weapon).as_str()).unwrap();
-        let weapon_icon_width = weapon_icon.width() as f64 * 0.15;
-        let weapon_icon_height = weapon_icon.height() as f64 * 0.15;
-        context
-            .draw_image_with_html_image_element_and_dw_and_dh(
-                &weapon_icon,
-                canvas.width() as f64 - weapon_icon_width - 10.0,
-                canvas.height() as f64 / 4.0 - weapon_icon_height / 2.0,
-                weapon_icon_width,
-                weapon_icon_height,
-            )
-            .unwrap();
+        add_weapon_icon_to_player_block(agent, &canvas, &context);
         add_player_name_icon_to_block(&player_name, &canvas, &context, health_bar_size);
     }
 }
@@ -97,14 +85,25 @@ fn add_player_name_icon_to_block(
 /// ```
 /// add_weapon_icon_to_player_block(&agent, &canvas, &context, health_bar_size);
 /// ```
-// fn add_weapon_icon_to_player_block(
-//     agent: &Player,
-//     canvas: &HtmlCanvasElement,
-//     context: &CanvasRenderingContext2d,
-//     health_bar_size: f64,
-// ) {
-//
-// }
+fn add_weapon_icon_to_player_block(
+    agent: &Player,
+    canvas: &HtmlCanvasElement,
+    context: &CanvasRenderingContext2d,
+) {
+    let weapon_icon =
+        get_html_image_element_by_id(Weapon::match_weapon_id(agent.weapon).as_str()).unwrap();
+    let weapon_icon_width = weapon_icon.width() as f64 * 0.15;
+    let weapon_icon_height = weapon_icon.height() as f64 * 0.15;
+    context
+        .draw_image_with_html_image_element_and_dw_and_dh(
+            &weapon_icon,
+            canvas.width() as f64 - weapon_icon_width - 10.0,
+            canvas.height() as f64 / 4.0 - weapon_icon_height / 2.0,
+            weapon_icon_width,
+            weapon_icon_height,
+        )
+        .unwrap();
+}
 /// Adds health text and bar to player info block
 /// # Arguments
 /// * `agent` - A player data struct

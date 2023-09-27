@@ -40,6 +40,7 @@ pub struct Player {
     pub rotation: f64,
     pub scoped: i32,
     pub weapon: i32,
+    pub credits: i32,
 }
 /// Data container for all players
 #[derive(Deserialize, Debug)]
@@ -53,6 +54,7 @@ pub struct Players {
     pub rotation: Vec<f64>,
     pub scoped: Vec<i32>,
     pub weapon: Vec<i32>,
+    pub credits: Vec<i32>,
 }
 impl Player {
     /// Get the agent name from the id
