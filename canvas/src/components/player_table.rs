@@ -37,7 +37,6 @@ pub fn create_player_info_row(player: &[Player]) {
         let health_bar_size = canvas.width() as f64 * 0.84;
         player_row.append_child(&canvas).unwrap();
         add_health_text_and_bar(&agent, &context, &canvas, health_bar_size);
-        add_shield_info(agent, &canvas, &context, health_bar_size);
         add_weapon_icon_to_player_block(agent, &canvas, &context);
         add_player_name_icon_to_block(&player_name, &canvas, &context, health_bar_size);
         add_credits_text(
@@ -47,29 +46,25 @@ pub fn create_player_info_row(player: &[Player]) {
             canvas.width() as f64 - health_bar_size,
         );
         add_kda_acs_text(agent, &canvas, &context, health_bar_size);
+        add_shield_info(agent, &canvas, &context);
     }
 }
 
-fn add_shield_info(
-    agent: &Player,
-    canvas: &HtmlCanvasElement,
-    context: &CanvasRenderingContext2d,
-    health_bar_size: f64,
-) {
-    context.set_fill_style(&JsValue::from_str("#425C47"));
+fn add_shield_info(agent: &Player, canvas: &HtmlCanvasElement, context: &CanvasRenderingContext2d) {
+    let image_size = 20.0;
+    context.set_fill_style(&JsValue::from_str("#47FABC"));
     context.set_global_alpha(0.5);
     context.fill_rect(
-        canvas.width() as f64 - health_bar_size,
-        canvas.height() as f64 * 0.5,
-        health_bar_size * agent.shield as f64 / 50.0,
-        canvas.height() as f64 * 0.5,
+        canvas.width() as f64 - image_size,
+        canvas.height() as f64,
+        image_size,
+        -(canvas.height() as f64 * 0.5) * agent.shield as f64 / 50.0,
     );
     context.set_font("14px sans-serif");
     context.set_text_align("right");
     context.set_text_baseline("middle");
     context.set_fill_style(&JsValue::from_str("#01FFFE"));
 
-    let image_size = 20.0;
     context
         .fill_text(
             format!("{}", agent.shield).as_str(),
@@ -77,6 +72,7 @@ fn add_shield_info(
             canvas.height() as f64 * 0.75,
         )
         .unwrap();
+
     if agent.shield >= 26 {
         context
             .draw_image_with_html_image_element_and_dw_and_dh(
