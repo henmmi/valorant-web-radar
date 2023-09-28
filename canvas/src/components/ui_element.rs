@@ -228,23 +228,6 @@ pub fn toggle_label(players: &[Player]) {
         draw_player_labels(players, get_number(&ROTATION_ANGLE));
     }
 }
-/// Toggle the player info table
-/// # Example
-/// ```
-/// toggle_player_info();
-/// ```
-pub fn toggle_player_info() {
-    if toggle_state("player_info_table_toggle") {
-        let player_info = get_div_element_by_id("container").unwrap();
-        player_info
-            .style()
-            .set_property("display", "block")
-            .unwrap();
-    } else {
-        let player_info = get_div_element_by_id("container").unwrap();
-        player_info.style().set_property("display", "none").unwrap();
-    }
-}
 /// Detect if the toggle button is checked
 pub fn toggle_state(name: &str) -> bool {
     let toggle_btn = get_input_element_by_id(name).unwrap();
@@ -299,4 +282,24 @@ pub fn get_player_dropdown_length() -> usize {
         .dyn_into::<HtmlSelectElement>()
         .unwrap();
     player_dropdown.length() as usize
+}
+pub fn pull_tab() {
+    let pull_tab = get_div_element_by_id("pull_tab").unwrap();
+    let pull_tab_clone = pull_tab.clone();
+    let onclick_canvas = Closure::wrap(Box::new(move || {
+        let player_info = get_div_element_by_id("container").unwrap();
+        if player_info.style().get_property_value("right").unwrap() == "0px" {
+            player_info.style().set_property("right", "-440px").unwrap();
+            pull_tab_clone.style().set_property("right", "0px").unwrap();
+        } else {
+            player_info.style().set_property("right", "0px").unwrap();
+            pull_tab_clone
+                .style()
+                .set_property("right", "439px")
+                .unwrap();
+        }
+    }) as Box<dyn FnMut()>);
+
+    pull_tab.set_onmousedown(Some(onclick_canvas.as_ref().unchecked_ref()));
+    onclick_canvas.forget();
 }

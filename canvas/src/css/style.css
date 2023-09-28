@@ -32,6 +32,21 @@ body {
     height: auto;
     width: 40%;
 }
+#pull_tab {
+    position: fixed;
+    top: 1%;
+    border: none;
+    box-shadow: none;
+    right: 0;
+    z-index: 1000;
+    border-radius: 5px 0 0 5px;
+    background-color: var(--darker-blue-colour);
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: right 0.3s ease-in-out;
+}
 .container {
     position: fixed;
     top: 0;
@@ -39,10 +54,11 @@ body {
     bottom: 0;
     background-color: black;
     width: 440px;
-    height: 510px;
+    height: 100%;
 }
 #container {
-    display: none;
+    right: -440px;
+    transition: right 0.3s ease-in-out;
 }
 .overlay {
     position: absolute;
@@ -51,6 +67,7 @@ body {
     bottom: 0;
     right: 0;
     color: white;
+    background-color: var(--darker-blue-colour);
     pointer-events: none;
 }
 .players {
@@ -67,8 +84,7 @@ body {
     padding: 2px 2px 2px 2px;
 }
 .table_header{
-    padding: 0 20px 0 0;
-
+    padding: 0 20px 0 10px;
 }
 .team_name {
     padding: 10px 10px 10px 10px;
@@ -76,6 +92,7 @@ body {
     font-family: 'Arial', sans-serif;
     color: white;
     font-size: 16px;
+    width: 440px;
 }
 h1 {
     color: white;

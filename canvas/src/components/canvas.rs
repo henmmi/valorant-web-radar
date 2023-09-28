@@ -22,7 +22,7 @@ pub fn initialise_interface() {
     ui_element::create_select("player_dropdown");
     ui_element::create_toggle("label_toggle", "player_label");
     ui_element::create_toggle("dormant_player_toggle", "dormant_toggle");
-    ui_element::create_toggle("player_info_table_toggle", "player_info_toggle");
+    ui_element::pull_tab();
     clear_and_refresh();
 }
 // Global variable to store the rotation angle of the canvas

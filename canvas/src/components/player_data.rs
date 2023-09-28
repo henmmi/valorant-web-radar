@@ -40,6 +40,10 @@ pub struct Player {
     pub rotation: f64,
     pub scoped: i32,
     pub weapon: i32,
+    pub kill: i32,
+    pub death: i32,
+    pub assist: i32,
+    pub acs: i32,
     pub credits: i32,
 }
 /// Data container for all players
@@ -54,6 +58,10 @@ pub struct Players {
     pub rotation: Vec<f64>,
     pub scoped: Vec<i32>,
     pub weapon: Vec<i32>,
+    pub kill: Vec<i32>,
+    pub death: Vec<i32>,
+    pub assist: Vec<i32>,
+    pub acs: Vec<i32>,
     pub credits: Vec<i32>,
 }
 impl Player {
