@@ -40,7 +40,7 @@ pub fn create_player_info_row(player: &[Player]) {
         add_weapon_icon_to_player_block(agent, &canvas, &context);
         add_player_name_icon_to_block(&player_name, &canvas, &context, health_bar_size);
         add_credits_text(
-            &agent,
+            agent,
             &canvas,
             &context,
             canvas.width() as f64 - health_bar_size,
@@ -58,7 +58,7 @@ pub fn create_player_info_row(player: &[Player]) {
 /// add_credits_text(&agent, &canvas, &context, start_x);
 /// ```
 fn add_credits_text(
-    agent: &&Player,
+    agent: &Player,
     canvas: &HtmlCanvasElement,
     context: &CanvasRenderingContext2d,
     start_x: f64,
