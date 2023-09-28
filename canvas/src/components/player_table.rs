@@ -29,14 +29,53 @@ pub fn create_player_info_row(player: &[Player]) {
         let player_name = Player::get_agent_name(agent.id as usize);
 
         let (canvas, context) = new_player_info_block();
+        canvas
+            .style()
+            .set_property("background-color", "#18181E")
+            .unwrap();
         // Set player row layout as three components
         let health_bar_size = canvas.width() as f64 * 0.84;
         player_row.append_child(&canvas).unwrap();
         add_health_text_and_bar(&agent, &context, &canvas, health_bar_size);
         add_weapon_icon_to_player_block(agent, &canvas, &context);
         add_player_name_icon_to_block(&player_name, &canvas, &context, health_bar_size);
+        add_credits_text(
+            agent,
+            &canvas,
+            &context,
+            canvas.width() as f64 - health_bar_size,
+        );
     }
 }
+/// Adds credits text to player info block
+/// # Arguments
+/// * `agent` - A player data struct
+/// * `canvas` - A canvas element
+/// * `context` - A canvas rendering context
+/// * `start_x` - A f64 value of the starting x position
+/// # Example
+/// ```
+/// add_credits_text(&agent, &canvas, &context, start_x);
+/// ```
+fn add_credits_text(
+    agent: &Player,
+    canvas: &HtmlCanvasElement,
+    context: &CanvasRenderingContext2d,
+    start_x: f64,
+) {
+    context.set_font("14px sans-serif");
+    context.set_text_align("left");
+    context.set_text_baseline("middle");
+    context.set_fill_style(&JsValue::from_str("#25B14E"));
+    context
+        .fill_text(
+            format!("$ {}", agent.credits.to_string().as_str()).as_str(),
+            20.0 + start_x,
+            canvas.height() as f64 * 0.75,
+        )
+        .expect("TODO: panic message");
+}
+
 /// Adds player name and icon to player info block
 /// # Arguments
 /// * `player_name` - A string slice of the player name
@@ -139,7 +178,7 @@ fn add_health_text_and_bar(
     );
     // Health Text
     context.set_font("14px sans-serif");
-    context.set_text_align("center");
+    context.set_text_align("left");
     context.set_text_baseline("middle");
     context.set_fill_style(&JsValue::from_str("white"));
     context
