@@ -106,6 +106,19 @@ impl Weapon {
     }
 }
 #[derive(Deserialize, Debug)]
+pub struct GameScore {
+    pub t_score: i32,
+    pub ct_score: i32,
+}
+impl GameScore {
+    pub fn new() -> Self {
+        GameScore {
+            t_score: 0,
+            ct_score: 0,
+        }
+    }
+}
+#[derive(Deserialize, Debug)]
 pub struct GameInfo {
     pub t_score: Vec<i32>,
     pub ct_score: Vec<i32>,
