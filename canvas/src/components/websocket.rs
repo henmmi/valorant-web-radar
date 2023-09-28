@@ -3,14 +3,16 @@ use super::game_data::GameInfo;
 use super::macros::{console_log, log};
 use super::player_data::{Player, Players};
 use crate::components::player::draw_players;
+use crate::components::player_table::create_player_info_row;
 use crate::components::ui_element::{
-    get_player_dropdown_length, player_dropdown, toggle_orientation,
+    get_player_dropdown_length, player_dropdown, toggle_orientation, toggle_player_info,
 };
 use serde::Deserialize;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
+
 #[derive(Deserialize, Debug)]
 pub struct Data {
     players: Players,
@@ -57,12 +59,15 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             rotation: player_data.rotation[i],
                             scoped: player_data.scoped[i],
                             weapon: player_data.weapon[i],
+                            credits: player_data.credits[i],
                         });
                     }
                     players.reverse();
                     clear_and_refresh();
                     toggle_orientation(&players);
+                    toggle_player_info();
                     draw_players(&players);
+                    create_player_info_row(&players);
                     // Check if current dropdown length is equal to the number of players
                     if get_player_dropdown_length() != players.len() {
                         // If not, update the dropdown

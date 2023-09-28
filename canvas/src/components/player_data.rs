@@ -19,7 +19,7 @@ pub enum Agent {
     Skye,
     Yoru,
     Astra,
-    Kayo5,
+    Kayo,
     Chamber,
     Neon,
     Fade,
@@ -40,6 +40,7 @@ pub struct Player {
     pub rotation: f64,
     pub scoped: i32,
     pub weapon: i32,
+    pub credits: i32,
 }
 /// Data container for all players
 #[derive(Deserialize, Debug)]
@@ -53,6 +54,7 @@ pub struct Players {
     pub rotation: Vec<f64>,
     pub scoped: Vec<i32>,
     pub weapon: Vec<i32>,
+    pub credits: Vec<i32>,
 }
 impl Player {
     /// Get the agent name from the id
@@ -62,7 +64,7 @@ impl Player {
     /// ```
     /// assert_eq!(Player::get_agent_name(0), "Brimstone");
     /// ```
-    pub fn get_agent_name(id: i32) -> String {
+    pub fn get_agent_name(id: usize) -> String {
         match id {
             0 => "Brimstone".to_string(),
             1 => "Viper".to_string(),
@@ -96,7 +98,7 @@ impl Player {
     /// ```
     /// assert_eq!(Player::agent_player_icon_url(0), "http://url:8080/images/Brimstone.png");
     /// ```
-    pub fn agent_player_icon_url(id: i32) -> String {
+    pub fn agent_player_icon_url(id: usize) -> String {
         format!(
             "http://{}/images/{}.png",
             get_host(),
