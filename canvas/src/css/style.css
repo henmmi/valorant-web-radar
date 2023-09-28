@@ -59,6 +59,7 @@ body {
 #container {
     right: -440px;
     transition: right 0.3s ease-in-out;
+    overflow: hidden;
 }
 .overlay {
     position: absolute;
@@ -67,6 +68,7 @@ body {
     bottom: 0;
     right: 0;
     color: white;
+    padding: 10px 10px 10px 10px;
     background-color: var(--darker-blue-colour);
     pointer-events: none;
 }
@@ -79,20 +81,14 @@ body {
     font-size: 8px;
 }
 .player_row{
-    position: relative;
-    text-align: center;
-    padding: 2px 2px 2px 2px;
+    padding-right: 5px;
+    overflow: hidden;
 }
-.table_header{
-    padding: 0 20px 0 10px;
-}
-.team_name {
-    padding: 10px 10px 10px 10px;
+.team_header {
     background-color: var(--grey-colour);
     font-family: 'Arial', sans-serif;
-    color: white;
     font-size: 16px;
-    width: 440px;
+    width: 100%;
 }
 h1 {
     color: white;

@@ -2,6 +2,7 @@ use super::canvas::clear_and_refresh;
 use super::game_data::GameInfo;
 use super::macros::{console_log, log};
 use super::player_data::{Player, Players};
+use crate::components::game_data::GameScore;
 use crate::components::player::draw_players;
 use crate::components::player_table::create_player_info_row;
 use crate::components::ui_element::{
@@ -45,6 +46,11 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
             // Process received message
             match serde_json::from_str::<Data>(&txt_str) {
                 Ok(game_data) => {
+                    let mut game_info = game_data.game_info;
+                    let score = GameScore {
+                        t_score: game_info.t_score.pop().unwrap(),
+                        ct_score: game_info.ct_score.pop().unwrap(),
+                    };
                     let player_data = game_data.players;
                     let mut players: Vec<Player> = Vec::new();
                     // Push the player data into a vector of players
@@ -71,7 +77,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     clear_and_refresh();
                     toggle_orientation(&players);
                     draw_players(&players);
-                    create_player_info_row(&players);
+                    create_player_info_row(&players, &score);
                     // Check if current dropdown length is equal to the number of players
                     if get_player_dropdown_length() != players.len() {
                         // If not, update the dropdown
