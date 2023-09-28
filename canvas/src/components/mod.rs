@@ -4,7 +4,7 @@ pub mod game_data;
 pub mod player;
 pub mod player_data;
 pub mod player_table;
-pub(crate) mod ui_element;
+pub mod ui_element;
 pub mod websocket;
 
 pub mod macros {
