@@ -1,8 +1,8 @@
 use super::macros::{console_log, log};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{
-    HtmlCanvasElement, HtmlCollection, HtmlDivElement, HtmlElement, HtmlImageElement,
-    HtmlInputElement, OffscreenCanvas, OffscreenCanvasRenderingContext2d,
+    HtmlCanvasElement, HtmlCollection, HtmlDivElement, HtmlImageElement, HtmlInputElement,
+    OffscreenCanvas, OffscreenCanvasRenderingContext2d,
 };
 
 /// Getters for the canvas, context, and document
@@ -34,32 +34,6 @@ pub fn get_canvas_context_document() -> (
         .unwrap();
 
     (canvas, context, document)
-}
-
-pub fn _get_player_table_canvas_context() -> (HtmlCanvasElement, web_sys::CanvasRenderingContext2d)
-{
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id("player_table").unwrap();
-    let canvas: HtmlCanvasElement = canvas
-        .dyn_into::<HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap();
-
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .unwrap();
-    (canvas, context)
-}
-pub fn _create_html_h2_element(id: &str, class: &str) -> Result<HtmlElement, JsValue> {
-    let (_, _, document) = get_canvas_context_document();
-    let element = document.create_element("h2")?;
-    let elem = element.dyn_into::<HtmlElement>()?;
-    elem.set_id(id);
-    elem.set_class_name(class);
-    Ok(elem)
 }
 pub fn create_html_div_element(id: &str, class: &str) -> Result<HtmlDivElement, JsValue> {
     let (_, _, document) = get_canvas_context_document();

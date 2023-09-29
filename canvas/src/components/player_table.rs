@@ -2,7 +2,7 @@ use crate::components::elements;
 use crate::components::elements::{
     create_html_div_element, get_div_element_by_id, get_html_image_element_by_id,
 };
-use crate::components::game_data::Weapon;
+use crate::components::game_data::{GameScore, Weapon};
 use crate::components::player::identify_team;
 use crate::components::player_data::Player;
 use wasm_bindgen::{JsCast, JsValue};
@@ -11,13 +11,25 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 /// Generates a info table for each player
 /// # Arguments
 /// * `player` - A vector of player data
+/// * `team` - A GameScore struct
 /// # Example
 /// ```
-/// create_player_info_row(&player);
+/// create_player_info_row(&player, &team);
 /// ```
-pub fn create_player_info_row(player: &[Player]) {
+pub fn create_player_info_row(player: &[Player], team: &GameScore) {
+    elements::delete_collection_contents("team_score");
     elements::delete_collection_contents("players");
-    // Populate player info
+    create_team_info_header(team);
+    create_player_info(player);
+}
+/// Creates the player info for the player table
+/// # Arguments
+/// * `player` - A vector of player data
+/// # Example
+/// ```
+/// create_player_info(&player);
+/// ```
+fn create_player_info(player: &[Player]) {
     for agent in player.iter() {
         let player_row =
             create_html_div_element(format!("player_{}_info", agent.id).as_str(), "player_row")
@@ -29,10 +41,6 @@ pub fn create_player_info_row(player: &[Player]) {
         let player_name = Player::get_agent_name(agent.id as usize);
 
         let (canvas, context) = new_player_info_block();
-        canvas
-            .style()
-            .set_property("background-color", "#18181E")
-            .unwrap();
         // Set player row layout as three components
         let health_bar_size = canvas.width() as f64 * 0.84;
         player_row.append_child(&canvas).unwrap();
@@ -49,6 +57,51 @@ pub fn create_player_info_row(player: &[Player]) {
         add_shield_info(agent, &canvas, &context);
     }
 }
+/// Creates the header info for the each team
+/// # Arguments
+/// * `team` - A GameScore struct
+/// # Example
+/// ```
+/// create_header_info(&team);
+/// ```
+fn create_team_info_header(team: &GameScore) {
+    for i in 0..2 {
+        let header =
+            create_html_div_element(format!("team_{}_header", i).as_str(), "team_header").unwrap();
+        get_div_element_by_id(format!("team_{}_score", i).as_str())
+            .unwrap()
+            .append_child(&header)
+            .unwrap();
+        let team_name = match i {
+            0 => "Attackers",
+            1 => "Defenders",
+            _ => "Unknown",
+        };
+        let score = match i {
+            0 => team.t_score,
+            1 => team.ct_score,
+            _ => 0,
+        };
+        let (canvas, context) = new_player_info_block();
+        header.append_child(&canvas).unwrap();
+        context.set_font("bold 18px sans-serif");
+        context.set_text_align("left");
+        context.set_text_baseline("middle");
+        context.set_fill_style(&JsValue::from_str("white"));
+        context
+            .fill_text(team_name, 20.0, canvas.height() as f64 / 2.0)
+            .unwrap();
+        context.set_fill_style(&JsValue::from_str(identify_team(i, false)));
+        context
+            .fill_text(
+                score.to_string().as_str(),
+                canvas.width() as f64 * 0.9,
+                canvas.height() as f64 / 2.0,
+            )
+            .unwrap();
+    }
+}
+
 /// Adds shield info to player info block
 /// # Arguments
 /// * `agent` - A player data struct
@@ -316,9 +369,8 @@ fn new_player_info_block() -> (HtmlCanvasElement, CanvasRenderingContext2d) {
         .unwrap()
         .dyn_into::<HtmlCanvasElement>()
         .unwrap();
-    canvas.set_width(415);
+    canvas.set_width(420);
     canvas.set_height(60);
-
     let context = canvas
         .get_context("2d")
         .unwrap()
