@@ -295,7 +295,7 @@ pub fn pull_tab() {
             player_info.style().set_property("right", "0px").unwrap();
             pull_tab_clone
                 .style()
-                .set_property("right", "439px")
+                .set_property("right", "440px")
                 .unwrap();
         }
     }) as Box<dyn FnMut()>);

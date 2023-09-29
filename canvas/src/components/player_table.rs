@@ -46,8 +46,82 @@ pub fn create_player_info_row(player: &[Player]) {
             canvas.width() as f64 - health_bar_size,
         );
         add_kda_acs_text(agent, &canvas, &context, health_bar_size);
+        add_shield_info(agent, &canvas, &context);
     }
 }
+/// Adds shield info to player info block
+/// # Arguments
+/// * `agent` - A player data struct
+/// * `canvas` - A canvas element
+/// * `context` - A canvas rendering context
+/// # Example
+/// ```
+/// add_shield_info(&agent, &canvas, &context);
+/// ```
+fn add_shield_info(agent: &Player, canvas: &HtmlCanvasElement, context: &CanvasRenderingContext2d) {
+    let image_size = 20.0;
+    context.set_font("14px sans-serif");
+    context.set_text_align("right");
+    context.set_text_baseline("middle");
+    context.set_fill_style(&JsValue::from_str("#01FFFE"));
+
+    context
+        .fill_text(
+            format!("{}", agent.shield).as_str(),
+            canvas.width() as f64 - image_size * 1.25,
+            canvas.height() as f64 * 0.75,
+        )
+        .unwrap();
+
+    if agent.shield > 25 {
+        let shield_max = 50.0;
+        let shield_name = "HeavyShield";
+        draw_light_heavy_shield(context, canvas, agent, image_size, shield_max, shield_name);
+    } else {
+        let shield_max = 25.0;
+        let shield_name = "LightShield";
+        draw_light_heavy_shield(context, canvas, agent, image_size, shield_max, shield_name);
+    }
+}
+/// Draws the light or heavy shield
+/// # Arguments
+/// * `context` - A canvas rendering context
+/// * `canvas` - A canvas element
+/// * `agent` - A player data struct
+/// * `image_size` - A f64 value of the image size
+/// * `shield_max` - A f64 value of the shield max
+/// * `shield_name` - A string slice of the shield name
+/// # Example
+/// ```
+/// draw_light_heavy_shield(&context, &canvas, &agent, image_size, shield_max, shield_name);
+/// ```
+fn draw_light_heavy_shield(
+    context: &CanvasRenderingContext2d,
+    canvas: &HtmlCanvasElement,
+    agent: &Player,
+    image_size: f64,
+    shield_max: f64,
+    shield_name: &str,
+) {
+    context.set_fill_style(&JsValue::from_str("#47FABC"));
+    context.set_global_alpha(0.5);
+    context.fill_rect(
+        canvas.width() as f64 - image_size,
+        canvas.height() as f64,
+        image_size,
+        -(canvas.height() as f64 * 0.5) * agent.shield as f64 / shield_max,
+    );
+    context
+        .draw_image_with_html_image_element_and_dw_and_dh(
+            &get_html_image_element_by_id(shield_name).unwrap(),
+            canvas.width() as f64 - image_size,
+            canvas.height() as f64 * 0.75 - image_size / 2.0,
+            image_size,
+            image_size,
+        )
+        .unwrap();
+}
+
 /// Adds KDA and ACS text to player info block
 /// # Arguments
 /// * `agent` - A player data struct

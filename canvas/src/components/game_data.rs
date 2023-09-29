@@ -30,6 +30,25 @@ impl Map {
         }
     }
 }
+
+#[derive(Deserialize, Debug, EnumIter)]
+enum Icon {
+    Dormant,
+    Killed,
+    HeavyShield,
+    LightShield,
+}
+
+impl Icon {
+    pub fn get_string(&self) -> String {
+        match self {
+            Icon::Dormant => "Dormant".to_string(),
+            Icon::Killed => "Killed".to_string(),
+            Icon::HeavyShield => "HeavyShield".to_string(),
+            Icon::LightShield => "LightShield".to_string(),
+        }
+    }
+}
 #[derive(Deserialize, Debug, EnumIter)]
 pub enum Weapon {
     Ares,
@@ -148,7 +167,7 @@ impl Preloader {
     pub fn preload_assets(&mut self) {
         Preloader::preload_agents(self, "agent");
         Preloader::preload_maps(self, "map");
-        Preloader::preload_icons(self, "Dormant");
+        Preloader::preload_icons(self, "icon");
         Preloader::preload_weapons(self, "weapon");
     }
     /// Preload the agents icons
@@ -215,17 +234,23 @@ impl Preloader {
     /// let preloader = Preloader::new();
     /// preloader.preload_icons("Dormant");
     /// ```
-    pub fn preload_icons(&mut self, name: &str) {
-        let url = format!("http://{}/images/{}.png", get_host(), name);
+    pub fn preload_icons(&mut self, class: &str) {
         if let Ok(div) = get_div_element_by_id("icon_storage") {
-            match create_html_image_element(name, url.as_str(), name) {
-                Ok(element) => {
-                    element.style().set_property("display", "none").unwrap();
-                    div.append_child(&element).unwrap();
-                    console_log!("Preloaded icon Dormant");
-                    console_log!("Icon URL: {}", url);
+            for icon in Icon::iter() {
+                match create_html_image_element(
+                    &icon.get_string(),
+                    get_url(&icon.get_string()).as_str(),
+                    class,
+                ) {
+                    Ok(element) => {
+                        element.style().set_property("display", "none").unwrap();
+                        div.append_child(&element).unwrap();
+                        self.maps.insert(icon.get_string(), element);
+                        console_log!("Preloaded icon {}", icon.get_string());
+                        console_log!("Icon URL: {}", get_url(&icon.get_string()));
+                    }
+                    Err(err) => console_log!("Error creating image element: {:?}", err),
                 }
-                Err(err) => console_log!("Error creating image element: {:?}", err),
             }
         }
     }
