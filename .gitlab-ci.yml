@@ -1,0 +1,38 @@
+stages:
+  - lint
+  - build
+
+lint-code:
+  stage: lint
+  image: rust:latest
+  script:
+    - rustup component add clippy
+    - cargo clippy -- -D warnings
+    
+format-code:
+  stage: lint
+  image: rust:latest
+  script:
+    - rustup component add rustfmt
+    - cargo fmt -- --check
+
+rust-latest:
+  stage: build
+  image: rust:latest
+  script:
+    - apt-get update
+    - apt-get install cmake clang
+    - cd apex-rs
+    - cargo build --verbose
+    - cargo test --verbose
+
+rust-nightly:
+  stage: build
+  image: rustlang/rust:nightly
+  script:
+    - apt-get update
+    - apt-get install cmake clang
+    - cd apex-rs
+    - cargo build --verbose
+    - cargo test --verbose
+  allow_failure: true
