@@ -23,7 +23,6 @@ rust-latest:
   script:
     - apt-get update
     - apt-get install cmake clang -y
-    - cd apex-rs
     - cargo build --verbose
     - cargo test --verbose
 
@@ -33,7 +32,6 @@ rust-nightly:
   script:
     - apt-get update
     - apt-get install cmake clang -y 
-    - cd apex-rs
     - cargo build --verbose
     - cargo test --verbose
   allow_failure: true
