@@ -369,7 +369,7 @@ fn new_player_info_block() -> (HtmlCanvasElement, CanvasRenderingContext2d) {
         .unwrap()
         .dyn_into::<HtmlCanvasElement>()
         .unwrap();
-    canvas.set_width(425);
+    canvas.set_width(420);
     canvas.set_height(60);
     let context = canvas
         .get_context("2d")

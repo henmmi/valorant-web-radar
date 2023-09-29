@@ -81,8 +81,8 @@ body {
     font-size: 8px;
 }
 .player_row{
-    padding-right: 5px;
-    overflow: hidden;
+    padding-right: 15px;
+    overflow: auto;
 }
 .team_header {
     background-color: var(--grey-colour);
