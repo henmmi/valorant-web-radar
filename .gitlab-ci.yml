@@ -22,7 +22,7 @@ rust-latest:
   image: rust:latest
   script:
     - apt-get update
-    - apt-get install cmake clang
+    - apt-get install cmake clang -y
     - cd apex-rs
     - cargo build --verbose
     - cargo test --verbose
@@ -32,7 +32,7 @@ rust-nightly:
   image: rustlang/rust:nightly
   script:
     - apt-get update
-    - apt-get install cmake clang
+    - apt-get install cmake clang -y 
     - cd apex-rs
     - cargo build --verbose
     - cargo test --verbose
