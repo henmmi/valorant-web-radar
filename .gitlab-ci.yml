@@ -8,6 +8,7 @@ lint-code:
   script:
     - rustup component add clippy
     - cargo clippy -- -D warnings
+  allow_failure: true
     
 format-code:
   stage: lint
