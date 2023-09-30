@@ -1,5 +1,6 @@
 use super::macros::{console_log, log};
 use crate::components::elements::{create_html_image_element, get_div_element_by_id};
+use crate::components::player::identify_team;
 use crate::components::player_data::{Agent, Player};
 use crate::components::websocket::get_host;
 use serde::Deserialize;
@@ -7,7 +8,8 @@ use std::collections::HashMap;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 use wasm_bindgen::prelude::wasm_bindgen;
-use web_sys::HtmlImageElement;
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, HtmlImageElement};
 
 #[derive(Deserialize, Debug, EnumIter)]
 pub enum Map {
@@ -305,4 +307,44 @@ impl Default for Preloader {
 
 pub fn get_url(name: &str) -> String {
     format!("http://{}/images/{}.png", get_host(), name)
+}
+
+pub fn create_rounds_played_row(game_score: &[GameScore]) {
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("rounds_display").unwrap();
+    let canvas: HtmlCanvasElement = canvas
+        .dyn_into::<HtmlCanvasElement>()
+        .map_err(|_| ())
+        .unwrap();
+    let context = canvas
+        .get_context("2d")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<CanvasRenderingContext2d>()
+        .unwrap();
+    context.clear_rect(0.0, 0.0, 1200.0, 60.0);
+    if let Ok(div) = get_div_element_by_id("rounds_played") {
+        context.set_font("20px Arial");
+        for (i, val) in game_score.iter().enumerate() {
+            context.save();
+            context.translate(20.0, 0.0).unwrap();
+            context.set_fill_style(&JsValue::from_str(identify_team(
+                val.round_win_status,
+                false,
+            )));
+            context.set_text_align("center");
+            context
+                .fill_text(&i.to_string(), (i * 50) as f64, 22.5)
+                .unwrap();
+            context.begin_path();
+            context.set_stroke_style(&JsValue::from_str(identify_team(
+                val.round_win_status,
+                false,
+            )));
+            context.rect((i * 50) as f64 - 15.0, 0.0, 30.0, 30.0);
+            context.stroke();
+            context.restore();
+        }
+        div.append_child(&canvas).unwrap();
+    }
 }

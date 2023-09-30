@@ -19,6 +19,25 @@ html, body {
 body {
     background-color: black;
 }
+#rounds_played {
+    overflow-x: hidden;
+}
+#rounds_display{
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    padding: 10px 10px 0 10px;
+    color: white;
+    pointer-events: none;
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 #canvas {
     border-radius: 30px;
     display: block;
