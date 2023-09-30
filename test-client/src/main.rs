@@ -86,7 +86,6 @@ fn main() {
                 }
                 
                 
-
                 let game_info = object! {
                 "t_score": _t_score,
                 "ct_score": _ct_score,
@@ -96,7 +95,7 @@ fn main() {
                 "defusal_time": _defusal_time,
                 "round_win_status": _round_win_status,
                 "max_rounds": _max_rounds,
-                    "round_timer" : _round_timer,
+                "round_timer" : _round_timer,
                 };
 
                 let data = object! {
