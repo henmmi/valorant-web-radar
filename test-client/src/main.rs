@@ -63,18 +63,12 @@ fn main() {
                 };
 
                 let _max_rounds = rng.gen_range(0..25);
-
-                let mut _t_score = json::Array::new();
-                let mut _ct_score = json::Array::new();
                 let mut _spike_x = json::Array::new();
                 let mut _spike_y = json::Array::new();
                 let mut _spike_timer = json::Array::new();
                 let mut _defusal_time = json::Array::new();
                 let mut _round_win_status = json::Array::new();
                 let mut _round_timer = json::Array::new();
-
-                _t_score.push(json::from(rng.gen_range(0..16)));
-                _ct_score.push(json::from(rng.gen_range(0..16)));
                 _spike_x.push(json::from(rng.gen_range(0.0..1000.0)));
                 _spike_y.push(json::from(rng.gen_range(0.0..1000.0)));
                 _spike_timer.push(json::from(rng.gen_range(0.0..35.0)));
@@ -86,8 +80,6 @@ fn main() {
                 }
 
                 let game_info = object! {
-                "t_score": _t_score,
-                "ct_score": _ct_score,
                 "spike_x": _spike_x,
                 "spike_y": _spike_y,
                 "spike_timer": _spike_timer,
