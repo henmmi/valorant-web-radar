@@ -62,15 +62,31 @@ fn main() {
                 "credits": _credits,
                 };
 
-                let mut _t_score = json::Array::new();
-                let mut _ct_score = json::Array::new();
+                let _max_rounds = rng.gen_range(0..25);
+                let mut _spike_x = json::Array::new();
+                let mut _spike_y = json::Array::new();
+                let mut _spike_time = json::Array::new();
+                let mut _defuse_time = json::Array::new();
+                let mut _round_win_status = json::Array::new();
+                let mut _round_time = json::Array::new();
+                _spike_x.push(json::from(rng.gen_range(0.0..1000.0)));
+                _spike_y.push(json::from(rng.gen_range(0.0..1000.0)));
+                _spike_time.push(json::from(rng.gen_range(0.0..35.0)));
+                _defuse_time.push(json::from(rng.gen_range(0.0..8.0)));
+                _round_time.push(json::from(rng.gen_range(0.0..150.0)));
 
-                _t_score.push(json::from(rng.gen_range(0..16)));
-                _ct_score.push(json::from(rng.gen_range(0..16)));
+                for _i in 0.._max_rounds {
+                    _round_win_status.push(json::from(rng.gen_range(0..2)));
+                }
 
                 let game_info = object! {
-                "t_score": _t_score,
-                "ct_score": _ct_score,
+                "spike_x": _spike_x,
+                "spike_y": _spike_y,
+                "spike_time": _spike_time,
+                "defuse_time": _defuse_time,
+                "round_win_status": _round_win_status,
+                "max_rounds": _max_rounds,
+                "round_time" : _round_time,
                 };
 
                 let data = object! {

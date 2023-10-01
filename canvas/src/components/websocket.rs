@@ -46,11 +46,14 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
             // Process received message
             match serde_json::from_str::<Data>(&txt_str) {
                 Ok(game_data) => {
-                    let mut game_info = game_data.game_info;
-                    let score = GameScore {
-                        t_score: game_info.t_score.pop().unwrap(),
-                        ct_score: game_info.ct_score.pop().unwrap(),
-                    };
+                    let game_info = game_data.game_info;
+                    let mut score: Vec<GameScore> = Vec::new();
+                    for i in 0..game_info.round_win_status.len() {
+                        score.push(GameScore {
+                            round_win_status: game_info.round_win_status[i],
+                        })
+                    }
+
                     let player_data = game_data.players;
                     let mut players: Vec<Player> = Vec::new();
                     // Push the player data into a vector of players

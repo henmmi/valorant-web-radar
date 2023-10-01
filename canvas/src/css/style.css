@@ -82,7 +82,7 @@ body {
 }
 .player_row{
     padding-right: 15px;
-    overflow: auto;
+    overflow-x: hidden;
 }
 .team_header {
     background-color: var(--grey-colour);

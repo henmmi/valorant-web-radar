@@ -126,13 +126,23 @@ impl Weapon {
 }
 #[derive(Deserialize, Debug)]
 pub struct GameScore {
-    pub t_score: i32,
-    pub ct_score: i32,
+    pub round_win_status: i32,
+}
+pub fn get_score(score: &[GameScore]) -> (i32, i32) {
+    let mut t_score = 0;
+    let mut ct_score = 0;
+    for (_, val) in score.iter().enumerate() {
+        if val.round_win_status == 0 {
+            t_score += 1;
+        } else if val.round_win_status == 1 {
+            ct_score += 1;
+        }
+    }
+    (t_score, ct_score)
 }
 #[derive(Deserialize, Debug)]
 pub struct GameInfo {
-    pub t_score: Vec<i32>,
-    pub ct_score: Vec<i32>,
+    pub round_win_status: Vec<i32>,
 }
 
 impl GameInfo {

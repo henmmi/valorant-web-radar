@@ -2,7 +2,8 @@ use crate::components::elements;
 use crate::components::elements::{
     create_html_div_element, get_div_element_by_id, get_html_image_element_by_id,
 };
-use crate::components::game_data::{GameScore, Weapon};
+use crate::components::game_data::{get_score, GameScore, Weapon};
+use crate::components::macros::{console_log, log};
 use crate::components::player::identify_team;
 use crate::components::player_data::Player;
 use wasm_bindgen::{JsCast, JsValue};
@@ -16,11 +17,13 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 /// ```
 /// create_player_info_row(&player, &team);
 /// ```
-pub fn create_player_info_row(player: &[Player], team: &GameScore) {
+pub fn create_player_info_row(player: &[Player], team: &[GameScore]) {
     elements::delete_collection_contents("team_score");
     elements::delete_collection_contents("players");
-    create_team_info_header(team);
+    let (t_score, ct_score) = get_score(team);
+    create_team_info_header(t_score, ct_score);
     create_player_info(player);
+    console_log!("Score: {} - {}", t_score, ct_score);
 }
 /// Creates the player info for the player table
 /// # Arguments
@@ -64,7 +67,7 @@ fn create_player_info(player: &[Player]) {
 /// ```
 /// create_header_info(&team);
 /// ```
-fn create_team_info_header(team: &GameScore) {
+fn create_team_info_header(t_score: i32, ct_score: i32) {
     for i in 0..2 {
         let header =
             create_html_div_element(format!("team_{}_header", i).as_str(), "team_header").unwrap();
@@ -78,8 +81,8 @@ fn create_team_info_header(team: &GameScore) {
             _ => "Unknown",
         };
         let score = match i {
-            0 => team.t_score,
-            1 => team.ct_score,
+            0 => t_score,
+            1 => ct_score,
             _ => 0,
         };
         let (canvas, context) = new_player_info_block();
