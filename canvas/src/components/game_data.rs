@@ -400,6 +400,7 @@ impl RoundDisplayConfig {
         const INIT_TRANSLATE_OT: f64 = 21.0;
 
         canvas.set_width(self.initial_canvas_width);
+        let mut present_round = false;
         self.calculate_canvas_width(info, canvas, scaling_factor);
         let mut overtime_count = 0;
         context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
@@ -426,7 +427,7 @@ impl RoundDisplayConfig {
                     .translate(INIT_TRANSLATE_OT * overtime_count as f64, 0.0)
                     .unwrap();
             }
-            self.draw_round_info(&context, scaling_factor, &i, &val);
+            self.draw_round_info(&mut present_round, scaling_factor, &i, val);
             context.restore();
         }
     }
@@ -442,16 +443,19 @@ impl RoundDisplayConfig {
     /// ```
     fn draw_round_info(
         self,
-        context: &CanvasRenderingContext2d,
+        present_round: &mut bool,
         scaling_factor: f64,
         i: &usize,
-        val: &&GameScore,
+        val: &GameScore,
     ) {
+        let (_, context) = self.get_rounds_display_canvas_context();
+        let mut text_colour = identify_team(val.round_win_status, false);
+        if val.round_win_status == 2 && !*present_round {
+            text_colour = "#BC544B";
+            *present_round = true;
+        }
         context.set_text_align("center");
-        context.set_fill_style(&JsValue::from_str(identify_team(
-            val.round_win_status,
-            false,
-        )));
+        context.set_fill_style(&JsValue::from_str(text_colour));
         context.set_font(format!("{}px sans-serif", self.text_size * scaling_factor).as_str());
         context
             .fill_text(
