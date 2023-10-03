@@ -321,7 +321,11 @@ pub struct RoundDisplayConfig {
     gap_size: f64,
     initial_canvas_width: u32,
 }
-
+/// Implement the RoundDisplayConfig struct
+/// # Example
+/// ```
+/// let round_display_config = RoundDisplayConfig::new();
+/// ```
 impl RoundDisplayConfig {
     const TEXT_SIZE: f64 = 20.0;
     const RECT_SIZE: f64 = 30.0;
@@ -335,6 +339,11 @@ impl RoundDisplayConfig {
             initial_canvas_width: Self::INITIAL_CANVAS_WIDTH,
         }
     }
+    /// Get the canvas context for the rounds display
+    /// # Example
+    /// ```
+    /// let (canvas, context) = self.get_rounds_display_canvas_context();
+    /// ```
     fn get_rounds_display_canvas_context(&self) -> (HtmlCanvasElement, CanvasRenderingContext2d) {
         let document = web_sys::window().unwrap().document().unwrap();
         let canvas = document.get_element_by_id("rounds_display").unwrap();
@@ -350,6 +359,14 @@ impl RoundDisplayConfig {
             .unwrap();
         (canvas, context)
     }
+    /// Create the rounds played row
+    /// # Arguments
+    /// * `game_score` - The game score
+    /// * `info` - The game info
+    /// # Example
+    /// ```
+    /// self.create_rounds_played_row(&game_score, &info);
+    /// ```
     pub fn create_rounds_played_row(&self, game_score: &[GameScore], info: &GameInfo) {
         let (canvas, context) = self.get_rounds_display_canvas_context();
         if let Ok(div) = get_div_element_by_id("rounds_played") {
@@ -357,6 +374,16 @@ impl RoundDisplayConfig {
             div.append_child(&canvas).unwrap();
         }
     }
+    /// Generate the rounds
+    /// # Arguments
+    /// * `game_score` - The game score
+    /// * `info` - The game info
+    /// * `canvas` - The canvas element
+    /// * `context` - The canvas context
+    /// # Example
+    /// ```
+    /// self.generate_rounds(&game_score, &info, &canvas, context);
+    /// ```
     fn generate_rounds(
         self,
         game_score: &[GameScore],
@@ -403,7 +430,16 @@ impl RoundDisplayConfig {
             context.restore();
         }
     }
-
+    /// Draw the round info
+    /// # Arguments
+    /// * `context` - The canvas context
+    /// * `scaling_factor` - The scaling factor
+    /// * `i` - The index
+    /// * `val` - The game score
+    /// # Example
+    /// ```
+    /// self.draw_round_info(&context, scaling_factor, &i, &val);
+    /// ```
     fn draw_round_info(
         self,
         context: &CanvasRenderingContext2d,
@@ -437,7 +473,16 @@ impl RoundDisplayConfig {
         );
         context.stroke();
     }
-
+    /// Draw the overtime label
+    /// # Arguments
+    /// * `context` - The canvas context
+    /// * `scaling_factor` - The scaling factor
+    /// * `overtime_count` - The overtime count
+    /// * `i` - The index
+    /// # Example
+    /// ```
+    /// self.draw_overtime_label(&context, scaling_factor, overtime_count, i as f64);
+    /// ```
     fn draw_overtime_label(
         self,
         context: &CanvasRenderingContext2d,
@@ -456,7 +501,15 @@ impl RoundDisplayConfig {
             )
             .unwrap();
     }
-
+    /// Draw the switch icon
+    /// # Arguments
+    /// * `switch_icon` - The switch icon
+    /// * `scaling_factor` - The scaling factor
+    /// * `i` - The index
+    /// # Example
+    /// ```
+    /// self.draw_switch_icon(&switch_icon, scaling_factor, i as f64);
+    /// ```
     fn draw_switch_icon(&self, switch_icon: &HtmlImageElement, scaling_factor: f64, i: f64) {
         let (_, context) = self.get_rounds_display_canvas_context();
 
@@ -464,11 +517,9 @@ impl RoundDisplayConfig {
             get_offscreen_canvas_context(switch_icon.width(), switch_icon.height());
         off_context
             .draw_image_with_html_image_element(switch_icon, 0.0, 0.0)
-            .expect("TODO: panic message");
+            .unwrap();
         set_image_colour(off_context, switch_icon.clone(), 0.0, 0.0, "white");
-        let image_bitmap = off_canvas
-            .transfer_to_image_bitmap()
-            .expect("TODO: panic message");
+        let image_bitmap = off_canvas.transfer_to_image_bitmap().unwrap();
         context
             .draw_image_with_image_bitmap_and_dw_and_dh(
                 &image_bitmap,
@@ -479,7 +530,15 @@ impl RoundDisplayConfig {
             )
             .unwrap();
     }
-
+    /// Calculate the canvas width
+    /// # Arguments
+    /// * `info` - The game info
+    /// * `canvas` - The canvas element
+    /// * `scaling_factor` - The scaling factor
+    /// # Example
+    /// ```
+    /// self.calculate_canvas_width(&info, &canvas, scaling_factor);
+    /// ```
     fn calculate_canvas_width(
         &self,
         info: &GameInfo,
