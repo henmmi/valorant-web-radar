@@ -551,7 +551,7 @@ impl RoundDisplayConfig {
     ) {
         if info.max_rounds > 24 {
             canvas
-                .set_width(1000 + ((info.max_rounds - 24) * (55.0 * scaling_factor) as i32) as u32);
+                .set_width(1000 + ((info.max_rounds - 24) * (60.0 * scaling_factor) as i32) as u32);
         };
     }
 }
