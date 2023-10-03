@@ -62,7 +62,8 @@ fn main() {
                 "credits": _credits,
                 };
 
-                let _max_rounds = rng.gen_range(0..25);
+                let _played_rounds = rng.gen_range(24..30);
+                let mut _max_rounds = 24;
                 let mut _spike_x = json::Array::new();
                 let mut _spike_y = json::Array::new();
                 let mut _spike_time = json::Array::new();
@@ -75,8 +76,15 @@ fn main() {
                 _defuse_time.push(json::from(rng.gen_range(0.0..8.0)));
                 _round_time.push(json::from(rng.gen_range(0.0..150.0)));
 
+                while _played_rounds > _max_rounds {
+                    _max_rounds += 2;
+                }
                 for _i in 0.._max_rounds {
-                    _round_win_status.push(json::from(rng.gen_range(0..2)));
+                    if _i < _played_rounds {
+                        _round_win_status.push(json::from(rng.gen_range(0..2)));
+                    } else {
+                        _round_win_status.push(json::from(2));
+                    }
                 }
 
                 let game_info = object! {
@@ -85,8 +93,9 @@ fn main() {
                 "spike_time": _spike_time,
                 "defuse_time": _defuse_time,
                 "round_win_status": _round_win_status,
-                "max_rounds": _max_rounds,
+                "played_rounds": _played_rounds,
                 "round_time" : _round_time,
+                    "max_rounds": _max_rounds,
                 };
 
                 let data = object! {

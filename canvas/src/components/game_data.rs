@@ -131,7 +131,7 @@ impl Weapon {
         }
     }
 }
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GameScore {
     pub round_win_status: i32,
 }
@@ -150,6 +150,7 @@ pub fn get_score(score: &[GameScore]) -> (i32, i32) {
 #[derive(Deserialize, Debug)]
 pub struct GameInfo {
     pub round_win_status: Vec<i32>,
+    pub max_rounds: i32,
 }
 
 impl GameInfo {
@@ -314,7 +315,7 @@ pub fn get_url(name: &str) -> String {
     format!("http://{}/images/{}.png", get_host(), name)
 }
 
-pub fn create_rounds_played_row(game_score: &[GameScore]) {
+pub fn create_rounds_played_row(game_score: &[GameScore], info: &GameInfo) {
     let document = web_sys::window().unwrap().document().unwrap();
     let canvas = document.get_element_by_id("rounds_display").unwrap();
     let canvas: HtmlCanvasElement = canvas
@@ -327,20 +328,29 @@ pub fn create_rounds_played_row(game_score: &[GameScore]) {
         .unwrap()
         .dyn_into::<CanvasRenderingContext2d>()
         .unwrap();
-    context.clear_rect(0.0, 0.0, 1200.0, 60.0);
     if let Ok(div) = get_div_element_by_id("rounds_played") {
+        let switch_icon = get_html_image_element_by_id("Switch").unwrap();
+        let mut draw_switch = false;
+        let mut overtime = 23;
+        let mut overtime_rounds = 0;
         let scaling_factor = 0.8;
+        canvas.set_width(1000);
         let text_size = 20.0 * scaling_factor;
         let rect_size = 30.0 * scaling_factor;
         let gap_size = 50.0 * scaling_factor;
-        let switch_icon = get_html_image_element_by_id("Switch").unwrap();
-        let mut draw_switch = false;
+        if info.max_rounds > 24 {
+            for _ in 23..info.max_rounds {
+                overtime_rounds += 1;
+            }
+            canvas.set_width(1000 + (overtime_rounds * gap_size as i32) as u32);
+        };
+        console_log!("Scaling factor: {}", scaling_factor);
+        let mut overtime_count = 0;
+        context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
         for (i, val) in game_score.iter().enumerate() {
             context.save();
-            context.set_text_align("center");
-            context.set_font(format!("{}px sans-serif", text_size).as_str());
+            context.translate(20.0, 2.0).unwrap();
             if i >= 12 {
-                context.translate(60.0, 2.0).unwrap();
                 if !draw_switch {
                     let (off_canvas, off_context) =
                         get_offscreen_canvas_context(switch_icon.width(), switch_icon.height());
@@ -354,7 +364,7 @@ pub fn create_rounds_played_row(game_score: &[GameScore]) {
                     context
                         .draw_image_with_image_bitmap_and_dw_and_dh(
                             &image_bitmap,
-                            (i as f64 * gap_size) - 50.0,
+                            (i as f64 * gap_size) + 3.0 - rect_size,
                             0.0,
                             rect_size,
                             rect_size,
@@ -362,13 +372,33 @@ pub fn create_rounds_played_row(game_score: &[GameScore]) {
                         .unwrap();
                     draw_switch = true;
                 }
-            } else {
-                context.translate(20.0, 2.0).unwrap();
+                context.translate(20.0, 0.0).unwrap();
             }
+            if i >= overtime {
+                if overtime % 2 == 0 {
+                    context.set_font(format!("bold {}px sans-serif", text_size).as_str());
+                    context.set_fill_style(&JsValue::from_str("white"));
+                    context
+                        .fill_text(
+                            format!("OT{}", overtime_count + 1).as_str(),
+                            i as f64 * gap_size + 20.0 * overtime_count as f64 - rect_size,
+                            text_size * 1.125,
+                        )
+                        .unwrap();
+                    overtime_count += 1;
+                    console_log!("Overtime: {}", overtime_count);
+                }
+                overtime += 1;
+                context
+                    .translate(21.0 * overtime_count as f64, 0.0)
+                    .unwrap();
+            }
+            context.set_text_align("center");
             context.set_fill_style(&JsValue::from_str(identify_team(
                 val.round_win_status,
                 false,
             )));
+            context.set_font(format!("{}px sans-serif", text_size).as_str());
             context
                 .fill_text(
                     format!("{}", &i + 1).as_str(),

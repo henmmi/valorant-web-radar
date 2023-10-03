@@ -81,7 +81,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     toggle_orientation(&players);
                     draw_players(&players);
                     create_player_info_row(&players, &score);
-                    create_rounds_played_row(&score);
+                    create_rounds_played_row(&score, &game_info);
                     // Check if current dropdown length is equal to the number of players
                     if get_player_dropdown_length() != players.len() {
                         // If not, update the dropdown
