@@ -249,7 +249,7 @@ fn draw_weapon_icons(player: &Player, angle: f64) {
 /// ```
 /// set_image_colour(context, image, 100.0, 100.0, "red");
 /// ```
-fn set_image_colour(
+pub fn set_image_colour(
     context: OffscreenCanvasRenderingContext2d,
     image: HtmlImageElement,
     x: f64,

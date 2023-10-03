@@ -1,6 +1,9 @@
 use super::macros::{console_log, log};
-use crate::components::elements::{create_html_image_element, get_div_element_by_id};
-use crate::components::player::identify_team;
+use crate::components::elements::{
+    create_html_image_element, get_div_element_by_id, get_html_image_element_by_id,
+    get_offscreen_canvas_context,
+};
+use crate::components::player::{identify_team, set_image_colour};
 use crate::components::player_data::{Agent, Player};
 use crate::components::websocket::get_host;
 use serde::Deserialize;
@@ -39,6 +42,7 @@ enum Icon {
     Killed,
     HeavyShield,
     LightShield,
+    Switch,
 }
 
 impl Icon {
@@ -48,6 +52,7 @@ impl Icon {
             Icon::Killed => "Killed".to_string(),
             Icon::HeavyShield => "HeavyShield".to_string(),
             Icon::LightShield => "LightShield".to_string(),
+            Icon::Switch => "Switch".to_string(),
         }
     }
 }
@@ -324,24 +329,64 @@ pub fn create_rounds_played_row(game_score: &[GameScore]) {
         .unwrap();
     context.clear_rect(0.0, 0.0, 1200.0, 60.0);
     if let Ok(div) = get_div_element_by_id("rounds_played") {
-        context.set_font("20px Arial");
+        let scaling_factor = 0.8;
+        let text_size = 20.0 * scaling_factor;
+        let rect_size = 30.0 * scaling_factor;
+        let gap_size = 50.0 * scaling_factor;
+        let switch_icon = get_html_image_element_by_id("Switch").unwrap();
+        let mut draw_switch = false;
         for (i, val) in game_score.iter().enumerate() {
             context.save();
-            context.translate(20.0, 0.0).unwrap();
+            context.set_text_align("center");
+            context.set_font(format!("{}px sans-serif", text_size).as_str());
+            if i >= 12 {
+                context.translate(60.0, 2.0).unwrap();
+                if !draw_switch {
+                    let (off_canvas, off_context) =
+                        get_offscreen_canvas_context(switch_icon.width(), switch_icon.height());
+                    off_context
+                        .draw_image_with_html_image_element(&switch_icon, 0.0, 0.0)
+                        .expect("TODO: panic message");
+                    set_image_colour(off_context, switch_icon.clone(), 0.0, 0.0, "white");
+                    let image_bitmap = off_canvas
+                        .transfer_to_image_bitmap()
+                        .expect("TODO: panic message");
+                    context
+                        .draw_image_with_image_bitmap_and_dw_and_dh(
+                            &image_bitmap,
+                            (i as f64 * gap_size) - 50.0,
+                            0.0,
+                            rect_size,
+                            rect_size,
+                        )
+                        .unwrap();
+                    draw_switch = true;
+                }
+            } else {
+                context.translate(20.0, 2.0).unwrap();
+            }
             context.set_fill_style(&JsValue::from_str(identify_team(
                 val.round_win_status,
                 false,
             )));
-            context.set_text_align("center");
             context
-                .fill_text(&i.to_string(), (i * 50) as f64, 22.5)
+                .fill_text(
+                    format!("{}", &i + 1).as_str(),
+                    i as f64 * gap_size,
+                    text_size * 1.125,
+                )
                 .unwrap();
             context.begin_path();
             context.set_stroke_style(&JsValue::from_str(identify_team(
                 val.round_win_status,
                 false,
             )));
-            context.rect((i * 50) as f64 - 15.0, 0.0, 30.0, 30.0);
+            context.rect(
+                (i as f64 * gap_size) - rect_size / 2.0,
+                0.0,
+                rect_size,
+                rect_size,
+            );
             context.stroke();
             context.restore();
         }
