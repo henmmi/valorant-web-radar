@@ -17,7 +17,7 @@ html, body {
 }
 
 body {
-    background-color: black;
+    background-color: var(--dark-background-colour);
 }
 #canvas {
     border-radius: 30px;
@@ -34,13 +34,13 @@ body {
 }
 #pull_tab {
     position: fixed;
-    top: 1%;
+    bottom: 1%;
     border: none;
     box-shadow: none;
     right: 0;
     z-index: 1000;
     border-radius: 5px 0 0 5px;
-    background-color: var(--darker-blue-colour);
+    background-color: var(--grey-colour);
     color: white;
     padding: 10px;
     cursor: pointer;
@@ -55,7 +55,7 @@ body {
 }
 
 #rounds_played > #rounds_display {
-    background-color: var(--dark-background-colour);
+    background-color: var(--grey-colour);
     display: block;
     padding: 10px;
     border-radius: 10px;
@@ -67,7 +67,7 @@ body {
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: black;
+    background-color: var(--dark-background-colour);
     width: 440px;
     height: 100%;
 }
