@@ -314,112 +314,181 @@ impl Default for Preloader {
 pub fn get_url(name: &str) -> String {
     format!("http://{}/images/{}.png", get_host(), name)
 }
+#[derive(Debug, Copy, Clone)]
+pub struct RoundDisplayConfig {
+    text_size: f64,
+    rect_size: f64,
+    gap_size: f64,
+    initial_canvas_width: u32,
+}
 
-pub fn create_rounds_played_row(game_score: &[GameScore], info: &GameInfo) {
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id("rounds_display").unwrap();
-    let canvas: HtmlCanvasElement = canvas
-        .dyn_into::<HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap();
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<CanvasRenderingContext2d>()
-        .unwrap();
-    if let Ok(div) = get_div_element_by_id("rounds_played") {
+impl RoundDisplayConfig {
+    const TEXT_SIZE: f64 = 20.0;
+    const RECT_SIZE: f64 = 30.0;
+    const GAP_SIZE: f64 = 50.0;
+    const INITIAL_CANVAS_WIDTH: u32 = 1000;
+    pub fn new() -> Self {
+        RoundDisplayConfig {
+            text_size: Self::TEXT_SIZE,
+            rect_size: Self::RECT_SIZE,
+            gap_size: Self::GAP_SIZE,
+            initial_canvas_width: Self::INITIAL_CANVAS_WIDTH,
+        }
+    }
+    fn get_rounds_display_canvas_context(&self) -> (HtmlCanvasElement, CanvasRenderingContext2d) {
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document.get_element_by_id("rounds_display").unwrap();
+        let canvas: HtmlCanvasElement = canvas
+            .dyn_into::<HtmlCanvasElement>()
+            .map_err(|_| ())
+            .unwrap();
+        let context = canvas
+            .get_context("2d")
+            .unwrap()
+            .unwrap()
+            .dyn_into::<CanvasRenderingContext2d>()
+            .unwrap();
+        (canvas, context)
+    }
+    pub fn create_rounds_played_row(&self, game_score: &[GameScore], info: &GameInfo) {
+        let (canvas, context) = self.get_rounds_display_canvas_context();
+        if let Ok(div) = get_div_element_by_id("rounds_played") {
+            self.generate_rounds(game_score, info, &canvas, context);
+            div.append_child(&canvas).unwrap();
+        }
+    }
+    fn generate_rounds(
+        self,
+        game_score: &[GameScore],
+        info: &GameInfo,
+        canvas: &HtmlCanvasElement,
+        context: CanvasRenderingContext2d,
+    ) {
         let switch_icon = get_html_image_element_by_id("Switch").unwrap();
         let mut draw_switch = false;
         let mut overtime = 23;
-        let mut overtime_rounds = 0;
         let scaling_factor = 0.8;
-        canvas.set_width(1000);
-        let text_size = 20.0 * scaling_factor;
-        let rect_size = 30.0 * scaling_factor;
-        let gap_size = 50.0 * scaling_factor;
-        if info.max_rounds > 24 {
-            for _ in 23..info.max_rounds {
-                overtime_rounds += 1;
-            }
-            canvas.set_width(1000 + (overtime_rounds * gap_size as i32) as u32);
-        };
-        console_log!("Scaling factor: {}", scaling_factor);
+        const INIT_TRANSLATE_X: f64 = 20.0;
+        const INIT_TRANSLATE_Y: f64 = 2.0;
+        const INIT_TRANSLATE_OT: f64 = 21.0;
+
+        canvas.set_width(self.initial_canvas_width);
+        self.calculate_canvas_width(info, canvas, scaling_factor);
         let mut overtime_count = 0;
         context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
         for (i, val) in game_score.iter().enumerate() {
             context.save();
-            context.translate(20.0, 2.0).unwrap();
+            context
+                .translate(INIT_TRANSLATE_X, INIT_TRANSLATE_Y)
+                .unwrap();
             if i >= 12 {
                 if !draw_switch {
-                    let (off_canvas, off_context) =
-                        get_offscreen_canvas_context(switch_icon.width(), switch_icon.height());
-                    off_context
-                        .draw_image_with_html_image_element(&switch_icon, 0.0, 0.0)
-                        .expect("TODO: panic message");
-                    set_image_colour(off_context, switch_icon.clone(), 0.0, 0.0, "white");
-                    let image_bitmap = off_canvas
-                        .transfer_to_image_bitmap()
-                        .expect("TODO: panic message");
-                    context
-                        .draw_image_with_image_bitmap_and_dw_and_dh(
-                            &image_bitmap,
-                            (i as f64 * gap_size) + 3.0 - rect_size,
-                            0.0,
-                            rect_size,
-                            rect_size,
-                        )
-                        .unwrap();
+                    self.draw_switch_icon(&switch_icon, scaling_factor, i as f64);
                     draw_switch = true;
                 }
-                context.translate(20.0, 0.0).unwrap();
+                context.translate(INIT_TRANSLATE_X, 0.0).unwrap();
             }
             if i >= overtime {
                 if overtime % 2 == 0 {
-                    context.set_font(format!("bold {}px sans-serif", text_size).as_str());
-                    context.set_fill_style(&JsValue::from_str("white"));
-                    context
-                        .fill_text(
-                            format!("OT{}", overtime_count + 1).as_str(),
-                            i as f64 * gap_size + 20.0 * overtime_count as f64 - rect_size,
-                            text_size * 1.125,
-                        )
-                        .unwrap();
+                    self.draw_overtime_label(&context, scaling_factor, overtime_count, i as f64);
                     overtime_count += 1;
                     console_log!("Overtime: {}", overtime_count);
                 }
                 overtime += 1;
                 context
-                    .translate(21.0 * overtime_count as f64, 0.0)
+                    .translate(INIT_TRANSLATE_OT * overtime_count as f64, 0.0)
                     .unwrap();
             }
-            context.set_text_align("center");
-            context.set_fill_style(&JsValue::from_str(identify_team(
-                val.round_win_status,
-                false,
-            )));
-            context.set_font(format!("{}px sans-serif", text_size).as_str());
-            context
-                .fill_text(
-                    format!("{}", &i + 1).as_str(),
-                    i as f64 * gap_size,
-                    text_size * 1.125,
-                )
-                .unwrap();
-            context.begin_path();
-            context.set_stroke_style(&JsValue::from_str(identify_team(
-                val.round_win_status,
-                false,
-            )));
-            context.rect(
-                (i as f64 * gap_size) - rect_size / 2.0,
-                0.0,
-                rect_size,
-                rect_size,
-            );
-            context.stroke();
+            self.draw_round_info(&context, scaling_factor, &i, &val);
             context.restore();
         }
-        div.append_child(&canvas).unwrap();
+    }
+
+    fn draw_round_info(
+        self,
+        context: &CanvasRenderingContext2d,
+        scaling_factor: f64,
+        i: &usize,
+        val: &&GameScore,
+    ) {
+        context.set_text_align("center");
+        context.set_fill_style(&JsValue::from_str(identify_team(
+            val.round_win_status,
+            false,
+        )));
+        context.set_font(format!("{}px sans-serif", self.text_size * scaling_factor).as_str());
+        context
+            .fill_text(
+                format!("{}", i + 1).as_str(),
+                *i as f64 * self.gap_size * scaling_factor,
+                self.text_size * scaling_factor * 1.125,
+            )
+            .unwrap();
+        context.begin_path();
+        context.set_stroke_style(&JsValue::from_str(identify_team(
+            val.round_win_status,
+            false,
+        )));
+        context.rect(
+            (*i as f64 * self.gap_size * scaling_factor) - self.rect_size * scaling_factor / 2.0,
+            0.0,
+            self.rect_size * scaling_factor,
+            self.rect_size * scaling_factor,
+        );
+        context.stroke();
+    }
+
+    fn draw_overtime_label(
+        self,
+        context: &CanvasRenderingContext2d,
+        scaling_factor: f64,
+        overtime_count: i32,
+        i: f64,
+    ) {
+        context.set_font(format!("bold {}px sans-serif", self.text_size * scaling_factor).as_str());
+        context.set_fill_style(&JsValue::from_str("white"));
+        context
+            .fill_text(
+                format!("OT{}", overtime_count + 1).as_str(),
+                (i * self.gap_size * scaling_factor) + (20.0 * overtime_count as f64)
+                    - (self.rect_size * scaling_factor),
+                self.text_size * scaling_factor * 1.125,
+            )
+            .unwrap();
+    }
+
+    fn draw_switch_icon(&self, switch_icon: &HtmlImageElement, scaling_factor: f64, i: f64) {
+        let (_, context) = self.get_rounds_display_canvas_context();
+
+        let (off_canvas, off_context) =
+            get_offscreen_canvas_context(switch_icon.width(), switch_icon.height());
+        off_context
+            .draw_image_with_html_image_element(switch_icon, 0.0, 0.0)
+            .expect("TODO: panic message");
+        set_image_colour(off_context, switch_icon.clone(), 0.0, 0.0, "white");
+        let image_bitmap = off_canvas
+            .transfer_to_image_bitmap()
+            .expect("TODO: panic message");
+        context
+            .draw_image_with_image_bitmap_and_dw_and_dh(
+                &image_bitmap,
+                (i * self.gap_size * scaling_factor) + 3.0 - self.rect_size * scaling_factor,
+                0.0,
+                self.rect_size * scaling_factor,
+                self.rect_size * scaling_factor,
+            )
+            .unwrap();
+    }
+
+    fn calculate_canvas_width(
+        &self,
+        info: &GameInfo,
+        canvas: &HtmlCanvasElement,
+        scaling_factor: f64,
+    ) {
+        if info.max_rounds > 24 {
+            canvas
+                .set_width(1000 + ((info.max_rounds - 24) * (55.0 * scaling_factor) as i32) as u32);
+        };
     }
 }
