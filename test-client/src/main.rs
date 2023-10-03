@@ -62,7 +62,7 @@ fn main() {
                 "credits": _credits,
                 };
 
-                let _played_rounds = rng.gen_range(1..30);
+                let _played_rounds = rng.gen_range(0..30);
                 let mut _max_rounds = 24;
                 let mut _spike_x = json::Array::new();
                 let mut _spike_y = json::Array::new();

@@ -317,13 +317,13 @@ pub fn identify_team(team: i32, dark: bool) -> &'static str {
         match team {
             0 => "#66471C",
             1 => "#212D4C",
-            _ => "#25242E",
+            _ => "grey",
         }
     } else {
         match team {
             0 => "#DF9B33",
             1 => "#6678A7",
-            _ => "#25242E",
+            _ => "grey",
         }
     }
 }
