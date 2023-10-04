@@ -558,6 +558,8 @@ pub struct GameStatus {
     text_size: f64,
     text_colour: String,
     text_font: String,
+    t_colour: String,
+    ct_colour: String,
 }
 
 impl GameStatus {
@@ -566,6 +568,8 @@ impl GameStatus {
             text_size: 20.0,
             text_colour: "#FFFFFF".to_string(),
             text_font: "sans-serif".to_string(),
+            t_colour: identify_team(0, false).to_string(),
+            ct_colour: identify_team(1, false).to_string(),
         }
     }
     /// Get the canvas context for the game state
@@ -596,8 +600,13 @@ impl GameStatus {
     /// self.create_game_state_row(&info);
     /// ```
     pub fn create_game_state_row(&self, info: &GameInfo) {
-        let (canvas, context) = self.get_game_state_canvas_context();
+        let (canvas, _) = self.get_game_state_canvas_context();
         canvas.set_width(300);
+        self.add_game_timer(info);
+    }
+
+    fn add_game_timer(&self, info: &GameInfo) {
+        let (canvas, context) = self.get_game_state_canvas_context();
         context.set_fill_style(&JsValue::from_str(self.text_colour.as_str()));
         context.set_font(format!("{}px {}", self.text_size, self.text_font).as_str());
         context.set_text_align("left");
@@ -621,5 +630,47 @@ impl GameStatus {
         let minutes = total_seconds / 60;
         let seconds = total_seconds % 60;
         format!("{:}:{:02}", minutes, seconds)
+    }
+    /// Add the score and round number to game_state canvas
+    /// # Arguments
+    /// * `info` - The game score
+    /// # Example
+    /// ```
+    /// self.add_score_and_round_number(&info);
+    /// ```
+    pub fn add_score_and_round_number(&self, info: &[GameScore]) {
+        let (canvas, context) = self.get_game_state_canvas_context();
+        let (t_score, ct_score) = get_score(info);
+        context.set_text_align("center");
+        context.set_fill_style(&JsValue::from_str(self.text_colour.as_str()));
+        context.set_font(format!("{}px {}", self.text_size / 2.0, self.text_font).as_str());
+        context
+            .fill_text(
+                format!("Round {}", t_score + ct_score + 1).as_str(),
+                canvas.width() as f64 / 2.0 - self.text_size / 2.0,
+                canvas.height() as f64 * 0.9,
+            )
+            .unwrap();
+        console_log!("T Score: {}", t_score);
+        context.set_text_align("center");
+        context.set_font(format!("{}px {}", self.text_size * 2.0, self.text_font).as_str());
+        context.set_fill_style(&JsValue::from_str(self.t_colour.as_str()));
+        context
+            .fill_text(
+                format!("{}", t_score).as_str(),
+                canvas.width() as f64 * 0.33 - self.text_size * 2.0,
+                canvas.height() as f64 * 0.9,
+            )
+            .unwrap();
+        context.set_text_align("center");
+        context.set_fill_style(&JsValue::from_str(self.ct_colour.as_str()));
+        context
+            .fill_text(
+                format!("{}", ct_score).as_str(),
+                canvas.width() as f64 * 0.67,
+                canvas.height() as f64 * 0.9,
+            )
+            .unwrap();
+        console_log!("Canvas width: {}", canvas.width());
     }
 }
