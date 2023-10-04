@@ -149,6 +149,10 @@ pub struct GameInfo {
     pub round_win_status: Vec<i32>,
     pub max_rounds: i32,
     pub round_time: Vec<f64>,
+    pub spike_planted: i32,
+    pub spike_x: Vec<f64>,
+    pub spike_y: Vec<f64>,
+    pub spike_time: Vec<f64>,
 }
 
 impl GameInfo {
