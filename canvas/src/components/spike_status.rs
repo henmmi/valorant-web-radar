@@ -11,17 +11,30 @@ pub struct SpikeStatus {
     y: f64,
     time: f64,
 }
-
+/// Contains status information for the spike
 impl SpikeStatus {
+    /// Create an object to hold the spike status
+    /// # Arguments
+    /// * `x` - The x coordinate of the spike
+    /// * `y` - The y coordinate of the spike
+    /// * `time` - The time left on the spike
+    /// # Example
+    /// ```
+    /// let spike_status = SpikeStatus::new(100.0, 100.0, 10.0);
+    /// ```
     pub fn new(x: f64, y: f64, time: f64) -> Self {
         Self { x, y, time }
     }
-
+    /// Draw the spike on the canvas
+    /// # Example
+    /// ```
+    /// spike_status.draw_spike();
+    /// ```
     pub fn draw_spike(&self) {
         const SPIKE_SIZE: f64 = 32.0;
         const FONT_SIZE: f64 = 12.0;
         let mut image_colour = "white";
-        if self.time < 8.0 {
+        if self.time < 10.0 {
             image_colour = "#BC544B";
         }
         let (_, context, _) = get_canvas_context_document();
