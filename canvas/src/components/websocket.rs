@@ -4,6 +4,7 @@ use super::macros::{console_log, log};
 use super::player_data::{Player, Players};
 use crate::components::game_data::{GameScore, GameStatus, RoundDisplayConfig};
 use crate::components::player::draw_players;
+use crate::components::player_data::DeadPlayers;
 use crate::components::player_table::create_player_info_row;
 use crate::components::ui_element::{
     get_player_dropdown_length, player_dropdown, toggle_orientation,
@@ -37,6 +38,7 @@ pub struct Data {
 pub fn websocket(url: &str) -> Result<(), JsValue> {
     // Create WebSocket connection.
     let ws = WebSocket::new(url)?;
+    let mut dead_players: Vec<DeadPlayers> = Vec::new();
 
     // Listen for incoming test messages
     let onmessage_callback = Closure::<dyn FnMut(_)>::new(move |e: MessageEvent| {
@@ -75,14 +77,21 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             shield: player_data.shield[i],
                             credits: player_data.credits[i],
                         });
+                        if player_data.health[i] <= 0.0 {
+                            dead_players.push(DeadPlayers::new(player_data.x[i], player_data.y[i]))
+                        }
                     }
                     players.reverse();
                     clear_and_refresh();
                     toggle_orientation(&players);
                     draw_players(&players);
+                    // Draw dead_players
+                    DeadPlayers::draw_dead_players(&mut dead_players);
                     create_player_info_row(&players, &score);
+                    // Create the round display
                     let rounds_display = RoundDisplayConfig::new();
                     rounds_display.create_rounds_played_row(&score, &game_info);
+                    // Create the game status display
                     let game_status = GameStatus::new();
                     game_status.create_game_state_row(&game_info);
                     game_status.add_score_and_round_number(&score);

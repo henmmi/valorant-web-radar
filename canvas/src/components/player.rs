@@ -123,10 +123,12 @@ pub fn draw_player_labels(player: &[Player], angle: f64) {
 /// ```
 pub fn draw_players(players: &[Player]) {
     for (_i, player) in players.iter().enumerate() {
-        draw_player_orientation(player);
-        display_player_position(player);
-        draw_player_icon(player, get_number(&ROTATION_ANGLE));
-        draw_weapon_icons(player, get_number(&ROTATION_ANGLE));
+        if player.health > 0.0 {
+            draw_player_orientation(player);
+            display_player_position(player);
+            draw_player_icon(player, get_number(&ROTATION_ANGLE));
+            draw_weapon_icons(player, get_number(&ROTATION_ANGLE));
+        }
     }
     toggle_label(players);
 }

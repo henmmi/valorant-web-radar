@@ -1,3 +1,5 @@
+use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
+use crate::components::elements::{get_canvas_context_document, get_html_image_element_by_id};
 use crate::components::websocket::get_host;
 use serde::Deserialize;
 use strum_macros::EnumIter;
@@ -114,5 +116,46 @@ impl Player {
             get_host(),
             Player::get_agent_name(id)
         )
+    }
+}
+#[derive(Debug)]
+pub struct DeadPlayers {
+    pub x: f64,
+    pub y: f64,
+    pub prevail_count: i32,
+}
+impl DeadPlayers {
+    pub fn new(x: f64, y: f64) -> Self {
+        DeadPlayers {
+            x,
+            y,
+            prevail_count: 5,
+        }
+    }
+
+    pub fn draw_dead_players(killed: &mut Vec<DeadPlayers>) {
+        let (_, context, _) = get_canvas_context_document();
+        let angle = get_number(&ROTATION_ANGLE);
+        for player in killed.iter_mut() {
+            context.save();
+            context.translate(player.x, player.y).unwrap();
+            let angle_rad = get_radian_angle(-angle);
+            let death_icon = get_html_image_element_by_id("Killed").unwrap();
+            context.rotate(angle_rad).unwrap();
+            context.set_global_alpha(0.2 * player.prevail_count as f64);
+            context
+                .draw_image_with_html_image_element_and_dw_and_dh(
+                    &death_icon,
+                    -16.0,
+                    -16.0,
+                    32.0,
+                    32.0,
+                )
+                .unwrap();
+            context.restore();
+            player.prevail_count -= 1;
+        }
+        // Retain the killed players that still have a prevail count
+        killed.retain(|x| x.prevail_count > 0);
     }
 }
