@@ -94,8 +94,8 @@ fn main() {
                 "defuse_time": _defuse_time,
                 "round_win_status": _round_win_status,
                 "played_rounds": _played_rounds,
+                "max_rounds": _max_rounds,
                 "round_time" : _round_time,
-                    "max_rounds": _max_rounds,
                 };
 
                 let data = object! {

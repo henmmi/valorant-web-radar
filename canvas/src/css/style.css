@@ -20,7 +20,6 @@ body {
     background-color: var(--dark-background-colour);
 }
 #canvas {
-    border-radius: 30px;
     display: block;
     position: absolute;
     margin: auto;
@@ -48,10 +47,10 @@ body {
     transition: right 0.3s ease-in-out;
 }
 #rounds_played {
-    padding: 10px;
-    top: 5px;
     overflow-x: hidden;
-    margin: 0;
+    height: 10%;
+    margin: auto;
+    display: block;
 }
 
 #rounds_played > #rounds_display {
@@ -59,8 +58,17 @@ body {
     display: block;
     padding: 10px;
     border-radius: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+}
+
+#game_state {
+    padding: 10px;
+    position: fixed;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
 }
 .container {
     position: fixed;
