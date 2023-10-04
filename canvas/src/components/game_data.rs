@@ -658,7 +658,7 @@ impl GameStatus {
         context
             .fill_text(
                 format!("{}", t_score).as_str(),
-                canvas.width() as f64 * 0.33 - self.text_size * 2.0,
+                canvas.width() as f64 * 0.5 - 60.0,
                 canvas.height() as f64 * 0.9,
             )
             .unwrap();
@@ -667,7 +667,7 @@ impl GameStatus {
         context
             .fill_text(
                 format!("{}", ct_score).as_str(),
-                canvas.width() as f64 * 0.67,
+                canvas.width() as f64 * 0.5 + 57.5 - self.text_size,
                 canvas.height() as f64 * 0.9,
             )
             .unwrap();
