@@ -52,8 +52,8 @@ pub fn player_health_circle(player: &Player, angle: f64) {
             0.0,
             0.0,
             10.25,
-            calculate_starting_fill_angle(player.health),
-            calculate_ending_fill_angle(player.health),
+            calculate_starting_fill_angle(player.health as f64),
+            calculate_ending_fill_angle(player.health as f64),
         )
         .unwrap();
     context.set_fill_style(&JsValue::from_str(identify_team(player.team, false)));
@@ -123,7 +123,7 @@ pub fn draw_player_labels(player: &[Player], angle: f64) {
 /// ```
 pub fn draw_players(players: &[Player]) {
     for (_i, player) in players.iter().enumerate() {
-        if player.health > 0.0 {
+        if player.health >= 1 {
             draw_player_orientation(player);
             display_player_position(player);
             draw_player_icon(player, get_number(&ROTATION_ANGLE));
