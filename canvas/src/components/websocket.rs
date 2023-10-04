@@ -2,10 +2,12 @@ use super::canvas::clear_and_refresh;
 use super::game_data::GameInfo;
 use super::macros::{console_log, log};
 use super::player_data::{Player, Players};
-use crate::components::game_data::{GameScore, GameStatus, RoundDisplayConfig};
+use crate::components::dead_players::DeadPlayers;
+use crate::components::game_data::GameScore;
+use crate::components::game_status::GameStatus;
 use crate::components::player::draw_players;
-use crate::components::player_data::DeadPlayers;
 use crate::components::player_table::create_player_info_row;
+use crate::components::round_display_config::RoundDisplayConfig;
 use crate::components::ui_element::{
     get_player_dropdown_length, player_dropdown, toggle_orientation,
 };

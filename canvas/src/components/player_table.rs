@@ -3,7 +3,6 @@ use crate::components::elements::{
     create_html_div_element, get_div_element_by_id, get_html_image_element_by_id,
 };
 use crate::components::game_data::{get_score, GameScore, Weapon};
-use crate::components::macros::{console_log, log};
 use crate::components::player::identify_team;
 use crate::components::player_data::Player;
 use wasm_bindgen::{JsCast, JsValue};
@@ -23,7 +22,6 @@ pub fn create_player_info_row(player: &[Player], team: &[GameScore]) {
     let (t_score, ct_score) = get_score(team);
     create_team_info_header(t_score, ct_score);
     create_player_info(player);
-    console_log!("Score: {} - {}", t_score, ct_score);
 }
 /// Creates the player info for the player table
 /// # Arguments
