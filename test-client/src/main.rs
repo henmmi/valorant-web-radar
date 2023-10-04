@@ -30,7 +30,7 @@ fn main() {
                     _id.push(json::from(rng.gen_range(0..22)));
                     _x.push(json::from(rng.gen_range(0.0..1000.0)));
                     _y.push(json::from(rng.gen_range(0.0..1000.0)));
-                    _health.push(json::from(rng.gen_range(-1.0..1.0)));
+                    _health.push(json::from(rng.gen_range(0..101)));
                     _team.push(json::from(rng.gen_range(0..2)));
                     _dormant.push(json::from(rng.gen_range(0..2)));
                     _rotation.push(json::from(rng.gen_range(0.0..360.0)));
