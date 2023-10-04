@@ -8,6 +8,7 @@ use crate::components::game_status::GameStatus;
 use crate::components::player::draw_players;
 use crate::components::player_table::create_player_info_row;
 use crate::components::round_display_config::RoundDisplayConfig;
+use crate::components::spike_status::SpikeStatus;
 use crate::components::ui_element::{
     get_player_dropdown_length, player_dropdown, toggle_orientation,
 };
@@ -87,6 +88,14 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     clear_and_refresh();
                     toggle_orientation(&players);
                     draw_players(&players);
+                    if game_info.spike_planted == 1 {
+                        let spike_status = SpikeStatus::new(
+                            game_info.spike_x[0],
+                            game_info.spike_y[0],
+                            game_info.spike_time[0],
+                        );
+                        spike_status.draw_spike();
+                    };
                     // Draw dead_players
                     DeadPlayers::draw_dead_players(&mut dead_players);
                     create_player_info_row(&players, &score);
