@@ -249,7 +249,7 @@ fn draw_weapon_icons(player: &Player, angle: f64) {
 /// ```
 /// set_image_colour(context, image, 100.0, 100.0, "red");
 /// ```
-fn set_image_colour(
+pub fn set_image_colour(
     context: OffscreenCanvasRenderingContext2d,
     image: HtmlImageElement,
     x: f64,
@@ -317,13 +317,13 @@ pub fn identify_team(team: i32, dark: bool) -> &'static str {
         match team {
             0 => "#66471C",
             1 => "#212D4C",
-            _ => "black",
+            _ => "grey",
         }
     } else {
         match team {
             0 => "#DF9B33",
             1 => "#6678A7",
-            _ => "black",
+            _ => "grey",
         }
     }
 }
