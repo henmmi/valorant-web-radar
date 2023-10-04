@@ -1,9 +1,14 @@
 pub mod canvas;
+mod dead_players;
 pub mod elements;
 pub mod game_data;
+mod game_status;
 pub mod player;
 pub mod player_data;
 pub mod player_table;
+mod preloader;
+mod round_display_config;
+mod spike_status;
 pub mod ui_element;
 pub mod websocket;
 
