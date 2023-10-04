@@ -104,7 +104,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     rounds_display.create_rounds_played_row(&score, &game_info);
                     // Create the game status display
                     let game_status = GameStatus::new();
-                    game_status.create_game_state_row(&game_info);
+                    game_status.create_game_state_row(&game_info, &game_info.spike_planted);
                     game_status.add_score_and_round_number(&score);
                     // Check if current dropdown length is equal to the number of players
                     if get_player_dropdown_length() != players.len() {
