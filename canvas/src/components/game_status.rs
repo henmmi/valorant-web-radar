@@ -49,15 +49,19 @@ impl GameStatus {
     /// ```
     /// self.create_game_state_row(&info);
     /// ```
-    pub fn create_game_state_row(&self, info: &GameInfo) {
+    pub fn create_game_state_row(&self, info: &GameInfo, spike_status: &i32) {
         let (canvas, _) = self.get_game_state_canvas_context();
         canvas.set_width(300);
-        self.add_game_timer(info);
+        self.add_game_timer(info, spike_status);
     }
 
-    fn add_game_timer(&self, info: &GameInfo) {
+    fn add_game_timer(&self, info: &GameInfo, spike_status: &i32) {
         let (canvas, context) = self.get_game_state_canvas_context();
-        context.set_fill_style(&JsValue::from_str(self.text_colour.as_str()));
+        if *spike_status == 1 {
+            context.set_fill_style(&JsValue::from_str("#BC544B"));
+        } else {
+            context.set_fill_style(&JsValue::from_str(self.text_colour.as_str()));
+        }
         context.set_font(format!("{}px {}", self.text_size, self.text_font).as_str());
         context.set_text_align("left");
         context
