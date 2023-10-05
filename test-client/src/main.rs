@@ -68,7 +68,7 @@ fn main() {
                 let mut _spike_x = json::Array::new();
                 let mut _spike_y = json::Array::new();
                 let mut _spike_time = json::Array::new();
-                let mut _defusing = json::Array::new();
+                let mut _defusing = 0;
                 let mut _defuse_time = json::Array::new();
                 let mut _round_win_status = json::Array::new();
                 let mut _round_time = json::Array::new();
@@ -78,14 +78,14 @@ fn main() {
                     _spike_y.push(json::from(rng.gen_range(0.0..1000.0)));
                     _spike_time.push(json::from(rng.gen_range(0.0..45.0)));
                     _round_time.push(_spike_time[0].clone());
-                    _defusing.push(json::from(rng.gen_range(0..2)));
+                    _defusing = rng.gen_range(0..2);
                 } else {
                     _spike_x.push(json::from(0));
                     _spike_y.push(json::from(0));
                     _spike_time.push(json::from(0));
                     _round_time.push(json::from(rng.gen_range(0.0..150.0)));
                 }
-                if _defusing[0] == 1 {
+                if _defusing == 1 {
                     _defuse_time.push(json::from(rng.gen_range(0.0..8.0)));
                 }
                 while _played_rounds > _max_rounds {

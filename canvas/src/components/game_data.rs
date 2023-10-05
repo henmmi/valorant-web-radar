@@ -155,6 +155,8 @@ pub struct GameInfo {
     pub spike_x: Vec<f64>,
     pub spike_y: Vec<f64>,
     pub spike_time: Vec<f64>,
+    pub defusing: i32,
+    pub defuse_time: Vec<f64>,
 }
 
 impl GameInfo {
