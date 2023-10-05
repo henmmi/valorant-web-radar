@@ -171,6 +171,7 @@ pub struct Preloader {
     agents: HashMap<String, HtmlImageElement>,
     maps: HashMap<String, HtmlImageElement>,
     weapons: HashMap<String, HtmlImageElement>,
+    icons: HashMap<String, HtmlImageElement>,
 }
 #[wasm_bindgen]
 impl Preloader {
@@ -180,6 +181,7 @@ impl Preloader {
             agents: HashMap::new(),
             maps: HashMap::new(),
             weapons: HashMap::new(),
+            icons: HashMap::new(),
         }
     }
     /// Preload all the assets
@@ -214,8 +216,6 @@ impl Preloader {
                         element.style().set_property("display", "none").unwrap();
                         div.append_child(&element).unwrap();
                         self.agents.insert(Player::get_agent_name(id), element);
-                        console_log!("Preloaded agent {}", Player::get_agent_name(id));
-                        console_log!("Agent URL: {}", Player::agent_player_icon_url(id));
                     }
                     Err(err) => console_log!("Error creating image element: {:?}", err),
                 }
@@ -242,8 +242,6 @@ impl Preloader {
                         element.style().set_property("display", "none").unwrap();
                         div.append_child(&element).unwrap();
                         self.maps.insert(map_name.get_string(), element);
-                        console_log!("Preloaded map {}", map_name.get_string());
-                        console_log!("Map URL: {}", GameInfo::get_map_url(&map_name.get_string()));
                     }
                     Err(err) => console_log!("Error creating image element: {:?}", err),
                 }
@@ -269,9 +267,7 @@ impl Preloader {
                     Ok(element) => {
                         element.style().set_property("display", "none").unwrap();
                         div.append_child(&element).unwrap();
-                        self.maps.insert(icon.get_string(), element);
-                        console_log!("Preloaded icon {}", icon.get_string());
-                        console_log!("Icon URL: {}", get_url(&icon.get_string()));
+                        self.icons.insert(icon.get_string(), element);
                     }
                     Err(err) => console_log!("Error creating image element: {:?}", err),
                 }
@@ -298,7 +294,6 @@ impl Preloader {
                         element.style().set_property("display", "none").unwrap();
                         div.append_child(&element).unwrap();
                         self.weapons.insert(weapons.get_string(), element);
-                        console_log!("Preloaded weapon {}", weapons.get_string());
                     }
                     Err(err) => console_log!("Error creating image element: {:?}", err),
                 }
@@ -418,7 +413,6 @@ impl RoundDisplayConfig {
                 if overtime % 2 == 0 {
                     self.draw_overtime_label(&context, scaling_factor, overtime_count, i as f64);
                     overtime_count += 1;
-                    console_log!("Overtime: {}", overtime_count);
                 }
                 overtime += 1;
                 context
@@ -651,7 +645,6 @@ impl GameStatus {
                 canvas.height() as f64 * 0.9,
             )
             .unwrap();
-        console_log!("T Score: {}", t_score);
         context.set_text_align("center");
         context.set_font(format!("{}px {}", self.text_size * 2.0, self.text_font).as_str());
         context.set_fill_style(&JsValue::from_str(self.t_colour.as_str()));
@@ -671,6 +664,5 @@ impl GameStatus {
                 canvas.height() as f64 * 0.9,
             )
             .unwrap();
-        console_log!("Canvas width: {}", canvas.width());
     }
 }
