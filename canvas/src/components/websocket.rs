@@ -2,7 +2,7 @@ use super::canvas::clear_and_refresh;
 use super::game_data::GameInfo;
 use super::macros::{console_log, log};
 use super::player_data::{Player, Players};
-use crate::components::game_data::{GameScore, RoundDisplayConfig};
+use crate::components::game_data::{GameScore, GameStatus, RoundDisplayConfig};
 use crate::components::player::draw_players;
 use crate::components::player_table::create_player_info_row;
 use crate::components::ui_element::{
@@ -83,6 +83,8 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     create_player_info_row(&players, &score);
                     let rounds_display = RoundDisplayConfig::new();
                     rounds_display.create_rounds_played_row(&score, &game_info);
+                    let game_status = GameStatus::new();
+                    game_status.create_game_state_row(&game_info);
                     // Check if current dropdown length is equal to the number of players
                     if get_player_dropdown_length() != players.len() {
                         // If not, update the dropdown

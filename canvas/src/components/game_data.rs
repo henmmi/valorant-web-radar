@@ -151,6 +151,7 @@ pub fn get_score(score: &[GameScore]) -> (i32, i32) {
 pub struct GameInfo {
     pub round_win_status: Vec<i32>,
     pub max_rounds: i32,
+    pub round_time: Vec<f64>,
 }
 
 impl GameInfo {
@@ -369,10 +370,7 @@ impl RoundDisplayConfig {
     /// ```
     pub fn create_rounds_played_row(&self, game_score: &[GameScore], info: &GameInfo) {
         let (canvas, context) = self.get_rounds_display_canvas_context();
-        if let Ok(div) = get_div_element_by_id("rounds_played") {
-            self.generate_rounds(game_score, info, &canvas, context);
-            div.append_child(&canvas).unwrap();
-        }
+        self.generate_rounds(game_score, info, &canvas, context);
     }
     /// Generate the rounds
     /// # Arguments
@@ -553,5 +551,75 @@ impl RoundDisplayConfig {
             canvas
                 .set_width(1000 + ((info.max_rounds - 24) * (60.0 * scaling_factor) as i32) as u32);
         };
+    }
+}
+
+pub struct GameStatus {
+    text_size: f64,
+    text_colour: String,
+    text_font: String,
+}
+
+impl GameStatus {
+    pub fn new() -> Self {
+        GameStatus {
+            text_size: 20.0,
+            text_colour: "#FFFFFF".to_string(),
+            text_font: "sans-serif".to_string(),
+        }
+    }
+    /// Get the canvas context for the game state
+    /// # Example
+    /// ```
+    /// let (canvas, context) = self.get_game_state_canvas_context();
+    /// ```
+    fn get_game_state_canvas_context(&self) -> (HtmlCanvasElement, CanvasRenderingContext2d) {
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document.get_element_by_id("game_state").unwrap();
+        let canvas: HtmlCanvasElement = canvas
+            .dyn_into::<HtmlCanvasElement>()
+            .map_err(|_| ())
+            .unwrap();
+        let context = canvas
+            .get_context("2d")
+            .unwrap()
+            .unwrap()
+            .dyn_into::<CanvasRenderingContext2d>()
+            .unwrap();
+        (canvas, context)
+    }
+    /// Creates a display for information on the current game state
+    /// # Arguments
+    /// * `info` - The game info
+    /// # Example
+    /// ```
+    /// self.create_game_state_row(&info);
+    /// ```
+    pub fn create_game_state_row(&self, info: &GameInfo) {
+        let (canvas, context) = self.get_game_state_canvas_context();
+        canvas.set_width(300);
+        context.set_fill_style(&JsValue::from_str(self.text_colour.as_str()));
+        context.set_font(format!("{}px {}", self.text_size, self.text_font).as_str());
+        context.set_text_align("left");
+        context
+            .fill_text(
+                self.convert_time(info.round_time[0]).as_str(),
+                canvas.width() as f64 / 2.0 - self.text_size * 1.5,
+                canvas.height() as f64 / 2.0,
+            )
+            .unwrap();
+    }
+    /// Convert the time to a string
+    /// # Arguments
+    /// * `time` - The time
+    /// # Example
+    /// ```
+    /// self.convert_time(time);
+    /// ```
+    fn convert_time(&self, time: f64) -> String {
+        let total_seconds = time.round() as i64;
+        let minutes = total_seconds / 60;
+        let seconds = total_seconds % 60;
+        format!("{:}:{:02}", minutes, seconds)
     }
 }
