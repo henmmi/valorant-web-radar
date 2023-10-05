@@ -64,18 +64,25 @@ fn main() {
 
                 let _played_rounds = rng.gen_range(0..30);
                 let mut _max_rounds = 24;
+                let mut _spike_planted = rng.gen_range(0..2);
                 let mut _spike_x = json::Array::new();
                 let mut _spike_y = json::Array::new();
                 let mut _spike_time = json::Array::new();
                 let mut _defuse_time = json::Array::new();
                 let mut _round_win_status = json::Array::new();
                 let mut _round_time = json::Array::new();
-                _spike_x.push(json::from(rng.gen_range(0.0..1000.0)));
-                _spike_y.push(json::from(rng.gen_range(0.0..1000.0)));
-                _spike_time.push(json::from(rng.gen_range(0.0..35.0)));
                 _defuse_time.push(json::from(rng.gen_range(0.0..8.0)));
-                _round_time.push(json::from(rng.gen_range(0.0..150.0)));
-
+                if _spike_planted == 1 {
+                    _spike_x.push(json::from(rng.gen_range(0.0..1000.0)));
+                    _spike_y.push(json::from(rng.gen_range(0.0..1000.0)));
+                    _spike_time.push(json::from(rng.gen_range(0.0..45.0)));
+                    _round_time.push(_spike_time[0].clone());
+                } else {
+                    _spike_x.push(json::from(0));
+                    _spike_y.push(json::from(0));
+                    _spike_time.push(json::from(0));
+                    _round_time.push(json::from(rng.gen_range(0.0..150.0)));
+                }
                 while _played_rounds > _max_rounds {
                     _max_rounds += 2;
                 }
@@ -88,6 +95,7 @@ fn main() {
                 }
 
                 let game_info = object! {
+                "spike_planted": _spike_planted,
                 "spike_x": _spike_x,
                 "spike_y": _spike_y,
                 "spike_time": _spike_time,

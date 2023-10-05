@@ -2,10 +2,13 @@ use super::canvas::clear_and_refresh;
 use super::game_data::GameInfo;
 use super::macros::{console_log, log};
 use super::player_data::{Player, Players};
-use crate::components::game_data::{GameScore, GameStatus, RoundDisplayConfig};
+use crate::components::dead_players::DeadPlayers;
+use crate::components::game_data::GameScore;
+use crate::components::game_status::GameStatus;
 use crate::components::player::draw_players;
-use crate::components::player_data::DeadPlayers;
 use crate::components::player_table::create_player_info_row;
+use crate::components::round_display_config::RoundDisplayConfig;
+use crate::components::spike_status::SpikeStatus;
 use crate::components::ui_element::{
     get_player_dropdown_length, player_dropdown, toggle_orientation,
 };
@@ -85,6 +88,14 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     clear_and_refresh();
                     toggle_orientation(&players);
                     draw_players(&players);
+                    if game_info.spike_planted == 1 {
+                        let spike_status = SpikeStatus::new(
+                            game_info.spike_x[0],
+                            game_info.spike_y[0],
+                            game_info.spike_time[0],
+                        );
+                        spike_status.draw_spike();
+                    };
                     // Draw dead_players
                     DeadPlayers::draw_dead_players(&mut dead_players);
                     create_player_info_row(&players, &score);
@@ -93,7 +104,7 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                     rounds_display.create_rounds_played_row(&score, &game_info);
                     // Create the game status display
                     let game_status = GameStatus::new();
-                    game_status.create_game_state_row(&game_info);
+                    game_status.create_game_state_row(&game_info, &game_info.spike_planted);
                     game_status.add_score_and_round_number(&score);
                     // Check if current dropdown length is equal to the number of players
                     if get_player_dropdown_length() != players.len() {
