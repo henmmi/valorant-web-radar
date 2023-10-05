@@ -39,6 +39,7 @@ enum Icon {
     LightShield,
     Switch,
     Spike,
+    Defuser,
 }
 
 impl Icon {
@@ -50,6 +51,7 @@ impl Icon {
             Icon::LightShield => "LightShield".to_string(),
             Icon::Switch => "Switch".to_string(),
             Icon::Spike => "Spike".to_string(),
+            Icon::Defuser => "Defuser".to_string(),
         }
     }
 }
