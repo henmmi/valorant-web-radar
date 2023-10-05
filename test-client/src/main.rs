@@ -37,7 +37,6 @@ fn main() {
                         _round_win_status.push(json::from(2));
                     }
                 }
-                let rand_player_number = rand::thread_rng().gen_range(1..=10);
                 let mut _id = json::Array::new();
                 let mut _x = json::Array::new();
                 let mut _y = json::Array::new();
@@ -57,12 +56,16 @@ fn main() {
                 let mut _defusing = json::Array::new();
                 let mut _defusing_spike = 0;
 
-                for _i in 0..rand_player_number {
+                for _i in 0..10 {
                     _id.push(json::from(rng.gen_range(0..22)));
                     _x.push(json::from(rng.gen_range(0.0..1000.0)));
                     _y.push(json::from(rng.gen_range(0.0..1000.0)));
                     _health.push(json::from(rng.gen_range(0..101)));
-                    _team.push(json::from(rng.gen_range(0..2)));
+                    match _i {
+                        0..=4 => _team.push(json::from(0)),
+                        5..=10 => _team.push(json::from(1)),
+                        _ => (),
+                    }
                     _dormant.push(json::from(rng.gen_range(0..2)));
                     _rotation.push(json::from(rng.gen_range(0.0..360.0)));
                     _scoped.push(json::from(rng.gen_range(0..2)));
@@ -74,7 +77,7 @@ fn main() {
                     _shield.push(json::from(rng.gen_range(0..50)));
                     _credits.push(json::from(rng.gen_range(0..16000)));
                     _defusing.push(json::from(0));
-                    if _spike_planted == 1 && _defusing_spike == 0 {
+                    if _spike_planted == 1 && _defusing_spike == 0 && _i > 4 {
                         _defuse_time.push(json::from(rng.gen_range(0.0..8.0)));
                         _defusing.pop();
                         _defusing.push(json::from(1));
