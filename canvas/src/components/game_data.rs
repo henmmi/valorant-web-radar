@@ -17,6 +17,9 @@ pub enum Map {
     Haven,
     Icebox,
     Split,
+    Lotus,
+    Pearl,
+    Fracture,
 }
 impl Map {
     pub fn get_string(&self) -> String {
@@ -27,6 +30,9 @@ impl Map {
             Map::Haven => "Haven".to_string(),
             Map::Icebox => "Icebox".to_string(),
             Map::Split => "Split".to_string(),
+            Map::Lotus => "Lotus".to_string(),
+            Map::Pearl => "Pearl".to_string(),
+            Map::Fracture => "Fracture".to_string(),
         }
     }
 }
