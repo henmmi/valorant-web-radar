@@ -136,7 +136,13 @@ pub fn draw_players(players: &[Player]) {
     }
     toggle_label(players);
 }
-
+/// Draw defusing icon above player and remaining defuse time
+/// # Arguments
+/// * `player` - Input player data through the struct 'Player'
+/// # Example
+/// ```
+/// draw_defusing_icon(&player);
+/// ```
 fn draw_defusing_icon(player: &Player) {
     const ICON_SIZE: f64 = 32.0;
     let (_, context, _) = get_canvas_context_document();
