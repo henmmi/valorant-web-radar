@@ -1,8 +1,9 @@
 use super::macros::{console_log, log};
 use super::player_data::Player;
 use crate::components::canvas::{get_number, get_radian_angle, ROTATION_ANGLE};
-use crate::components::elements;
-use crate::components::elements::{get_canvas_context_document, get_html_image_element_by_id};
+use crate::components::elements::{
+    get_canvas_context_document, get_html_image_element_by_id, get_offscreen_canvas_context,
+};
 use crate::components::game_data::Weapon;
 use crate::components::ui_element::{toggle_label, toggle_state};
 use js_sys::Math::{cos, sin};
@@ -129,9 +130,52 @@ pub fn draw_players(players: &[Player]) {
             draw_player_icon(player, get_number(&ROTATION_ANGLE));
             draw_weapon_icons(player, get_number(&ROTATION_ANGLE));
         }
+        if player.defusing == 1 {
+            draw_defusing_icon(player);
+        }
     }
     toggle_label(players);
 }
+
+fn draw_defusing_icon(player: &Player) {
+    const ICON_SIZE: f64 = 32.0;
+    let (_, context, _) = get_canvas_context_document();
+    let defuse_icon = get_html_image_element_by_id("Defuse").unwrap();
+    let angle = get_number(&ROTATION_ANGLE);
+    context.save();
+    context.translate(player.x, player.y).unwrap();
+    let angle_rad = get_radian_angle(-angle);
+    context.rotate(angle_rad).unwrap();
+    let (off_canvas, off_context) =
+        get_offscreen_canvas_context(defuse_icon.width(), defuse_icon.height());
+    off_context
+        .draw_image_with_html_image_element(&defuse_icon, 0.0, 0.0)
+        .unwrap();
+    set_image_colour(off_context, defuse_icon, 0.0, 0.0, "#25B14E");
+    let image_bitmap = off_canvas.transfer_to_image_bitmap().unwrap();
+    let image_width = image_bitmap.width() as f64 * 0.1;
+    let image_height = image_bitmap.height() as f64 * 0.1;
+    context
+        .draw_image_with_image_bitmap_and_dw_and_dh(
+            &image_bitmap,
+            -image_width / 2.0,
+            -ICON_SIZE * 1.6,
+            image_width,
+            image_height,
+        )
+        .unwrap();
+    context.set_font("12px sans-serif");
+    context.set_fill_style(&JsValue::from_str("#25B14E"));
+    context
+        .fill_text(
+            format!("{:.1}", player.defuse_time).as_str(),
+            -9.0,
+            -ICON_SIZE * 1.7,
+        )
+        .unwrap();
+    context.restore();
+}
+
 /// Draw the player's icon on the canvas
 /// # Arguments
 /// * `player` - Input player data through the struct 'Player'
@@ -208,7 +252,7 @@ fn draw_weapon_icons(player: &Player, angle: f64) {
             let icon_height = elem.natural_height() as f64 * scaling_factor;
 
             let (offscreen_canvas, offscreen_context) =
-                elements::get_offscreen_canvas_context(elem.width(), elem.height());
+                get_offscreen_canvas_context(elem.width(), elem.height());
 
             offscreen_context
                 .draw_image_with_html_image_element(&elem, 0.0, 0.0)

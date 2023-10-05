@@ -79,7 +79,10 @@ pub fn websocket(url: &str) -> Result<(), JsValue> {
                             acs: player_data.acs[i],
                             shield: player_data.shield[i],
                             credits: player_data.credits[i],
+                            defusing: player_data.defusing[i],
+                            defuse_time: player_data.defuse_time[i],
                         });
+                        if player_data.defusing[i] == 1 {}
                         if player_data.health[i] < 1 {
                             dead_players.push(DeadPlayers::new(player_data.x[i], player_data.y[i]))
                         }

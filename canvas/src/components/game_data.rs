@@ -39,7 +39,7 @@ enum Icon {
     LightShield,
     Switch,
     Spike,
-    Defuser,
+    Defuse,
 }
 
 impl Icon {
@@ -51,7 +51,7 @@ impl Icon {
             Icon::LightShield => "LightShield".to_string(),
             Icon::Switch => "Switch".to_string(),
             Icon::Spike => "Spike".to_string(),
-            Icon::Defuser => "Defuser".to_string(),
+            Icon::Defuse => "Defuse".to_string(),
         }
     }
 }
@@ -155,8 +155,6 @@ pub struct GameInfo {
     pub spike_x: Vec<f64>,
     pub spike_y: Vec<f64>,
     pub spike_time: Vec<f64>,
-    pub defusing: i32,
-    pub defuse_time: Vec<f64>,
 }
 
 impl GameInfo {
