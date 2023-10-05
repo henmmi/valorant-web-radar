@@ -341,7 +341,7 @@ fn add_health_text_and_bar(
     context.fill_rect(
         canvas.width() as f64 - health_bar_size,
         0.0,
-        health_bar_size * agent.health / 100.0,
+        health_bar_size * agent.health as f64 / 100.0,
         bar_height,
     );
     // Health Text
@@ -351,7 +351,7 @@ fn add_health_text_and_bar(
     context.set_fill_style(&JsValue::from_str("white"));
     context
         .fill_text(
-            (agent.health).round().to_string().as_str(),
+            agent.health.to_string().as_str(),
             20.0 + canvas.width() as f64 - health_bar_size,
             bar_height / 2.0,
         )
