@@ -70,7 +70,7 @@ impl GameStatus {
                 canvas.width() as f64 / 2.0 - self.text_size * 1.5,
                 canvas.height() as f64 / 2.0,
             )
-            .expect("TODO: panic message");
+            .unwrap();
     }
     /// Convert the time to a string
     /// # Arguments

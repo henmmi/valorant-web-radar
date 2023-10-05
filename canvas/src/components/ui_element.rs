@@ -1,5 +1,4 @@
 use super::elements::get_div_element_by_id;
-use super::macros::{console_log, log};
 use super::player_data::Player;
 use crate::components::canvas::{get_number, ROTATION_ANGLE};
 use crate::components::elements::get_input_element_by_id;
@@ -209,7 +208,6 @@ pub fn toggle_orientation(players: &[Player]) {
     if toggle_state("orientation_toggle") {
         let (_, context, _) = elements::get_canvas_context_document();
         let dropdown_value = get_player_dropdown();
-        console_log!("Dropdown value: {}", dropdown_value);
         let rotation_angle = &players[dropdown_value].rotation;
         context.reset_transform().unwrap();
         canvas::rotate_canvas(*rotation_angle);
