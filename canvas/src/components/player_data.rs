@@ -46,6 +46,8 @@ pub struct Player {
     pub acs: i32,
     pub shield: i32,
     pub credits: i32,
+    pub defusing: i32,
+    pub defuse_time: f64,
 }
 /// Data container for all players
 #[derive(Deserialize, Debug)]
@@ -65,6 +67,8 @@ pub struct Players {
     pub acs: Vec<i32>,
     pub shield: Vec<i32>,
     pub credits: Vec<i32>,
+    pub defusing: Vec<i32>,
+    pub defuse_time: Vec<f64>,
 }
 impl Player {
     /// Get the agent name from the id
