@@ -1,6 +1,6 @@
 # Valorant Web Radar
 
-Display valorant agent locations on a 2D map, inspired by Leetify 2D Replay (CSGO). Written in Rust, compiling to wasm.
+Display valorant agent locations on a 2D map, inspired by Leetify 2D Replay (CSGO). Written in Rust, compiles to wasm using wasm-bindgen to build JavaScript packages in Rust.
 
 # Setup and Installation
 
