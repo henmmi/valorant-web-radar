@@ -82,7 +82,7 @@ impl Server {
 async fn main() -> Result<(), IoError> {
     let addr = env::args()
         .nth(1)
-        .unwrap_or_else(|| "0.0.0.0:27017".to_string());
+        .unwrap_or_else(|| "localhost:27017".to_string());
 
     let server = Server {
         clients: Arc::new(Mutex::new(HashMap::new())),
